@@ -33,7 +33,7 @@ export default function PatientLabResultsPage() {
     )
 
     const handleDownload = (fileUrl, fileName) => {
-        const fullUrl = `http://localhost:5000${fileUrl}`;
+        const fullUrl = `https://backend-jgdk.onrender.com${fileUrl}`;
         const link = document.createElement('a');
         link.href = fullUrl;
         link.setAttribute('download', fileName || 'report');
