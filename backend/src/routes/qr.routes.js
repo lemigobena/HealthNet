@@ -20,7 +20,8 @@ router.get('/scan/:token', qrController.scanQRCode);
 // Public Emergency Search
 router.get('/emergency-search/:patientId', qrController.emergencySearch);
 
-// Public Redirect (for QR codes)
+// Public Redirects (for QR codes)
 router.get('/v/:patientId', qrController.qrRedirect);
+router.get('/v/t/:token', qrController.qrTokenRedirect);
 
 module.exports = router;

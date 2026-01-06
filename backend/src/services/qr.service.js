@@ -8,6 +8,12 @@ const { generateQrId } = require('../utils/idGenerator');
 // Generate QR code for patient
 
 async function generateQRCode(patientId) {
+    // Deactivate all previous QR codes for this patient
+    await prisma.qRCode.updateMany({
+        where: { patient_id: patientId, is_active: true },
+        data: { is_active: false }
+    });
+
     // Generate unique token
     const token = crypto.randomBytes(32).toString('hex');
     const qrId = generateQrId();
@@ -18,16 +24,18 @@ async function generateQRCode(patientId) {
             qr_id: qrId,
             patient_id: patientId,
             token,
-            expire_time: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+            expire_time: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year validity
             max_scans: 999999,
-            accessible_fields: JSON.stringify(['emergency_info'])
+            accessible_fields: JSON.stringify(['emergency_info']),
+            is_active: true
         }
     });
 
     // For deployment, we use a stable redirect link on the backend
     // This allows us to change the frontend URL in one place (.env)
     const backendUrl = process.env.BACKEND_URL || 'https://backend-jgdk.onrender.com';
-    const qrContent = `${backendUrl}/api/qr/v/${patientId}`;
+    // Use token-based URL for secure rotation
+    const qrContent = `${backendUrl}/api/qr/v/t/${token}`;
 
     const qrDataUrl = await QRCode.toDataURL(qrContent);
 

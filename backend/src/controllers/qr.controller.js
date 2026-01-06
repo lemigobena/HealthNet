@@ -62,9 +62,33 @@ async function emergencySearch(req, res, next) {
 async function qrRedirect(req, res, next) {
     try {
         const { patientId } = req.params;
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const frontendUrl = process.env.FRONTEND_URL || 'https://health-net-seven.vercel.app';
+        console.log(`Redirecting patient ${patientId} to: ${frontendUrl}`);
         return res.redirect(`${frontendUrl}/emergency/${patientId}`);
     } catch (error) {
+        next(error);
+    }
+}
+
+// Public Token Redirect (Secure)
+async function qrTokenRedirect(req, res, next) {
+    try {
+        const { token } = req.params;
+        const ipAddress = req.ip || req.connection.remoteAddress;
+        const userAgent = req.headers['user-agent'];
+
+        // Validate token and log scan via service
+        // We pass null for userId since this is a public scan redirect
+        const result = await qrService.scanQRCode(token, null, ipAddress, userAgent);
+
+        const frontendUrl = process.env.FRONTEND_URL || 'https://health-net-seven.vercel.app';
+        console.log(`Valid token. Redirecting to: ${frontendUrl}/emergency/${result.patient.patient_id}`);
+        return res.redirect(`${frontendUrl}/emergency/${result.patient.patient_id}`);
+    } catch (error) {
+        // If token is invalid/expired, service throws error. We catch it here.
+        // Redirect to a frontend error page or just show JSON error if preferred.
+        // For better UX, maybe redirect with usage query param?
+        // next(error) will show JSON error. Let's stick to that for now or redirect to 404.
         next(error);
     }
 }
@@ -75,5 +99,6 @@ module.exports = {
     getMyQRCodes,
     getScanHistory,
     emergencySearch,
-    qrRedirect
+    qrRedirect,
+    qrTokenRedirect
 };
