@@ -34,8 +34,8 @@ async function generateQRCode(patientId) {
     // For deployment, we use a stable redirect link on the backend
     // This allows us to change the frontend URL in one place (.env)
     const backendUrl = process.env.BACKEND_URL || 'https://backend-jgdk.onrender.com';
-    // Use token-based URL for secure rotation
-    const qrContent = `${backendUrl}/api/qr/v/t/${token}`;
+    // Use token-based URL (query param) for secure rotation while keeping patient ID visible
+    const qrContent = `${backendUrl}/api/qr/v/${patientId}?token=${token}`;
 
     const qrDataUrl = await QRCode.toDataURL(qrContent);
 
