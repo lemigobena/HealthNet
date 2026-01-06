@@ -24,14 +24,10 @@ async function generateQRCode(patientId) {
         }
     });
 
-    // For now, we assume the frontend is on the same host or we use a relative path logic
-    // But for a REAL QR code, it needs a full URL.
-    // We'll use a placeholder that the frontend can handle or just the ID for now if the scanner app handles it.
-    // The user wants a "link to a website".
-    // Using a standard domain placeholder, but in a real app this would be the actual domain.
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const qrContent = `${frontendUrl}/emergency/${patientId}`;
-    // Wait, the user wants a link. Let's try to be smart.
+    // For deployment, we use a stable redirect link on the backend
+    // This allows us to change the frontend URL in one place (.env)
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    const qrContent = `${backendUrl}/api/qr/v/${patientId}`;
 
     const qrDataUrl = await QRCode.toDataURL(qrContent);
 

@@ -58,10 +58,22 @@ async function emergencySearch(req, res, next) {
     }
 }
 
+// Public Redirect (for QR codes)
+async function qrRedirect(req, res, next) {
+    try {
+        const { patientId } = req.params;
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        return res.redirect(`${frontendUrl}/emergency/${patientId}`);
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     generateQRCode,
     scanQRCode,
     getMyQRCodes,
     getScanHistory,
-    emergencySearch
+    emergencySearch,
+    qrRedirect
 };
