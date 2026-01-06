@@ -26,7 +26,7 @@ async function generateQRCode(patientId) {
 
     // For deployment, we use a stable redirect link on the backend
     // This allows us to change the frontend URL in one place (.env)
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+    const backendUrl = process.env.BACKEND_URL || 'https://backend-jgdk.onrender.com';
     const qrContent = `${backendUrl}/api/qr/v/${patientId}`;
 
     const qrDataUrl = await QRCode.toDataURL(qrContent);
