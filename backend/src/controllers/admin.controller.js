@@ -190,6 +190,34 @@ async function updateDoctorStatus(req, res, next) {
     }
 }
 
+// Update patient password
+async function updatePatientPassword(req, res, next) {
+    try {
+        const { id } = req.params;
+        const { password } = req.body;
+        const parsedId = !isNaN(id) ? parseInt(id) : id;
+        const patient = await adminService.getPatientById(parsedId);
+        const result = await adminService.updateUserPassword(patient.user.id, password);
+        return successResponse(res, result, 'Patient password updated successfully');
+    } catch (error) {
+        next(error);
+    }
+}
+
+// Update doctor password
+async function updateDoctorPassword(req, res, next) {
+    try {
+        const { id } = req.params;
+        const { password } = req.body;
+        const parsedId = !isNaN(id) ? parseInt(id) : id;
+        const doctor = await adminService.getDoctorById(parsedId);
+        const result = await adminService.updateUserPassword(doctor.user.id, password);
+        return successResponse(res, result, 'Doctor password updated successfully');
+    } catch (error) {
+        next(error);
+    }
+}
+
 // Get all assignments
 async function getAllAssignments(req, res, next) {
     try {
@@ -215,5 +243,7 @@ module.exports = {
     updateDoctor,
     updatePatientStatus,
     updateDoctorStatus,
+    updatePatientPassword,
+    updateDoctorPassword,
     getAllAssignments
 };

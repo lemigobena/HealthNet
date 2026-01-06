@@ -23,6 +23,8 @@ export default function PatientEmergencyInfoPage() {
         blood_type_visible: false,
         disability_visible: false
     })
+    const [password, setPassword] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
 
     const [diagnoses, setDiagnoses] = useState([])
     const [labResults, setLabResults] = useState([])
@@ -58,7 +60,6 @@ export default function PatientEmergencyInfoPage() {
     const handleToggleVisibility = async (type, id, currentVisible) => {
         try {
             let endpoint = ""
-            if (type === 'diagnosis') endpoint = `/patient/diagnoses/${id}/visibility`
             if (type === 'diagnosis') endpoint = `/patient/diagnoses/${id}/visibility`
             else if (type === 'lab') endpoint = `/patient/lab-results/${id}/visibility`
             else if (type === 'medical') endpoint = `/patient/medical-info/visibility`
@@ -96,9 +97,11 @@ export default function PatientEmergencyInfoPage() {
                 known_allergies: emergencyData.known_allergies,
                 chronic_conditions: emergencyData.chronic_conditions,
                 current_medications: emergencyData.current_medications,
-                disability_info: emergencyData.disability_info
+                disability_info: emergencyData.disability_info,
+                password: password || undefined
             })
             setIsEditing(false)
+            setPassword("") // Clear password after save
             await fetchAllData() // Refresh to get updated fields
         } catch (err) {
             console.error("Failed to save emergency info", err)
@@ -143,8 +146,6 @@ export default function PatientEmergencyInfoPage() {
         )
     }
 
-    const allergyList = emergencyData.known_allergies?.split(',').filter(a => a.trim() !== "") || []
-    const conditionList = emergencyData.chronic_conditions?.split(',').filter(c => c.trim() !== "") || []
 
     return (
         <PatientLayout
@@ -336,7 +337,6 @@ export default function PatientEmergencyInfoPage() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label>Phone Number</Label>
                                 <Input
                                     disabled={!isEditing}
                                     name="emergency_contact_phone"
@@ -344,6 +344,35 @@ export default function PatientEmergencyInfoPage() {
                                     onChange={handleChange}
                                     className="font-mono"
                                 />
+                            </div>
+
+                            <div className="space-y-2 pt-2 border-t border-border/50">
+                                <Label className="flex items-center justify-between">
+                                    <span>Access Password</span>
+                                    {isEditing && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-6 w-6"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                                        </Button>
+                                    )}
+                                </Label>
+                                <Input
+                                    disabled={!isEditing}
+                                    type={showPassword ? "text" : "password"}
+                                    value={isEditing ? password : "••••••••"}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder={isEditing ? "Enter new password (optional)" : ""}
+                                    className="font-mono bg-muted/10"
+                                />
+                                {isEditing && (
+                                    <p className="text-[10px] text-muted-foreground font-medium italic">
+                                        Leave blank to keep current password. Minimum 6 characters.
+                                    </p>
+                                )}
                             </div>
 
                             {isEditing && (

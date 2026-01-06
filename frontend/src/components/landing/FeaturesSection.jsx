@@ -48,8 +48,8 @@ const features = [
     },
     {
         icon: QRCodeIcon,
-        title: "Emergency Access",
-        description: "Instant access to critical patient information via QR code scan for first responders without login.",
+        title: "QR Medical Access",
+        description: "Secure, instant retrieval of critical patient data exclusively through authorized QR code scans for first responders.",
         gradient: "from-red-500 to-rose-500",
         bg: "bg-red-500/10",
         text: "text-red-600"
@@ -90,7 +90,7 @@ export function FeaturesSection() {
                         Comprehensive Healthcare Management
                     </h2>
                     <p className="max-w-3xl mx-auto text-xl text-slate-500 dark:text-slate-400 leading-relaxed">
-                        Everything you need to manage patient care, from registration to emergency access, all in one unified
+                        Everything you need to manage patient care, from registration to rapid medical access, all in one unified
                         platform designed for Ethiopia.
                     </p>
                 </div>

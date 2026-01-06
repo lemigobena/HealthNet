@@ -154,3 +154,54 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Mobile Responsiveness - Optimized for phones without affecting desktop */
+@media (max-width: 768px) {
+  /* Improve touch targets */
+  button, a, input, select, textarea {
+    min-height: 44px;
+  }
+
+  /* Better spacing on mobile */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  /* Responsive text scaling */
+  h1 {
+    font-size: 2rem !important;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+  }
+
+  h3 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Card improvements */
+  [class*="Card"] {
+    margin-bottom: 1rem;
+  }
+
+  /* Better table responsiveness */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Stack flex items on mobile */
+  .flex-col-mobile {
+    flex-direction: column !important;
+  }
+
+  /* Hide less important elements on very small screens */
+  @media (max-width: 480px) {
+    .hidden-mobile {
+      display: none !important;
+    }
+  }
+}

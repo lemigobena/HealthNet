@@ -134,6 +134,16 @@ async function updateUserProfile(userId, updateData) {
     return updated;
 }
 
+// Update user password
+async function updateUserPassword(userId, password) {
+    const hashedPassword = await hashPassword(password);
+    await prisma.user.update({
+        where: { id: userId },
+        data: { password_hash: hashedPassword }
+    });
+    return { message: 'Password updated successfully' };
+}
+
 // Suspend or activate user (doctor or patient)
 
 async function updateUserStatus(userId, status) {
@@ -226,19 +236,10 @@ async function deleteAssignment(assignmentId) {
 async function getAllPatients(filters = {}, adminUser = null) {
     let where = { ...filters };
 
-    // If caller is an Admin, restrict to patients created by them OR assigned to them
-    if (adminUser && adminUser.role === 'ADMIN') {
-        where.OR = [
-            { created_by_id: adminUser.user_id },
-            {
-                assignments: {
-                    some: {
-                        assigned_by: adminUser.admin_profile.admin_id
-                    }
-                }
-            }
-        ];
-    }
+    // If caller is an Admin, we no longer restrict to creator/assigner to allow database-wide search
+    // This allows admins to find any patient by ID as requested.
+    // However, we might want to keep some facility-based isolation if the system grows,
+    // but for now the requirement is to search the entire database.
 
     const patients = await prisma.patient.findMany({
         where: where,
@@ -439,7 +440,6 @@ async function getUserById(id) {
 }
 
 // Get all assignments
-// Get all assignments
 async function getAllAssignments(adminUser = null) {
     let where = {};
 
@@ -517,6 +517,7 @@ module.exports = {
     createDoctor,
     updateUserProfile,
     updateUserStatus,
+    updateUserPassword,
     createAssignment,
     deleteAssignment,
     getAllPatients,

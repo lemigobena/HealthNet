@@ -29,7 +29,8 @@ async function generateQRCode(patientId) {
     // We'll use a placeholder that the frontend can handle or just the ID for now if the scanner app handles it.
     // The user wants a "link to a website".
     // Using a standard domain placeholder, but in a real app this would be the actual domain.
-    const qrContent = `http://localhost:5173/emergency/${patientId}`;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const qrContent = `${frontendUrl}/emergency/${patientId}`;
     // Wait, the user wants a link. Let's try to be smart.
 
     const qrDataUrl = await QRCode.toDataURL(qrContent);

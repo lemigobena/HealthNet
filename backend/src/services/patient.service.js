@@ -1,5 +1,6 @@
 
 const { prisma } = require('../config/db');
+const { hashPassword } = require('../utils/hash');
 
 // Get patient's own diagnoses
 
@@ -114,7 +115,6 @@ async function getLabResultById(patientId, labId) {
 async function getEmergencyInfo(patientId) {
     const patient = await prisma.patient.findUnique({
         where: { patient_id: patientId },
-        where: { patient_id: patientId },
         select: { blood_type: true, disability: true, blood_type_visible: true, disability_visible: true, allergies_visible: true }
     });
 
@@ -219,13 +219,24 @@ async function updateEmergencyInfo(patientId, emergencyData) {
     });
 
     // 2. Synchronize blood_type and disability with the core Patient record
-    if (emergencyData.blood_type || emergencyData.disability_info) {
+    // 3. Update password if provided
+    const patientUpdateData = {
+        blood_type: emergencyData.blood_type || undefined,
+        disability: emergencyData.disability_info || undefined
+    };
+
+    if (emergencyData.password) {
+        const hashedPassword = await hashPassword(emergencyData.password);
+        await prisma.user.update({
+            where: { user_id: patientId },
+            data: { password_hash: hashedPassword }
+        });
+    }
+
+    if (Object.values(patientUpdateData).some(v => v !== undefined)) {
         await prisma.patient.update({
             where: { patient_id: patientId },
-            data: {
-                blood_type: emergencyData.blood_type || undefined,
-                disability: emergencyData.disability_info || undefined
-            }
+            data: patientUpdateData
         });
     }
 

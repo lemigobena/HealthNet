@@ -59,12 +59,6 @@ export function Header() {
                     >
                         User Roles
                     </a>
-                    <Link
-                        to="/emergency"
-                        className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                        Emergency Access
-                    </Link>
                 </nav>
 
                 {/* Desktop CTA */}
@@ -111,12 +105,6 @@ export function Header() {
                         >
                             User Roles
                         </a>
-                        <Link
-                            to="/emergency"
-                            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                            Emergency Access
-                        </Link>
                         <hr className="my-2" aria-hidden="true" />
                         <Button variant="outline" asChild className="w-full bg-transparent">
                             <Link to="/emergency">

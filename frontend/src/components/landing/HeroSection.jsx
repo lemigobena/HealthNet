@@ -56,12 +56,6 @@ export function HeroSection() {
                                 </span>
                             </Link>
                         </Button>
-                        <Button size="lg" variant="outline" asChild className="h-14 px-8 text-lg font-medium border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm hover:bg-white dark:hover:bg-slate-900 transition-all hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-lg rounded-full">
-                            <Link to="/emergency">
-                                <QRCodeIcon className="mr-2 h-5 w-5 text-slate-700 dark:text-slate-300" aria-hidden="true" />
-                                Emergency Access
-                            </Link>
-                        </Button>
                     </div>
 
                     {/* Trust indicators with enhanced styling */}

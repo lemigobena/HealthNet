@@ -124,36 +124,22 @@ export default function EmergencyPortal() {
                                 <AlertTriangle className="h-3.5 w-3.5" /> First Responder Access
                             </div>
                             <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-                                Immediate Profile Retrieval
+                                QR Scan Required
                             </h1>
                             <p className="text-slate-500 text-lg font-medium max-w-md mx-auto">
-                                Enter the Patient Registry ID to access authorized life-saving medical data.
+                                For security and privacy, patient records can only be accessed by scanning an authorized HealthNet QR code.
                             </p>
                         </div>
 
                         <Card className="border-0 shadow-2xl shadow-rose-500/10 ring-1 ring-rose-100 dark:ring-rose-900 overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
-                            <CardContent className="p-2">
-                                <form onSubmit={handleSearch} className="flex gap-2">
-                                    <div className="relative flex-1">
-                                        <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-lg bg-rose-50 text-rose-500">
-                                            <Search className="h-4 w-4" />
-                                        </div>
-                                        <Input
-                                            className="h-14 pl-14 text-lg font-bold border-0 bg-transparent focus-visible:ring-0 placeholder:text-slate-300 uppercase tracking-wider"
-                                            placeholder="PT-XXXXXXXXXX"
-                                            value={patientSearchId}
-                                            onChange={(e) => setPatientSearchId(e.target.value.toUpperCase())}
-                                        />
-                                    </div>
-                                    <Button
-                                        type="submit"
-                                        size="lg"
-                                        disabled={isLoading || !patientSearchId}
-                                        className="h-14 px-8 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-lg shadow-rose-500/25 transition-all hover:scale-105 active:scale-95"
-                                    >
-                                        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Verify"}
-                                    </Button>
-                                </form>
+                            <CardContent className="p-8 text-center space-y-4">
+                                <div className="mx-auto h-20 w-20 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center">
+                                    <AlertTriangle className="h-10 w-10" />
+                                </div>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Authorized Access Only</h3>
+                                <p className="text-slate-500">
+                                    Please use a QR scanner to scan the patient's HealthNet ID card. Manual entry is disabled to ensure patient data integrity.
+                                </p>
                             </CardContent>
                         </Card>
 

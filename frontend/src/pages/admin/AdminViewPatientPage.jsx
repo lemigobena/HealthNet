@@ -6,12 +6,29 @@ import { Badge } from "@/components/ui/badge"
 import { User, Mail, Phone, MapPin, Calendar, Fingerprint, Activity, Heart, ShieldAlert } from "lucide-react"
 import api from "@/services/api"
 import dayjs from "dayjs"
-import { Loader2 } from "lucide-react"
+import { Loader2, Key, ShieldCheck, AlertCircle } from "lucide-react"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 
 export default function AdminViewPatientPage() {
     const { id } = useParams()
     const [patient, setPatient] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
+    const [newPassword, setNewPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
+    const [isUpdating, setIsUpdating] = useState(false)
+    const [passwordError, setPasswordError] = useState("")
+    const [passwordSuccess, setPasswordSuccess] = useState("")
 
     useEffect(() => {
         const fetchPatient = async () => {
@@ -26,6 +43,38 @@ export default function AdminViewPatientPage() {
         }
         fetchPatient()
     }, [id])
+
+    const handlePasswordUpdate = async () => {
+        if (!newPassword || newPassword.length < 6) {
+            setPasswordError("Password must be at least 6 characters")
+            return
+        }
+        if (newPassword !== confirmPassword) {
+            setPasswordError("Passwords do not match")
+            return
+        }
+
+        setIsUpdating(true)
+        setPasswordError("")
+        setPasswordSuccess("")
+
+        try {
+            await api.patch(`/admin/patients/${patient.patient_id}/password`, {
+                password: newPassword
+            })
+            setPasswordSuccess("Password updated successfully")
+            setNewPassword("")
+            setConfirmPassword("")
+            setTimeout(() => {
+                setIsPasswordModalOpen(false)
+                setPasswordSuccess("")
+            }, 2000)
+        } catch (err) {
+            setPasswordError(err.response?.data?.message || "Failed to update password")
+        } finally {
+            setIsUpdating(false)
+        }
+    }
 
     if (isLoading) {
         return (
@@ -64,7 +113,18 @@ export default function AdminViewPatientPage() {
                                 {patient.user.name?.[0]}
                             </div>
                             <div className="flex-1 text-center md:text-left space-y-2">
-                                <h2 className="text-3xl font-black tracking-tight">{patient.user.name}</h2>
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <h2 className="text-3xl font-black tracking-tight">{patient.user.name}</h2>
+                                    <Button
+                                        onClick={() => setIsPasswordModalOpen(true)}
+                                        variant="outline"
+                                        size="sm"
+                                        className="font-bold border-2 gap-2 h-10 px-4 rounded-xl hover:bg-primary/5 hover:text-primary transition-all"
+                                    >
+                                        <Key className="h-4 w-4" />
+                                        Update Password
+                                    </Button>
+                                </div>
                                 <div className="flex flex-wrap justify-center md:justify-start gap-2">
                                     <Badge className="bg-blue-500/10 text-blue-600 border-none font-bold uppercase tracking-widest text-[10px] px-3">
                                         Verified Patient
@@ -170,6 +230,86 @@ export default function AdminViewPatientPage() {
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* Password Update Modal */}
+                <Dialog open={isPasswordModalOpen} onOpenChange={(open) => {
+                    setIsPasswordModalOpen(open)
+                    if (!open) {
+                        setNewPassword("")
+                        setConfirmPassword("")
+                        setPasswordError("")
+                        setPasswordSuccess("")
+                    }
+                }}>
+                    <DialogContent className="sm:max-w-md border-2">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2 text-2xl font-black">
+                                <ShieldCheck className="h-6 w-6 text-primary" />
+                                Security Credentials
+                            </DialogTitle>
+                            <DialogDescription className="font-bold">
+                                Update the clinical access password for {patient.user.name}
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-4 py-4">
+                            {(passwordError || passwordSuccess) && (
+                                <div className={`p-4 rounded-xl border flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${passwordError ? 'bg-destructive/10 border-destructive/20 text-destructive' : 'bg-green-500/10 border-green-500/20 text-green-600'
+                                    }`}>
+                                    {passwordError ? <AlertCircle className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
+                                    <span className="text-sm font-bold">{passwordError || passwordSuccess}</span>
+                                </div>
+                            )}
+
+                            <div className="space-y-2">
+                                <Label className="text-xs uppercase tracking-widest font-black text-muted-foreground">New Secure Password</Label>
+                                <Input
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="h-12 border-2 rounded-xl"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-xs uppercase tracking-widest font-black text-muted-foreground">Confirm New Password</Label>
+                                <Input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="h-12 border-2 rounded-xl"
+                                />
+                            </div>
+                        </div>
+
+                        <DialogFooter className="border-t pt-4">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIsPasswordModalOpen(false)}
+                                className="font-bold uppercase tracking-widest text-[10px]"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={handlePasswordUpdate}
+                                disabled={isUpdating || !newPassword}
+                                className="font-black uppercase tracking-widest text-[10px] min-w-[140px]"
+                            >
+                                {isUpdating ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                        Updating...
+                                    </>
+                                ) : (
+                                    "Save Credentials"
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
         </AdminLayout>
     )
