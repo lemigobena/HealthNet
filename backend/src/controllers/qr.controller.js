@@ -82,8 +82,8 @@ async function qrTokenRedirect(req, res, next) {
         const result = await qrService.scanQRCode(token, null, ipAddress, userAgent);
 
         const frontendUrl = process.env.FRONTEND_URL || 'https://health-net-seven.vercel.app';
-        console.log(`Valid token. Redirecting to: ${frontendUrl}/emergency/${result.patient.patient_id}`);
-        return res.redirect(`${frontendUrl}/emergency/${result.patient.patient_id}`);
+        console.log(`Valid token. Redirecting to: ${frontendUrl}/emergency/${result.patient_id}`);
+        return res.redirect(`${frontendUrl}/emergency/${result.patient_id}`);
     } catch (error) {
         // If token is invalid/expired, service throws error. We catch it here.
         // Redirect to a frontend error page or just show JSON error if preferred.

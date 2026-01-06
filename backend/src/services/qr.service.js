@@ -115,6 +115,7 @@ async function scanQRCode(token, scannedByUserId, ipAddress, userAgent) {
     // Return emergency info
     return {
         token: qrCode.token,
+        patient_id: qrCode.patient_id,
         patient: qrCode.patient.user,
         emergency_info: qrCode.patient.emergency_info
     };
