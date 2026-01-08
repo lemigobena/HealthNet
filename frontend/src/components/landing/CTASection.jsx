@@ -83,18 +83,10 @@ export function CTASection() {
                     </div>
 
                     <div className="mt-12 flex flex-col gap-4 sm:flex-row animate-in fade-in slide-in-from-bottom-4 duration-700 [animation-delay:600ms]">
-                        <Button size="lg" asChild className="px-8 font-semibold shadow-lg transition-all hover:scale-105 bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-0">
-                            <Link to="/login">Healthcare Provider Login</Link>
-                        </Button>
-                        <Button
-                            size="lg"
-                            variant="outline"
-                            className="border-white/30 text-white hover:bg-white/10 hover:text-white bg-transparent px-8 font-semibold shadow-inner transition-all hover:scale-105"
-                            asChild
-                        >
-                            <Link to="/login">
-                                <BuildingIcon className="mr-2 h-4 w-4" aria-hidden="true" />
-                                Facility Registration
+                        <Button size="lg" asChild className="px-12 py-7 text-lg font-bold shadow-xl transition-all hover:scale-105 bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-0 rounded-2xl group">
+                            <Link to="/login" className="flex items-center gap-3">
+                                <ActivityIcon className="h-6 w-6 animate-pulse" />
+                                Get Started
                             </Link>
                         </Button>
                     </div>
