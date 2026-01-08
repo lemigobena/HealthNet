@@ -150,6 +150,8 @@ export default function DoctorPatientDetailPage() {
             window.open(download_url, '_blank');
         } catch (err) {
             console.error("Download failed:", err);
+            const errorMsg = err.response?.data?.message || err.message;
+            alert(`Secure access check failed: ${errorMsg}`);
         } finally {
             setIsDownloadingIds(prev => {
                 const next = new Set(prev);

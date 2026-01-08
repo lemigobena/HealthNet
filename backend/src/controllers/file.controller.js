@@ -19,6 +19,8 @@ const getLabResultDownloadUrl = async (req, res) => {
         const userId = req.user.id;
         const userRole = req.user.role;
 
+        console.log(`[DEBUG Proxy] Download request for Lab ID: ${labId} by User: ${userId} (${userRole})`);
+
         // Find the lab result
         const labResult = await prisma.labResult.findUnique({
             where: { id: parseInt(labId) },
@@ -29,8 +31,12 @@ const getLabResultDownloadUrl = async (req, res) => {
         });
 
         if (!labResult) {
+            console.log(`[DEBUG Proxy] Lab result ${labId} not found`);
             return errorResponse(res, 'Lab result not found', 404);
         }
+
+        console.log(`[DEBUG Proxy] Lab Result found. Patient: ${labResult.patient_id}, Doctor: ${labResult.doctor_id}`);
+        console.log(`[DEBUG Proxy] User Doctor ID: ${req.user.doctor_profile?.doctor_id}, User Patient ID: ${req.user.patient_profile?.patient_id}`);
 
         // Authorization check
         // Doctors can download if they are the owner or have the patient assigned
@@ -59,8 +65,11 @@ const getLabResultDownloadUrl = async (req, res) => {
         }
 
         if (!isAuthorized) {
+            console.log(`[DEBUG Proxy] Unauthorized access attempt by ${userId} for lab ${labId}`);
             return errorResponse(res, 'Unauthorized to access this file', 403);
         }
+
+        console.log(`[DEBUG Proxy] Authorized. File URL: ${labResult.file_url}`);
 
         if (!labResult.file_url) {
             return errorResponse(res, 'No file attached to this lab result', 404);

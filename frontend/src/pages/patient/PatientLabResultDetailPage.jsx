@@ -51,10 +51,21 @@ export default function PatientLabResultDetailPage() {
         try {
             const response = await api.get(`/patient/lab-results/${id}/download`);
             const { download_url } = response.data.data;
-            window.open(download_url, '_blank');
+
+            // Safer download method for many browsers
+            const link = document.createElement('a');
+            link.href = download_url;
+            link.setAttribute('download', labResult.file_name || 'report');
+            link.target = "_blank";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
         } catch (err) {
             console.error("Download failed:", err);
-            // Fallback to original URL if proxy fails, though unlikely to work if 401
+            const errorMsg = err.response?.data?.message || err.message;
+            alert(`Download security check failed: ${errorMsg}`);
+            // Fallback as last resort
             window.open(labResult.file_url, '_blank');
         } finally {
             setIsDownloading(false);

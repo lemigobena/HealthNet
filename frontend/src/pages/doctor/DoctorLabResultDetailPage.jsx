@@ -51,9 +51,18 @@ export default function DoctorLabResultDetailPage() {
         try {
             const response = await api.get(`/doctor/lab-results/${id}/download`);
             const { download_url } = response.data.data;
-            window.open(download_url, '_blank');
+
+            const link = document.createElement('a');
+            link.href = download_url;
+            link.setAttribute('download', labResult.file_name || 'report');
+            link.target = "_blank";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         } catch (err) {
             console.error("Download failed:", err);
+            const errorMsg = err.response?.data?.message || err.message;
+            alert(`Secure archive access failed: ${errorMsg}`);
             window.open(labResult.file_url, '_blank');
         } finally {
             setIsDownloading(false);

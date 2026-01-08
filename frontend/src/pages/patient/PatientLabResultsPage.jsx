@@ -44,6 +44,8 @@ export default function PatientLabResultsPage() {
             window.open(download_url, '_blank');
         } catch (err) {
             console.error("Download failed:", err);
+            const errorMsg = err.response?.data?.message || err.message;
+            alert(`Could not generate secure download: ${errorMsg}`);
         } finally {
             setIsDownloadingIds(prev => {
                 const next = new Set(prev);

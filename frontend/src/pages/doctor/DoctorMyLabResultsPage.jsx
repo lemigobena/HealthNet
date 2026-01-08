@@ -39,8 +39,8 @@ export default function DoctorMyLabResultsPage() {
             window.open(download_url, '_blank');
         } catch (err) {
             console.error("Download failed:", err);
-            // We don't have the original file_url easily here without mapping, 
-            // but the proxy is the source of truth now.
+            const errorMsg = err.response?.data?.message || err.message;
+            alert(`Could not generate secure download: ${errorMsg}`);
         } finally {
             setIsDownloadingIds(prev => {
                 const next = new Set(prev);
