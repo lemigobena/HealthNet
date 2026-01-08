@@ -44,11 +44,15 @@ export default function EmergencyPortal() {
         setIsLoading(true)
         setError("")
         setEmergencyData(null)
-        setIsVerified(false) // Reset verification
+        setIsVerified(false)
 
         try {
             const res = await api.get(`/qr/emergency-search/${searchId}`)
             setEmergencyData(res.data.data)
+            // Auto-verify if ID comes from URL (QR Scan)
+            if (searchId) {
+                setIsVerified(true)
+            }
         } catch (err) {
             console.error("Emergency search error:", err)
             setError(err.response?.data?.message || "Patient Registry ID not found or restricted.")
@@ -70,15 +74,16 @@ export default function EmergencyPortal() {
         if (e) e.preventDefault()
         if (!patientSearchId) return
 
-        // Reset verify on manual search too
-        setIsVerified(false)
         setIsLoading(true)
         setError("")
         setEmergencyData(null)
+        setIsVerified(false)
 
         try {
             const res = await api.get(`/qr/emergency-search/${patientSearchId}`)
             setEmergencyData(res.data.data)
+            // Manual search also implies verification since they entered the ID
+            setIsVerified(true)
         } catch (err) {
             console.error("Emergency search error:", err)
             setError(err.response?.data?.message || "Patient Registry ID not found or restricted.")
@@ -138,22 +143,54 @@ export default function EmergencyPortal() {
                                 <AlertTriangle className="h-3.5 w-3.5" /> First Responder Access
                             </div>
                             <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-                                QR Scan Required
+                                Emergency Search
                             </h1>
                             <p className="text-slate-500 text-lg font-medium max-w-md mx-auto">
-                                For security and privacy, patient records can only be accessed by scanning an authorized HealthNet QR code.
+                                Scan a HealthNet QR code or manually enter the Patient ID to access critical medical records.
                             </p>
                         </div>
 
                         <Card className="border-0 shadow-2xl shadow-rose-500/10 ring-1 ring-rose-100 dark:ring-rose-900 overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
-                            <CardContent className="p-8 text-center space-y-4">
-                                <div className="mx-auto h-20 w-20 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center">
-                                    <AlertTriangle className="h-10 w-10" />
+                            <CardContent className="p-8 space-y-6">
+                                <form onSubmit={handleSearch} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <div className="relative">
+                                            <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
+                                            <Input
+                                                placeholder="Enter Patient ID (e.g. PT-1234567890)"
+                                                className="h-12 pl-12 text-lg uppercase font-mono tracking-wider"
+                                                value={patientSearchId}
+                                                onChange={(e) => setPatientSearchId(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <Button type="submit" disabled={isLoading} className="w-full h-12 text-base font-bold bg-rose-600 hover:bg-rose-700 shadow-lg shadow-rose-600/20">
+                                        {isLoading ? (
+                                            <>
+                                                <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Retrieving Records...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <ShieldCheck className="mr-2 h-5 w-5" /> Access Emergency Profile
+                                            </>
+                                        )}
+                                    </Button>
+                                </form>
+
+                                <div className="relative">
+                                    <div className="absolute inset-0 flex items-center">
+                                        <span className="w-full border-t border-slate-200 dark:border-slate-800" />
+                                    </div>
+                                    <div className="relative flex justify-center text-xs uppercase">
+                                        <span className="bg-white dark:bg-slate-900 px-2 text-slate-500">Or use a scanner</span>
+                                    </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">Authorized Access Only</h3>
-                                <p className="text-slate-500">
-                                    Please use a QR scanner to scan the patient's HealthNet ID card. Manual entry is disabled to ensure patient data integrity.
-                                </p>
+
+                                <div className="text-center">
+                                    <p className="text-slate-500 text-sm">
+                                        Using a dedicated QR scanner? The URL will automatically verify access.
+                                    </p>
+                                </div>
                             </CardContent>
                         </Card>
 
@@ -165,21 +202,21 @@ export default function EmergencyPortal() {
                         )}
                     </div>
                 ) : !isVerified ? (
-                    /* VERIFICATION STATE */
+                    // This state should rarely be hit now with auto-verify, but keeping as fallback
                     <div className="max-w-md mx-auto mt-20 space-y-6 animate-in fade-in zoom-in duration-300">
                         <div className="text-center space-y-2">
                             <div className="h-16 w-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto text-rose-600 mb-4 text-2xl font-black">
                                 <ShieldCheck className="h-8 w-8" />
                             </div>
-                            <h2 className="text-2xl font-bold">Security Verification</h2>
-                            <p className="text-muted-foreground">Enter the Patient ID (PT-XXXXXXXXXX) found on the ID card to unlock medical records.</p>
+                            <h2 className="text-2xl font-bold">Manual Verification Required</h2>
+                            <p className="text-muted-foreground">Please confirm the Patient ID to unlock records.</p>
                         </div>
                         <Card>
                             <CardContent className="pt-6">
                                 <form onSubmit={handleVerify} className="space-y-4">
                                     <div className="space-y-2">
                                         <Input
-                                            placeholder="Enter Patient ID (e.g. PT-1234567890)"
+                                            placeholder="Enter Patient ID"
                                             value={verificationInput}
                                             onChange={(e) => setVerificationInput(e.target.value)}
                                             className="text-center font-mono uppercase tracking-widest text-lg h-12"
@@ -187,7 +224,7 @@ export default function EmergencyPortal() {
                                         />
                                     </div>
                                     <Button type="submit" className="w-full h-12 font-bold bg-rose-600 hover:bg-rose-700">
-                                        Verify Identity
+                                        Unlock Records
                                     </Button>
                                     {error && <p className="text-red-500 text-sm text-center font-bold">{error}</p>}
                                 </form>

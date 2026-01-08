@@ -261,12 +261,18 @@ export default function PatientLabResultDetailPage() {
                                                 </p>
                                             </div>
                                         </div>
-                                        <Button
-                                            className="w-full h-12 font-black transition-all shadow-lg active:scale-95"
-                                            onClick={() => handleDownload(labResult.file_url, labResult.file_name)}
-                                        >
-                                            DOWNLOAD SCAN
-                                        </Button>
+                                        {labResult.file_url.startsWith('http') ? (
+                                            <Button
+                                                className="w-full h-12 font-black transition-all shadow-lg active:scale-95"
+                                                onClick={() => handleDownload(labResult.file_url, labResult.file_name)}
+                                            >
+                                                DOWNLOAD SCAN
+                                            </Button>
+                                        ) : (
+                                            <div className="p-3 rounded-lg bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold text-center">
+                                                Digital Scan Archived (Offline)
+                                            </div>
+                                        )}
                                     </div>
                                 ) : (
                                     <div className="text-center py-6 border-2 border-dashed rounded-2xl bg-muted/5">

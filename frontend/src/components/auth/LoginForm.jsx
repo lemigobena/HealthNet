@@ -75,12 +75,7 @@ export function LoginForm() {
 
                         {/* Password */}
                         <div className="space-y-1.5">
-                            <div className="flex justify-between items-center">
-                                <Label htmlFor="password" title="Enter Password" className="text-xs font-bold uppercase text-muted-foreground tracking-wider ml-1">Password</Label>
-                                <Link to="#" className="text-xs font-semibold text-blue-600 hover:text-blue-500 hover:underline">
-                                    Forgot password?
-                                </Link>
-                            </div>
+                            <Label htmlFor="password" title="Enter Password" className="text-xs font-bold uppercase text-muted-foreground tracking-wider ml-1">Password</Label>
                             <div className="relative">
                                 <Lock className="absolute left-3.5 top-3.5 h-5 w-5 text-muted-foreground/50" />
                                 <Input
@@ -141,6 +136,6 @@ export function LoginForm() {
                     <span className="font-semibold text-xs uppercase tracking-wide">Secure AES-256 Connection</span>
                 </div>
             </CardFooter>
-        </Card>
+        </Card >
     )
 }
