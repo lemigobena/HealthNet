@@ -107,13 +107,11 @@ export default function PatientLabResultsPage() {
                                                     variant="outline"
                                                     size="icon"
                                                     className="h-12 w-12 rounded-xl group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all active:scale-95 shadow-lg"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        e.stopPropagation();
-                                                        handleDownload(result.file_url, result.file_name);
-                                                    }}
+                                                    asChild
                                                 >
-                                                    <Download className="h-5 w-5" />
+                                                    <a href={result.file_url.startsWith('http') ? result.file_url : `https://backend-jgdk.onrender.com${result.file_url}`} target="_blank" rel="noopener noreferrer" download={result.file_name || 'report'}>
+                                                        <Download className="h-5 w-5" />
+                                                    </a>
                                                 </Button>
                                             )}
                                         </div>

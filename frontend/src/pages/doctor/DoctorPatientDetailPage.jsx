@@ -448,13 +448,11 @@ export default function DoctorPatientDetailPage() {
                                                                     variant="outline"
                                                                     size="icon"
                                                                     className="h-12 w-12 rounded-xl border-2 hover:bg-primary hover:text-white transition-all shadow-lg"
-                                                                    onClick={(e) => {
-                                                                        e.preventDefault();
-                                                                        e.stopPropagation();
-                                                                        handleDownload(result.file_url, result.file_name);
-                                                                    }}
+                                                                    asChild
                                                                 >
-                                                                    <FileDown className="h-5 w-5" />
+                                                                    <a href={result.file_url.startsWith('http') ? result.file_url : `https://backend-jgdk.onrender.com${result.file_url}`} target="_blank" rel="noopener noreferrer" download={result.file_name || 'report'}>
+                                                                        <FileDown className="h-5 w-5" />
+                                                                    </a>
                                                                 </Button>
                                                             )}
                                                         </div>
