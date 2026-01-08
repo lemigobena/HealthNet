@@ -139,14 +139,8 @@ export default function DoctorPatientDetailPage() {
     )
 
     const handleDownload = (fileUrl, fileName) => {
-        const fullUrl = `https://backend-jgdk.onrender.com${fileUrl}`;
-        const link = document.createElement('a');
-        link.href = fullUrl;
-        link.setAttribute('download', fileName || 'report');
-        link.target = "_blank";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const fullUrl = fileUrl.startsWith('http') ? fileUrl : `https://backend-jgdk.onrender.com${fileUrl}`;
+        window.open(fullUrl, '_blank');
     }
 
     const handleUpdateMedicalInfo = async () => {

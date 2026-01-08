@@ -239,9 +239,11 @@ export default function DoctorLabResultDetailPage() {
                                         {labResult.file_url.startsWith('http') ? (
                                             <Button
                                                 className="w-full h-12 font-black transition-all shadow-lg active:scale-95"
-                                                onClick={() => handleDownload(labResult.file_url, labResult.file_name)}
+                                                asChild
                                             >
-                                                DOWNLOAD SCAN
+                                                <a href={labResult.file_url} target="_blank" rel="noopener noreferrer" download={labResult.file_name || 'report'}>
+                                                    DOWNLOAD SCAN
+                                                </a>
                                             </Button>
                                         ) : (
                                             <div className="p-3 rounded-lg bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold text-center">
