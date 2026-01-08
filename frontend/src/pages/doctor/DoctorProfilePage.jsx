@@ -4,6 +4,10 @@ import { Badge } from "@/components/ui/badge"
 import { User, Mail, Phone, MapPin, Award, Building2, Calendar, FileText, Fingerprint } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import dayjs from "dayjs"
+import api from "@/services/api"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 
 export default function DoctorProfilePage() {
     const { user } = useAuth()

@@ -40,6 +40,7 @@ export default function DoctorPatientDetailPage() {
         blood_type: "",
         disability: ""
     })
+    const [isDownloadingIds, setIsDownloadingIds] = useState(new Set());
 
     useEffect(() => {
         if (!id) return;
@@ -138,7 +139,7 @@ export default function DoctorPatientDetailPage() {
         </TabsList>
     )
 
-    const [isDownloadingIds, setIsDownloadingIds] = useState(new Set());
+
 
     const handleDownload = async (labId) => {
         if (isDownloadingIds.has(labId)) return;

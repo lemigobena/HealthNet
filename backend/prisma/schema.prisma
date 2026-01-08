@@ -7,7 +7,374 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// My Enums
+model Facility {
+  id           Int           @id @default(autoincrement())
+  hospital_id  String        @unique @map("hospital_id") @db.VarChar(13)
+  name         String        @db.VarChar(200)
+  type         FacilityType
+  city_town    String        @map("city_town") @db.VarChar(100)
+  phone        String        @db.VarChar(20)
+  email        String?       @db.VarChar(100)
+  address      String?       @db.VarChar(500)
+  admins       Admin[]
+  appointments Appointment[]
+  diagnoses    Diagnosis[]
+  doctors      Doctor[]
+  lab_results  LabResult[]
+  patients     Patient[]
+
+  @@index([hospital_id])
+  @@index([city_town])
+  @@index([name])
+  @@index([type])
+  @@map("faciliies")
+}
+
+model User {
+  id               Int              @id @default(autoincrement())
+  user_id          String           @unique @map("user_id") @db.VarChar(13)
+  name             String           @db.VarChar(100)
+  role             UserRole
+  phone            String           @db.VarChar(20)
+  email            String           @unique @db.VarChar(100)
+  password_hash    String           @map("password_hash") @db.VarChar(255)
+  created_at       DateTime         @default(now()) @map("created_at")
+  last_login       DateTime?        @map("last_login")
+  address          String?          @db.VarChar(500)
+  dob              DateTime?
+  gender           Gender?
+  place_of_birth   String?          @map("place_of_birth") @db.VarChar(100)
+  nationality      String?          @db.VarChar(50)
+  token_version    Int              @default(0) @map("token_version")
+  admin_profile    Admin?
+  audit_logs       AuditLog[]
+  created_doctors  Doctor[]         @relation("AdminCreatedDoctors")
+  doctor_profile   Doctor?
+  qr_scans         FirstResponder[] @relation("UserScans")
+  notifications    Notification[]
+  created_patients Patient[]        @relation("AdminCreatedPatients")
+  patient_profile  Patient?
+
+  @@index([user_id])
+  @@index([email])
+  @@index([role])
+  @@index([phone])
+  @@map("users")
+}
+
+model Admin {
+  id          Int          @id @default(autoincrement())
+  admin_id    String       @unique @map("admin_id") @db.VarChar(13)
+  user_id     String       @unique @map("user_id") @db.VarChar(13)
+  facility_id String       @map("facility_id") @db.VarChar(13)
+  facility    Facility     @relation(fields: [facility_id], references: [hospital_id])
+  user        User         @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  assignments Assignment[]
+
+  @@index([admin_id])
+  @@index([user_id])
+  @@index([facility_id])
+  @@map("admins")
+}
+
+model Doctor {
+  id                Int           @id @default(autoincrement())
+  doctor_id         String        @unique @map("doctor_id") @db.VarChar(13)
+  user_id           String        @unique @map("user_id") @db.VarChar(13)
+  license_number    String        @unique @map("license_number") @db.VarChar(50)
+  type              DoctorType
+  facility_id       String        @map("facility_id") @db.VarChar(13)
+  specialization    String        @db.VarChar(100)
+  created_by_id     String?       @map("created_by_id") @db.VarChar(13)
+  status            UserStatus    @default(ACTIVE)
+  national_id       String?       @map("national_id") @db.VarChar(20)
+  appointments      Appointment[]
+  assigned_patients Assignment[]  @relation("DoctorAssignments")
+  diagnoses         Diagnosis[]   @relation("DoctorDiagnoses")
+  created_by        User?         @relation("AdminCreatedDoctors", fields: [created_by_id], references: [user_id])
+  facility          Facility      @relation(fields: [facility_id], references: [hospital_id])
+  user              User          @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  lab_results       LabResult[]   @relation("LabTechnicianLabResults")
+
+  @@index([doctor_id])
+  @@index([user_id])
+  @@index([facility_id])
+  @@index([created_by_id])
+  @@index([type])
+  @@index([license_number])
+  @@map("doctors")
+}
+
+model Patient {
+  id                 Int              @id @default(autoincrement())
+  patient_id         String           @unique @map("patient_id") @db.VarChar(13)
+  user_id            String           @unique @map("user_id") @db.VarChar(13)
+  blood_type         BloodType?
+  disability         String?          @db.VarChar(200)
+  insurance_status   InsuranceStatus  @default(UNINSURED) @map("insurance_status")
+  created_by_id      String?          @map("created_by_id") @db.VarChar(13)
+  status             UserStatus       @default(ACTIVE)
+  facility_id        String?          @map("facility_id") @db.VarChar(13)
+  blood_type_visible Boolean          @default(false) @map("blood_type_visible")
+  disability_visible Boolean          @default(false) @map("disability_visible")
+  allergies_visible  Boolean          @default(false) @map("allergies_visible")
+  national_id        String?          @map("national_id") @db.VarChar(20)
+  allergies          Allergy[]        @relation("PatientAllergies")
+  appointments       Appointment[]
+  assignments        Assignment[]     @relation("PatientAssignments")
+  diagnoses          Diagnosis[]      @relation("PatientDiagnoses")
+  emergency_info     EmergencyInfo?
+  qrscans            FirstResponder[]
+  lab_results        LabResult[]      @relation("PatientLabResults")
+  created_by         User?            @relation("AdminCreatedPatients", fields: [created_by_id], references: [user_id])
+  facility           Facility?        @relation(fields: [facility_id], references: [hospital_id])
+  user               User             @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  qr_codes           QRCode[]
+
+  @@index([patient_id])
+  @@index([user_id])
+  @@index([created_by_id])
+  @@index([insurance_status])
+  @@map("patients")
+}
+
+model Assignment {
+  id            Int       @id @default(autoincrement())
+  assignment_id String    @unique @map("assignment_id") @db.VarChar(14)
+  assigned_by   String    @map("assigned_by") @db.VarChar(13)
+  doctor_id     String    @map("doctor_id") @db.VarChar(13)
+  patient_id    String    @map("patient_id") @db.VarChar(13)
+  assigned_at   DateTime  @default(now()) @map("assigned_at")
+  end_date      DateTime? @map("end_date")
+  notes         String?   @db.VarChar(500)
+  admin         Admin     @relation(fields: [assigned_by], references: [admin_id], onDelete: Cascade)
+  doctor        Doctor    @relation("DoctorAssignments", fields: [doctor_id], references: [doctor_id], onDelete: Cascade)
+  patient       Patient   @relation("PatientAssignments", fields: [patient_id], references: [patient_id], onDelete: Cascade)
+
+  @@unique([doctor_id, patient_id, assigned_at])
+  @@index([assignment_id])
+  @@index([assigned_by])
+  @@index([doctor_id])
+  @@index([patient_id])
+  @@map("assignments")
+}
+
+model Diagnosis {
+  id                Int             @id @default(autoincrement())
+  diagnosis_id      String          @unique @map("diagnosis_id") @db.VarChar(15)
+  patient_id        String          @map("patient_id") @db.VarChar(13)
+  doctor_id         String          @map("doctor_id") @db.VarChar(13)
+  facility_id       String          @map("facility_id") @db.VarChar(13)
+  symptoms          String
+  disease_name      String          @map("disease_name") @db.VarChar(200)
+  medications       String
+  suggestions       String?
+  conclusion        String?
+  status            DiagnosisStatus @default(PENDING)
+  created_at        DateTime        @default(now()) @map("created_at")
+  completed_at      DateTime?       @map("completed_at")
+  updated_at        DateTime        @updatedAt @map("updated_at")
+  emergency_visible Boolean         @default(false) @map("emergency_visible")
+  appointment       Appointment?
+  doctor            Doctor          @relation("DoctorDiagnoses", fields: [doctor_id], references: [doctor_id], onDelete: Cascade)
+  facility          Facility        @relation(fields: [facility_id], references: [hospital_id])
+  patient           Patient         @relation("PatientDiagnoses", fields: [patient_id], references: [patient_id], onDelete: Cascade)
+
+  @@index([diagnosis_id])
+  @@index([patient_id])
+  @@index([doctor_id])
+  @@index([facility_id])
+  @@index([disease_name])
+  @@index([status])
+  @@index([created_at])
+  @@map("diagnoses")
+}
+
+model LabResult {
+  id                Int         @id @default(autoincrement())
+  lab_id            String      @unique @map("lab_id") @db.VarChar(14)
+  patient_id        String      @map("patient_id") @db.VarChar(13)
+  doctor_id         String      @map("doctor_id") @db.VarChar(13)
+  type              LabTestType
+  facility_id       String      @map("facility_id") @db.VarChar(13)
+  file_name         String      @map("file_name") @db.VarChar(255)
+  file_path         String      @map("file_path") @db.VarChar(500)
+  file_url          String?     @map("file_url") @db.VarChar(500)
+  file_size         Int?        @map("file_size")
+  mime_type         String?     @map("mime_type") @db.VarChar(100)
+  result_summary    String?     @map("result_summary")
+  findings          String?
+  notes             String?
+  is_abnormal       Boolean?    @default(false) @map("is_abnormal")
+  test_date         DateTime    @map("test_date")
+  uploaded_at       DateTime    @default(now()) @map("uploaded_at")
+  reviewed_at       DateTime?   @map("reviewed_at")
+  created_at        DateTime    @default(now()) @map("created_at")
+  updated_at        DateTime    @updatedAt @map("updated_at")
+  emergency_visible Boolean     @default(false) @map("emergency_visible")
+  doctor            Doctor      @relation("LabTechnicianLabResults", fields: [doctor_id], references: [doctor_id], onDelete: Cascade)
+  facility          Facility    @relation(fields: [facility_id], references: [hospital_id])
+  patient           Patient     @relation("PatientLabResults", fields: [patient_id], references: [patient_id], onDelete: Cascade)
+
+  @@index([lab_id])
+  @@index([patient_id])
+  @@index([doctor_id])
+  @@index([facility_id])
+  @@index([type])
+  @@index([test_date])
+  @@index([is_abnormal])
+  @@map("lab_results")
+}
+
+model Appointment {
+  id             Int               @id @default(autoincrement())
+  appointment_id String            @unique @map("appointment_id") @db.VarChar(14)
+  doctor_id      String            @map("doctor_id") @db.VarChar(13)
+  patient_id     String            @map("patient_id") @db.VarChar(13)
+  facility_id    String            @map("facility_id") @db.VarChar(13)
+  when           DateTime
+  duration       Int               @default(30)
+  reason         String?           @db.VarChar(500)
+  notes          String?
+  diagnosis_id   String?           @unique @map("diagnosis_id") @db.VarChar(15)
+  status         AppointmentStatus @default(SCHEDULED)
+  created_at     DateTime          @default(now()) @map("created_at")
+  updated_at     DateTime          @updatedAt @map("updated_at")
+  completed_at   DateTime?         @map("completed_at")
+  diagnosis      Diagnosis?        @relation(fields: [diagnosis_id], references: [diagnosis_id])
+  doctor         Doctor            @relation(fields: [doctor_id], references: [doctor_id], onDelete: Cascade)
+  facility       Facility          @relation(fields: [facility_id], references: [hospital_id])
+  patient        Patient           @relation(fields: [patient_id], references: [patient_id], onDelete: Cascade)
+
+  @@index([appointment_id])
+  @@index([doctor_id])
+  @@index([patient_id])
+  @@index([facility_id])
+  @@index([when])
+  @@index([status])
+  @@index([diagnosis_id])
+  @@map("appointments")
+}
+
+model EmergencyInfo {
+  id                             Int              @id @default(autoincrement())
+  patient_id                     String           @unique @map("patient_id") @db.VarChar(13)
+  patient_name                   String?          @map("patient_name") @db.VarChar(100)
+  patient_dob                    DateTime?        @map("patient_dob")
+  blood_type                     BloodType?
+  known_allergies                String?          @map("known_allergies")
+  chronic_conditions             String?          @map("chronic_conditions")
+  current_medications            String?          @map("current_medications")
+  disability_info                String?          @map("disability_info") @db.VarChar(200)
+  emergency_contact_name         String?          @map("emergency_contact_name") @db.VarChar(100)
+  emergency_contact_phone        String?          @map("emergency_contact_phone") @db.VarChar(20)
+  emergency_contact_relationship String?          @map("emergency_contact_relationship") @db.VarChar(50)
+  insurance_status               InsuranceStatus? @map("insurance_status")
+  last_updated                   DateTime         @default(now()) @map("last_updated")
+  token                          String?          @unique @db.VarChar(255)
+  patient                        Patient          @relation(fields: [patient_id], references: [patient_id], onDelete: Cascade)
+
+  @@index([patient_id])
+  @@index([patient_name])
+  @@index([blood_type])
+  @@map("emergency_info")
+}
+
+model QRCode {
+  id                Int              @id @default(autoincrement())
+  qr_id             String           @unique @map("qr_id") @db.VarChar(13)
+  patient_id        String           @map("patient_id") @db.VarChar(13)
+  token             String           @unique @db.VarChar(255)
+  qr_code_url       String?          @map("qr_code_url")
+  expire_time       DateTime         @map("expire_time")
+  max_scans         Int              @default(1) @map("max_scans")
+  scan_count        Int              @default(0) @map("scan_count")
+  is_active         Boolean          @default(true) @map("is_active")
+  created_at        DateTime         @default(now()) @map("created_at")
+  last_used         DateTime?        @map("last_used")
+  accessible_fields String           @map("accessible_fields")
+  qrscans           FirstResponder[]
+  patient           Patient          @relation(fields: [patient_id], references: [patient_id], onDelete: Cascade)
+
+  @@index([qr_id])
+  @@index([patient_id])
+  @@index([token])
+  @@index([expire_time])
+  @@index([is_active])
+  @@map("qr_codes")
+}
+
+model FirstResponder {
+  id                 Int      @id @default(autoincrement())
+  qr_id              String   @map("qr_id") @db.VarChar(13)
+  scanned_by_id      String?  @map("scanned_by_id") @db.VarChar(13)
+  patient_scanned_id String   @map("patient_scanned_id") @db.VarChar(13)
+  scanned_at         DateTime @default(now()) @map("scanned_at")
+  ip_address         String?  @map("ip_address") @db.VarChar(45)
+  user_agent         String?  @map("user_agent")
+  accessed_data      String?  @map("accessed_data")
+  token_used         String?  @map("token_used") @db.VarChar(255)
+  patient_scanned    Patient  @relation(fields: [patient_scanned_id], references: [patient_id], onDelete: Cascade)
+  qr_code            QRCode   @relation(fields: [qr_id], references: [qr_id], onDelete: Cascade)
+  scanned_by         User?    @relation("UserScans", fields: [scanned_by_id], references: [user_id])
+
+  @@index([qr_id])
+  @@index([scanned_by_id])
+  @@index([patient_scanned_id])
+  @@index([scanned_at])
+  @@map("first_responders")
+}
+
+model AuditLog {
+  id          Int      @id @default(autoincrement())
+  user_id     String?  @map("user_id") @db.VarChar(13)
+  action_type String   @map("action_type") @db.VarChar(50)
+  entity_type String   @map("entity_type") @db.VarChar(50)
+  entity_id   String?  @map("entity_id") @db.VarChar(50)
+  old_values  String?  @map("old_values")
+  new_values  String?  @map("new_values")
+  description String?  @db.VarChar(500)
+  ip_address  String?  @map("ip_address") @db.VarChar(45)
+  user_agent  String?  @map("user_agent")
+  created_at  DateTime @default(now()) @map("created_at")
+  user        User?    @relation(fields: [user_id], references: [user_id])
+
+  @@index([user_id])
+  @@index([action_type])
+  @@index([entity_type])
+  @@index([entity_id])
+  @@index([created_at])
+  @@map("audit_logs")
+}
+
+model Allergy {
+  id                Int      @id @default(autoincrement())
+  patient_id        String   @map("patient_id") @db.VarChar(13)
+  allergies         String   @db.VarChar(100)
+  severity          Severity
+  created_at        DateTime @default(now()) @map("recorded_at")
+  emergency_visible Boolean  @default(false) @map("emergency_visible")
+  patient           Patient  @relation("PatientAllergies", fields: [patient_id], references: [patient_id], onDelete: Cascade)
+
+  @@index([patient_id])
+  @@map("allergies")
+}
+
+model Notification {
+  id         Int              @id @default(autoincrement())
+  user_id    String           @map("user_id") @db.VarChar(13)
+  type       NotificationType
+  title      String           @db.VarChar(200)
+  message    String
+  is_read    Boolean          @default(false) @map("is_read")
+  created_at DateTime         @default(now()) @map("created_at")
+  user       User             @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([created_at])
+  @@map("notifications")
+}
+
 enum UserRole {
   ADMIN
   DOCTOR
@@ -93,467 +460,4 @@ enum Severity {
   MILD
   MODERATE
   SEVERE
-}
-
-// Facility Table
-model Facility {
-  id          Int          @id @default(autoincrement())
-  hospital_id String       @unique @map("hospital_id") @db.VarChar(13) // Format: HO-********** (10 chars)
-  name        String       @db.VarChar(200)
-  type        FacilityType
-  city_town   String       @map("city_town") @db.VarChar(100)
-  phone       String       @db.VarChar(20)
-  email       String?      @db.VarChar(100)
-  address     String?      @db.VarChar(500)
-
-  // Relationships
-  admins       Admin[]
-  doctors      Doctor[]
-  patients     Patient[]
-  diagnoses    Diagnosis[]
-  lab_results  LabResult[]
-  appointments Appointment[]
-
-  @@index([hospital_id])
-  @@index([city_town])
-  @@index([name])
-  @@index([type])
-  @@map("faciliies")
-}
-
-// Base User Table 
-model User {
-  id             Int       @id @default(autoincrement())
-  user_id        String    @unique @map("user_id") @db.VarChar(13) // Format: AM-/DL-/PT-********** (10 chars)
-  name           String    @db.VarChar(100)
-  role           UserRole
-  phone          String    @db.VarChar(20)
-  email          String    @unique @db.VarChar(100)
-  password_hash  String    @map("password_hash") @db.VarChar(255)
-  created_at     DateTime  @default(now()) @map("created_at")
-  last_login     DateTime? @map("last_login")
-  address        String?   @db.VarChar(500)
-  dob            DateTime? // Date of Birth
-  gender         Gender?
-  place_of_birth String?   @map("place_of_birth") @db.VarChar(100)
-  nationality    String?   @db.VarChar(50)
-
-  // Relationships
-  admin_profile   Admin?
-  doctor_profile  Doctor?
-  patient_profile Patient?
-
-  // Users who were created by this admin (if this user is an admin)
-  created_doctors  Doctor[]  @relation("AdminCreatedDoctors")
-  created_patients Patient[] @relation("AdminCreatedPatients")
-
-  // QR scanning
-  qr_scans FirstResponder[] @relation("UserScans") // Users who scan QR codes
-
-  // Audit relationships
-  audit_logs AuditLog[]
-
-  notifications Notification[]
-
-  // Token management
-  token_version Int @default(0) @map("token_version")
-
-  @@index([user_id])
-  @@index([email])
-  @@index([role])
-  @@index([phone])
-  @@map("users")
-}
-
-// Admin Table 
-model Admin {
-  id          Int    @id @default(autoincrement())
-  admin_id    String @unique @map("admin_id") @db.VarChar(13) // Format: AM-********** (10 chars)
-  user_id     String @unique @map("user_id") @db.VarChar(13)
-  facility_id String @map("facility_id") @db.VarChar(13)
-
-  // Relationships
-  user     User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  facility Facility @relation(fields: [facility_id], references: [hospital_id])
-
-  // Admin makes assignments
-  assignments Assignment[]
-
-  @@index([admin_id])
-  @@index([user_id])
-  @@index([facility_id])
-  @@map("admins")
-}
-
-// Doctor Table 
-model Doctor {
-  id             Int        @id @default(autoincrement())
-  doctor_id      String     @unique @map("doctor_id") @db.VarChar(13) // Format: DL-********** (10 chars)
-  user_id        String     @unique @map("user_id") @db.VarChar(13)
-  license_number String     @unique @map("license_number") @db.VarChar(50)
-  type           DoctorType
-  facility_id    String     @map("facility_id") @db.VarChar(13)
-  specialization String     @db.VarChar(100)
-  national_id    String?    @map("national_id") @db.VarChar(20)
-  created_by_id  String?    @map("created_by_id") @db.VarChar(13) // Admin ID (AM-**********)
-  status         UserStatus @default(ACTIVE)
-  // Relationships
-  user           User       @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  facility       Facility   @relation(fields: [facility_id], references: [hospital_id])
-  created_by     User?      @relation("AdminCreatedDoctors", fields: [created_by_id], references: [user_id])
-
-  // Medical doctor relationships
-  diagnoses         Diagnosis[]  @relation("DoctorDiagnoses") // Only for medical doctors
-  assigned_patients Assignment[] @relation("DoctorAssignments")
-
-  // Lab technician relationships
-  lab_results LabResult[] @relation("LabTechnicianLabResults") // Only for lab technicians
-
-  // Both medical doctors and lab technicians
-  appointments Appointment[]
-
-  @@index([doctor_id])
-  @@index([user_id])
-  @@index([facility_id])
-  @@index([created_by_id])
-  @@index([type])
-  @@index([license_number])
-  @@map("doctors")
-}
-
-// Patient Table
-model Patient {
-  id                 Int             @id @default(autoincrement())
-  patient_id         String          @unique @map("patient_id") @db.VarChar(13) // Format: PT-********** (10 chars)
-  user_id            String          @unique @map("user_id") @db.VarChar(13)
-  blood_type         BloodType?
-  blood_type_visible Boolean         @default(false) @map("blood_type_visible")
-  disability         String?         @db.VarChar(200)
-  disability_visible Boolean         @default(false) @map("disability_visible")
-  allergies_visible  Boolean         @default(false) @map("allergies_visible")
-  insurance_status   InsuranceStatus @default(UNINSURED) @map("insurance_status")
-  national_id        String?         @map("national_id") @db.VarChar(20)
-  created_by_id      String?         @map("created_by_id") @db.VarChar(13) // Admin ID (AM-**********)
-  status             UserStatus      @default(ACTIVE)
-
-  // Relationships
-  user       User      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-  created_by User?     @relation("AdminCreatedPatients", fields: [created_by_id], references: [user_id])
-  allergies  Allergy[] @relation("PatientAllergies")
-
-  // Medical records
-  diagnoses    Diagnosis[]   @relation("PatientDiagnoses")
-  lab_results  LabResult[]   @relation("PatientLabResults")
-  appointments Appointment[]
-
-  // Doctor assignments
-  assignments Assignment[] @relation("PatientAssignments")
-
-  // Emergency info
-  emergency_info EmergencyInfo?
-
-  // QR codes
-  qr_codes    QRCode[]
-  facility    Facility?        @relation(fields: [facility_id], references: [hospital_id])
-  facility_id String?          @map("facility_id") @db.VarChar(13)
-  qrscans     FirstResponder[]
-
-  @@index([patient_id])
-  @@index([user_id])
-  @@index([created_by_id])
-  @@index([insurance_status])
-  @@map("patients")
-}
-
-// Assignment Table 
-model Assignment {
-  id            Int       @id @default(autoincrement())
-  assignment_id String    @unique @map("assignment_id") @db.VarChar(14) // Format: ASG-********** (10 chars)
-  assigned_by   String    @map("assigned_by") @db.VarChar(13) // Admin ID (AM-**********)
-  doctor_id     String    @map("doctor_id") @db.VarChar(13) // Doctor ID (DL-**********)
-  patient_id    String    @map("patient_id") @db.VarChar(13) // Patient ID (PT-**********)
-  assigned_at   DateTime  @default(now()) @map("assigned_at")
-  end_date      DateTime? @map("end_date")
-  notes         String?   @db.VarChar(500)
-
-  // Relationships
-  admin   Admin   @relation(fields: [assigned_by], references: [admin_id], onDelete: Cascade)
-  doctor  Doctor  @relation("DoctorAssignments", fields: [doctor_id], references: [doctor_id], onDelete: Cascade)
-  patient Patient @relation("PatientAssignments", fields: [patient_id], references: [patient_id], onDelete: Cascade)
-
-  @@unique([doctor_id, patient_id, assigned_at])
-  @@index([assignment_id])
-  @@index([assigned_by])
-  @@index([doctor_id])
-  @@index([patient_id])
-  @@map("assignments")
-}
-
-// Diagnosis Table 
-model Diagnosis {
-  id                Int             @id @default(autoincrement())
-  diagnosis_id      String          @unique @map("diagnosis_id") @db.VarChar(15) // Format: DIAG-********** (10 chars)
-  patient_id        String          @map("patient_id") @db.VarChar(13)
-  doctor_id         String          @map("doctor_id") @db.VarChar(13) // Medical doctor only
-  facility_id       String          @map("facility_id") @db.VarChar(13)
-  symptoms          String          @db.Text
-  disease_name      String          @map("disease_name") @db.VarChar(200) // For search/filtering
-  medications       String          @db.Text
-  suggestions       String?         @db.Text
-  conclusion        String?         @db.Text
-  status            DiagnosisStatus @default(PENDING)
-  created_at        DateTime        @default(now()) @map("created_at")
-  completed_at      DateTime?       @map("completed_at")
-  updated_at        DateTime        @updatedAt @map("updated_at")
-  emergency_visible Boolean         @default(false) @map("emergency_visible")
-
-  // emergency visibility
-
-  // Relationships
-  patient  Patient  @relation("PatientDiagnoses", fields: [patient_id], references: [patient_id], onDelete: Cascade)
-  doctor   Doctor   @relation("DoctorDiagnoses", fields: [doctor_id], references: [doctor_id], onDelete: Cascade)
-  facility Facility @relation(fields: [facility_id], references: [hospital_id])
-
-  // Link to appointment
-  appointment Appointment?
-
-  @@index([diagnosis_id])
-  @@index([patient_id])
-  @@index([doctor_id])
-  @@index([facility_id])
-  @@index([disease_name])
-  @@index([status])
-  @@index([created_at])
-  @@map("diagnoses")
-}
-
-// Lab Results Table 
-model LabResult {
-  id          Int         @id @default(autoincrement())
-  lab_id      String      @unique @map("lab_id") @db.VarChar(14) // Format: LAB-********** (10 chars)
-  patient_id  String      @map("patient_id") @db.VarChar(13)
-  doctor_id   String      @map("doctor_id") @db.VarChar(13) // Lab technician only
-  type        LabTestType
-  facility_id String      @map("facility_id") @db.VarChar(13)
-
-  // File storage
-  file_name String  @map("file_name") @db.VarChar(255)
-  file_path String  @map("file_path") @db.VarChar(500) // Path in storage
-  file_url  String? @map("file_url") @db.VarChar(500) // Public URL
-  file_size Int?    @map("file_size") // Size in bytes
-  mime_type String? @map("mime_type") @db.VarChar(100)
-
-  // Lab result details
-  result_summary String?  @map("result_summary") @db.Text
-  findings       String?  @db.Text
-  notes          String?  @db.Text
-  is_abnormal    Boolean? @default(false) @map("is_abnormal")
-
-  // Timestamps
-  test_date         DateTime  @map("test_date")
-  emergency_visible Boolean   @default(false) @map("emergency_visible")
-  uploaded_at       DateTime  @default(now()) @map("uploaded_at")
-  reviewed_at       DateTime? @map("reviewed_at")
-  created_at        DateTime  @default(now()) @map("created_at")
-  updated_at        DateTime  @updatedAt @map("updated_at")
-
-  // Relationships
-  patient  Patient  @relation("PatientLabResults", fields: [patient_id], references: [patient_id], onDelete: Cascade)
-  doctor   Doctor   @relation("LabTechnicianLabResults", fields: [doctor_id], references: [doctor_id], onDelete: Cascade)
-  facility Facility @relation(fields: [facility_id], references: [hospital_id])
-
-  @@index([lab_id])
-  @@index([patient_id])
-  @@index([doctor_id])
-  @@index([facility_id])
-  @@index([type])
-  @@index([test_date])
-  @@index([is_abnormal])
-  @@map("lab_results")
-}
-
-// Appointment Table
-model Appointment {
-  id             Int               @id @default(autoincrement())
-  appointment_id String            @unique @map("appointment_id") @db.VarChar(14) // Format: APT-********** (10 chars)
-  doctor_id      String            @map("doctor_id") @db.VarChar(13)
-  patient_id     String            @map("patient_id") @db.VarChar(13)
-  facility_id    String            @map("facility_id") @db.VarChar(13)
-  //start date and time
-  //end date and time 
-  when           DateTime
-  duration       Int               @default(30) // Minutes
-  reason         String?           @db.VarChar(500)
-  notes          String?           @db.Text
-  diagnosis_id   String?           @unique @map("diagnosis_id") @db.VarChar(15)
-  status         AppointmentStatus @default(SCHEDULED)
-  created_at     DateTime          @default(now()) @map("created_at")
-  updated_at     DateTime          @updatedAt @map("updated_at")
-  completed_at   DateTime?         @map("completed_at")
-
-  // Relationships
-  doctor   Doctor   @relation(fields: [doctor_id], references: [doctor_id], onDelete: Cascade)
-  patient  Patient  @relation(fields: [patient_id], references: [patient_id], onDelete: Cascade)
-  facility Facility @relation(fields: [facility_id], references: [hospital_id])
-
-  // Link to diagnosis 
-  diagnosis Diagnosis? @relation(fields: [diagnosis_id], references: [diagnosis_id])
-
-  @@index([appointment_id])
-  @@index([doctor_id])
-  @@index([patient_id])
-  @@index([facility_id])
-  @@index([when])
-  @@index([status])
-  @@index([diagnosis_id])
-  @@map("appointments")
-}
-
-// Emergency Info Table 
-model EmergencyInfo {
-  id         Int    @id @default(autoincrement())
-  patient_id String @unique @map("patient_id") @db.VarChar(13) // Patient ID (PT-**********)
-
-  // Patient info
-  patient_name        String?    @map("patient_name") @db.VarChar(100)
-  patient_dob         DateTime?  @map("patient_dob")
-  blood_type          BloodType?
-  known_allergies     String?    @map("known_allergies") @db.Text
-  chronic_conditions  String?    @map("chronic_conditions") @db.Text
-  current_medications String?    @map("current_medications") @db.Text
-  disability_info     String?    @map("disability_info") @db.VarChar(200)
-
-  // Emergency contacts
-  emergency_contact_name         String? @map("emergency_contact_name") @db.VarChar(100)
-  emergency_contact_phone        String? @map("emergency_contact_phone") @db.VarChar(20)
-  emergency_contact_relationship String? @map("emergency_contact_relationship") @db.VarChar(50)
-
-  // Recent medical info
-  insurance_status InsuranceStatus? @map("insurance_status")
-
-  // Tokens
-  token String? @unique @db.VarChar(255)
-
-  // Timestamps
-  last_updated DateTime @default(now()) @map("last_updated")
-
-  // Relationship
-  patient Patient @relation(fields: [patient_id], references: [patient_id], onDelete: Cascade)
-
-  @@index([patient_id])
-  @@index([patient_name])
-  @@index([blood_type])
-  @@map("emergency_info")
-}
-
-// QR Code Table 
-model QRCode {
-  id          Int       @id @default(autoincrement())
-  qr_id       String    @unique @map("qr_id") @db.VarChar(13) // Format: QR-********** (10 chars)
-  patient_id  String    @map("patient_id") @db.VarChar(13) // Patient ID (PT-**********)
-  token       String    @unique @db.VarChar(255) // Encrypted token
-  qr_code_url String?   @map("qr_code_url") @db.Text // QR image URL
-  expire_time DateTime  @map("expire_time")
-  max_scans   Int       @default(1) @map("max_scans")
-  scan_count  Int       @default(0) @map("scan_count")
-  is_active   Boolean   @default(true) @map("is_active")
-  created_at  DateTime  @default(now()) @map("created_at")
-  last_used   DateTime? @map("last_used")
-
-  // What data is accessible via this QR
-  accessible_fields String @map("accessible_fields") @db.Text // JSON array of field names
-
-  // Relationship
-  patient Patient          @relation(fields: [patient_id], references: [patient_id], onDelete: Cascade)
-  qrscans FirstResponder[]
-
-  @@index([qr_id])
-  @@index([patient_id])
-  @@index([token])
-  @@index([expire_time])
-  @@index([is_active])
-  @@map("qr_codes")
-}
-
-// First Responder Log Table (tracks who scanned - ADMIN, DOCTOR, or PATIENT can scan)
-model FirstResponder {
-  id                 Int      @id @default(autoincrement())
-  qr_id              String   @map("qr_id") @db.VarChar(13) // QR ID (QR-**********)
-  scanned_by_id      String?  @map("scanned_by_id") @db.VarChar(13) // User ID (AM-/DL-/PT-**********)
-  patient_scanned_id String   @map("patient_scanned_id") @db.VarChar(13) // Patient ID (PT-**********)
-  scanned_at         DateTime @default(now()) @map("scanned_at")
-  ip_address         String?  @map("ip_address") @db.VarChar(45)
-  user_agent         String?  @map("user_agent") @db.Text
-  token_used         String?  @map("token_used") @db.VarChar(255) // The actual token string used for this scan
-  accessed_data      String?  @map("accessed_data") @db.Text // What data was accessed
-
-  // Relationships
-  qr_code         QRCode  @relation(fields: [qr_id], references: [qr_id], onDelete: Cascade)
-  scanned_by      User?   @relation("UserScans", fields: [scanned_by_id], references: [user_id])
-  patient_scanned Patient @relation(fields: [patient_scanned_id], references: [patient_id], onDelete: Cascade)
-
-  @@index([qr_id])
-  @@index([scanned_by_id])
-  @@index([patient_scanned_id])
-  @@index([scanned_at])
-  @@map("first_responders")
-}
-
-// Audit Log Table
-model AuditLog {
-  id          Int      @id @default(autoincrement())
-  user_id     String?  @map("user_id") @db.VarChar(13) // User ID (AM-/DL-/PT-**********)
-  action_type String   @map("action_type") @db.VarChar(50) // CREATE, UPDATE, DELETE, LOGIN, etc.
-  entity_type String   @map("entity_type") @db.VarChar(50) // User, Patient, Diagnosis, etc.
-  entity_id   String?  @map("entity_id") @db.VarChar(50) // The ID of the affected entity
-  old_values  String?  @map("old_values") @db.Text // JSON of old values
-  new_values  String?  @map("new_values") @db.Text // JSON of new values
-  description String?  @db.VarChar(500)
-  ip_address  String?  @map("ip_address") @db.VarChar(45)
-  user_agent  String?  @map("user_agent") @db.Text
-  created_at  DateTime @default(now()) @map("created_at")
-
-  // Relationship
-  user User? @relation(fields: [user_id], references: [user_id], onDelete: SetNull)
-
-  @@index([user_id])
-  @@index([action_type])
-  @@index([entity_type])
-  @@index([entity_id])
-  @@index([created_at])
-  @@map("audit_logs")
-}
-
-// alergies table
-model Allergy {
-  id                Int      @id @default(autoincrement())
-  patient_id        String   @map("patient_id") @db.VarChar(13)
-  allergies         String   @db.VarChar(100)
-  severity          Severity
-  emergency_visible Boolean  @default(false) @map("emergency_visible")
-  created_at        DateTime @default(now()) @map("recorded_at")
-
-  // Relationships
-  patient Patient @relation("PatientAllergies", fields: [patient_id], references: [patient_id], onDelete: Cascade)
-
-  @@index([patient_id])
-  @@map("allergies")
-}
-
-// Notification Table
-model Notification {
-  id         Int              @id @default(autoincrement())
-  user_id    String           @map("user_id") @db.VarChar(13)
-  type       NotificationType
-  title      String           @db.VarChar(200)
-  message    String           @db.Text
-  is_read    Boolean          @default(false) @map("is_read")
-  created_at DateTime         @default(now()) @map("created_at")
-
-  // Relationship
-  user User @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
-
-  @@index([user_id])
-  @@index([created_at])
-  @@map("notifications")
 }
