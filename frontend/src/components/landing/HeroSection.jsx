@@ -72,11 +72,7 @@ export function HeroSection() {
                             </div>
                             <span className="font-semibold text-slate-700 dark:text-slate-200">QR Emergency Access</span>
                         </div>
-                        <div className="flex items-center gap-3 group">
-                            <div className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 p-2.5 transition-transform group-hover:scale-110">
-                                <HeartPulseIcon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
-                            </div>
-                        </div>
+
                     </div>
                 </div>
             </div>

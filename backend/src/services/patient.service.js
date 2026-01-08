@@ -105,7 +105,9 @@ async function getLabResultById(patientId, labId) {
                     user: {
                         select: {
                             name: true,
-                            user_id: true
+                            user_id: true,
+                            gender: true,
+                            dob: true
                         }
                     }
                 }

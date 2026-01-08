@@ -1,5 +1,8 @@
 import { useState } from "react"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Loader2, FileText, Stethoscope } from "lucide-react"
+import { DiagnosisCard } from "@/components/diagnosis/DiagnosisCard"
 
 export function HealthRecords({ records = [], isLoading = false, emptyMessage = "No medical records found." }) {
     const [statusFilter, setStatusFilter] = useState("all")

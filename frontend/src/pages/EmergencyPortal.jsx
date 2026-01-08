@@ -293,7 +293,7 @@ export default function EmergencyPortal() {
                                             <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">Critical Allergies</h3>
                                         </div>
 
-                                        <div className="flex flex-wrap gap-3">
+                                        <div className="flex flex-wrap gap-2">
                                             {emergencyData.emergency_info?.known_allergies ? (
                                                 Array.from(new Set(
                                                     emergencyData.emergency_info.known_allergies
@@ -301,14 +301,13 @@ export default function EmergencyPortal() {
                                                         .filter(a => a && a.trim())
                                                         .map(a => a.trim().toUpperCase())
                                                 )).map(a => (
-                                                    <div key={a} className="flex items-center gap-2 pl-2 pr-4 py-1.5 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900 rounded-lg text-rose-700 dark:text-rose-400 font-bold text-sm">
-                                                        <Badge variant="destructive" className="h-2 w-2 rounded-full p-0" />
+                                                    <Badge key={a} variant="destructive" className="px-2 py-0.5 text-[10px] font-black tracking-widest bg-rose-100 text-rose-700 hover:bg-rose-200 border-rose-200">
                                                         {a}
-                                                    </div>
+                                                    </Badge>
                                                 ))
                                             ) : (
-                                                <p className="text-slate-500 italic flex items-center gap-2">
-                                                    <CheckCircle2 className="h-4 w-4 text-green-500" /> No known allergies
+                                                <p className="text-slate-500 italic flex items-center gap-2 text-xs">
+                                                    <CheckCircle2 className="h-3 w-3 text-green-500" /> No known allergies
                                                 </p>
                                             )}
                                         </div>

@@ -180,25 +180,7 @@ export default function RegisterDoctorPage() {
                                         required
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Facility *</Label>
-                                    <Select value={formData.facility_id} onValueChange={(val) => handleChange('facility_id', val)}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select facility" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {facilities.length > 0 ? (
-                                                facilities.map(f => (
-                                                    <SelectItem key={f.hospital_id} value={f.hospital_id}>{f.name}</SelectItem>
-                                                ))
-                                            ) : (
-                                                <SelectItem value={user?.admin_profile?.facility_id || "loading"}>
-                                                    Current Facility
-                                                </SelectItem>
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+
 
                                 {/* Demographic Info */}
                                 <div className="space-y-2">
