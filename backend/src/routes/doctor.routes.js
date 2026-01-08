@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const doctorController = require('../controllers/doctor.controller');
+const fileController = require('../controllers/file.controller');
 const { authenticate, requireRole, requireMedicalDoctor, requireLabTechnician } = require('../middleware/auth.middleware');
 const { upload } = require('../middleware/upload.middleware');
 const { USER_ROLES } = require('../utils/constants');
@@ -31,6 +32,7 @@ router.get('/lab-results', doctorController.getAllLabResults);
 router.get('/patients/:patientId/lab-results', doctorController.getLabResultsByPatient);
 router.post('/patients/:patientId/lab-results', upload.single('file'), doctorController.createLabResult);
 router.get('/lab-results/:labId', doctorController.getLabResultById);
+router.get('/lab-results/:labId/download', fileController.getLabResultDownloadUrl);
 
 // Appointments
 router.get('/appointments', doctorController.getMyAppointments);

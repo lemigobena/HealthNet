@@ -27,9 +27,27 @@ export default function DoctorMyLabResultsPage() {
         fetchLabResults()
     }, [])
 
-    const handleDownload = (fileUrl, fileName) => {
-        const fullUrl = fileUrl.startsWith('http') ? fileUrl : `https://backend-jgdk.onrender.com${fileUrl}`;
-        window.open(fullUrl, '_blank');
+    const [isDownloadingIds, setIsDownloadingIds] = useState(new Set());
+
+    const handleDownload = async (labId) => {
+        if (isDownloadingIds.has(labId)) return;
+
+        setIsDownloadingIds(prev => new Set(prev).add(labId));
+        try {
+            const response = await api.get(`/doctor/lab-results/${labId}/download`);
+            const { download_url } = response.data.data;
+            window.open(download_url, '_blank');
+        } catch (err) {
+            console.error("Download failed:", err);
+            // We don't have the original file_url easily here without mapping, 
+            // but the proxy is the source of truth now.
+        } finally {
+            setIsDownloadingIds(prev => {
+                const next = new Set(prev);
+                next.delete(labId);
+                return next;
+            });
+        }
     }
 
     if (isLoading) {
@@ -88,11 +106,14 @@ export default function DoctorMyLabResultsPage() {
                                                 variant="outline"
                                                 size="icon"
                                                 className="h-14 w-14 rounded-2xl border-2 hover:bg-primary hover:text-white transition-all shadow-lg"
-                                                asChild
+                                                onClick={() => handleDownload(result.id)}
+                                                disabled={isDownloadingIds.has(result.id)}
                                             >
-                                                <a href={result.file_url.startsWith('http') ? result.file_url : `https://backend-jgdk.onrender.com${result.file_url}`} target="_blank" rel="noopener noreferrer" download={result.file_name || 'report'}>
+                                                {isDownloadingIds.has(result.id) ? (
+                                                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                                                ) : (
                                                     <FileDown className="h-6 w-6" />
-                                                </a>
+                                                )}
                                             </Button>
                                         )}
                                     </div>

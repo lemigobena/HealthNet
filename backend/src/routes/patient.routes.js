@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const patientController = require('../controllers/patient.controller');
+const fileController = require('../controllers/file.controller');
 const { authenticate, requireRole } = require('../middleware/auth.middleware');
 const { USER_ROLES } = require('../utils/constants');
 
@@ -15,6 +16,7 @@ router.get('/diagnoses/:diagnosisId', patientController.getDiagnosisById);
 // Lab results
 router.get('/lab-results', patientController.getMyLabResults);
 router.get('/lab-results/:labId', patientController.getLabResultById);
+router.get('/lab-results/:labId/download', fileController.getLabResultDownloadUrl);
 
 // Emergency info
 router.get('/emergency-info', patientController.getEmergencyInfo);

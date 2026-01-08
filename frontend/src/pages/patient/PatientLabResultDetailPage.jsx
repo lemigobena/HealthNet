@@ -26,6 +26,7 @@ export default function PatientLabResultDetailPage() {
     const navigate = useNavigate()
     const [labResult, setLabResult] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [isDownloading, setIsDownloading] = useState(false)
     const [error, setError] = useState(null)
 
     useEffect(() => {
@@ -43,15 +44,21 @@ export default function PatientLabResultDetailPage() {
         fetchLabResult()
     }, [id])
 
-    const handleDownload = (fileUrl, fileName) => {
-        const fullUrl = fileUrl.startsWith('http') ? fileUrl : `https://backend-jgdk.onrender.com${fileUrl}`;
-        const link = document.createElement('a');
-        link.href = fullUrl;
-        link.setAttribute('download', fileName || 'report');
-        link.target = "_blank";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const handleDownload = async () => {
+        if (!labResult || isDownloading) return;
+
+        setIsDownloading(true);
+        try {
+            const response = await api.get(`/patient/lab-results/${id}/download`);
+            const { download_url } = response.data.data;
+            window.open(download_url, '_blank');
+        } catch (err) {
+            console.error("Download failed:", err);
+            // Fallback to original URL if proxy fails, though unlikely to work if 401
+            window.open(labResult.file_url, '_blank');
+        } finally {
+            setIsDownloading(false);
+        }
     }
 
     if (isLoading) {
@@ -264,11 +271,14 @@ export default function PatientLabResultDetailPage() {
                                         {labResult.file_url.startsWith('http') ? (
                                             <Button
                                                 className="w-full h-12 font-black transition-all shadow-lg active:scale-95"
-                                                asChild
+                                                onClick={handleDownload}
+                                                disabled={isDownloading}
                                             >
-                                                <a href={labResult.file_url} target="_blank" rel="noopener noreferrer" download={labResult.file_name || 'report'}>
-                                                    DOWNLOAD SCAN
-                                                </a>
+                                                {isDownloading ? (
+                                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> GENERATING SECURE LINK...</>
+                                                ) : (
+                                                    'DOWNLOAD SCAN'
+                                                )}
                                             </Button>
                                         ) : (
                                             <div className="p-3 rounded-lg bg-orange-50 border border-orange-100 text-orange-700 text-xs font-bold text-center">
