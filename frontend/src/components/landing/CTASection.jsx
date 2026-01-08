@@ -1,9 +1,38 @@
-
 import { Button } from "@/components/ui/button"
 import { HealthNetLogo, BuildingIcon, UsersIcon, ShieldCheckIcon, ActivityIcon } from "@/components/icons"
 import { Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+import api from "@/services/api"
 
 export function CTASection() {
+    const [stats, setStats] = useState({ patients: 0, facilities: 0, security: 100 })
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await api.get('/public/stats')
+                if (response.data.success) {
+                    setStats(response.data.data)
+                }
+            } catch (error) {
+                console.error("Failed to fetch landing stats:", error)
+                // Fallback to static numbers on absolute failure
+                setStats({ patients: 1240000, facilities: 2840, security: 100 })
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchStats()
+    }, [])
+
+    const formatNumber = (num) => {
+        if (!num) return "0"
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + "M+"
+        if (num >= 1000) return num.toLocaleString() + "+"
+        return num.toString() + "+"
+    }
+
     return (
         <section className="relative overflow-hidden bg-blue-600 dark:bg-slate-950 py-20 lg:py-32 transition-colors duration-500">
             {/* Background decorative elements */}
@@ -30,21 +59,25 @@ export function CTASection() {
                             <div className="rounded-full bg-white/20 p-3 mb-2">
                                 <UsersIcon className="h-6 w-6 text-white" aria-hidden="true" />
                             </div>
-                            <span className="text-2xl font-bold text-white">1M+</span>
+                            <span className="text-2xl font-bold text-white">
+                                {loading ? "..." : formatNumber(stats.patients)}
+                            </span>
                             <span className="text-sm text-white/80 uppercase tracking-wider font-medium">Patients Managed</span>
                         </div>
                         <div className="flex flex-col items-center gap-2 border-x border-white/20 px-4">
                             <div className="rounded-full bg-white/20 p-3 mb-2">
                                 <ActivityIcon className="h-6 w-6 text-white" aria-hidden="true" />
                             </div>
-                            <span className="text-2xl font-bold text-white">2,500+</span>
+                            <span className="text-2xl font-bold text-white">
+                                {loading ? "..." : formatNumber(stats.facilities)}
+                            </span>
                             <span className="text-sm text-white/80 uppercase tracking-wider font-medium">Health Facilities</span>
                         </div>
                         <div className="flex flex-col items-center gap-2">
                             <div className="rounded-full bg-white/20 p-3 mb-2">
                                 <ShieldCheckIcon className="h-6 w-6 text-white" aria-hidden="true" />
                             </div>
-                            <span className="text-2xl font-bold text-white">100%</span>
+                            <span className="text-2xl font-bold text-white">{stats.security}%</span>
                             <span className="text-sm text-white/80 uppercase tracking-wider font-medium">Data Security</span>
                         </div>
                     </div>
