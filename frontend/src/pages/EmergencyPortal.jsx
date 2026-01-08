@@ -285,16 +285,16 @@ export default function EmergencyPortal() {
                                 {/* VITALS ROW */}
                                 <div className="grid grid-cols-2 gap-4">
                                     <Card className="border-0 shadow-lg bg-gradient-to-br from-rose-500 to-rose-600 text-white overflow-hidden relative group">
-                                        <div className="absolute -right-6 -bottom-6 h-24 w-24 bg-white/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500" />
-                                        <CardContent className="p-6 relative">
-                                            <p className="text-rose-100 text-xs font-black uppercase tracking-widest mb-2">Blood Type</p>
+                                        <div className="absolute -right-4 -bottom-4 h-16 w-16 bg-white/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500" />
+                                        <CardContent className="p-4 relative">
+                                            <p className="text-rose-100 text-[10px] font-black uppercase tracking-widest mb-1">Blood Type</p>
                                             <div className="flex items-baseline gap-1">
-                                                <span className="text-5xl font-black tracking-tighter">
+                                                <span className="text-3xl font-black tracking-tighter">
                                                     {emergencyData.blood_type || "-"}
                                                 </span>
                                             </div>
-                                            <div className="mt-4 flex items-center gap-2 text-rose-100 text-xs font-bold bg-white/10 w-fit px-2 py-1 rounded-full">
-                                                <Droplets className="h-3 w-3" /> Certified Match
+                                            <div className="mt-2 flex items-center gap-2 text-rose-100 text-[9px] font-bold bg-white/10 w-fit px-2 py-0.5 rounded-full">
+                                                <Droplets className="h-2.5 w-2.5" /> Certified Match
                                             </div>
                                         </CardContent>
                                     </Card>

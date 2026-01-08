@@ -184,12 +184,12 @@ export default function PatientEmergencyInfoPage() {
                         <CardContent className="space-y-6">
                             <div className="space-y-4">
                                 <Label>Blood Type</Label>
-                                <div className="p-4 bg-muted/20 border-2 border-dashed rounded-lg text-center relative group">
-                                    <span className="text-3xl font-black">{emergencyData.blood_type || "N/A"}</span>
+                                <div className="p-3 bg-muted/20 border-2 border-dashed rounded-lg text-center relative group">
+                                    <span className="text-xl font-black">{emergencyData.blood_type || "N/A"}</span>
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className={cn("absolute top-1 right-1 h-8 w-8", emergencyData.blood_type_visible ? "text-primary" : "text-muted-foreground")}
+                                        className={cn("absolute top-0.5 right-0.5 h-7 w-7", emergencyData.blood_type_visible ? "text-primary" : "text-muted-foreground")}
                                         onClick={() => handleToggleVisibility('medical', 'blood_type', emergencyData.blood_type_visible)}
                                     >
                                         {emergencyData.blood_type_visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
