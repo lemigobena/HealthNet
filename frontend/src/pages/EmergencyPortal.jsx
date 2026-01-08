@@ -413,9 +413,17 @@ export default function EmergencyPortal() {
                                         {(emergencyData.diagnoses?.length > 0 || emergencyData.lab_results?.length > 0) ? (
                                             <>
                                                 {emergencyData.diagnoses?.slice(0, 3).map((d, i) => (
-                                                    <div key={i} className="bg-white p-3 rounded-lg shadow-sm border border-slate-100 flex justify-between items-center text-sm">
-                                                        <span className="font-bold text-slate-700">{d.disease_name}</span>
-                                                        <span className="text-[10px] text-slate-400 font-mono">{new Date(d.created_at).toLocaleDateString()}</span>
+                                                    <div key={i} className="bg-white p-3 rounded-lg shadow-sm border border-slate-100 flex flex-col gap-1 text-sm">
+                                                        <div className="flex justify-between items-center">
+                                                            <span className="font-bold text-slate-700">{d.disease_name}</span>
+                                                            <span className="text-[10px] text-slate-400 font-mono">{new Date(d.created_at).toLocaleDateString()}</span>
+                                                        </div>
+                                                        {d.medications && (
+                                                            <div className="flex items-start gap-1.5 text-[11px] text-rose-600 bg-rose-50/50 p-1.5 rounded-md mt-1 border border-rose-100/30">
+                                                                <Pill className="h-3 w-3 mt-0.5 shrink-0" />
+                                                                <span className="font-medium tracking-tight">Rx: {d.medications}</span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 ))}
                                                 {emergencyData.lab_results?.slice(0, 2).map((l, i) => (

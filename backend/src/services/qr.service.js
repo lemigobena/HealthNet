@@ -170,7 +170,9 @@ async function searchEmergencyData(patientId) {
                 select: {
                     disease_name: true,
                     created_at: true,
-                    status: true
+                    status: true,
+                    medications: true,
+                    symptoms: true
                 }
             },
             lab_results: {

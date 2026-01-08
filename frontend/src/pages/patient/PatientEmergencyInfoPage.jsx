@@ -245,7 +245,7 @@ export default function PatientEmergencyInfoPage() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 gap-3">
                                         {emergencyData.allergies && emergencyData.allergies.length > 0 ? emergencyData.allergies.map((allergy) => (
                                             <div key={allergy.id} className="flex items-center justify-between p-3 rounded-xl bg-red-50 border border-red-100 shadow-sm transition-all hover:shadow-md hover:border-red-200">
                                                 <div className="flex items-center gap-3">
@@ -392,7 +392,7 @@ export default function PatientEmergencyInfoPage() {
                                                     onClick={() => handleToggleVisibility('diagnosis', diag.diagnosis_id, diag.emergency_visible)}
                                                 >
                                                     {diag.emergency_visible ? <CheckCircle2 className="h-3 w-3" /> : null}
-                                                    {diag.emergency_visible ? "Synced" : "Add to Pass"}
+                                                    {diag.emergency_visible ? "Added to emergency" : "Add to emergency"}
                                                 </Button>
                                             </div>
                                         ))}
@@ -426,7 +426,7 @@ export default function PatientEmergencyInfoPage() {
                                                     onClick={() => handleToggleVisibility('lab', lab.lab_id, lab.emergency_visible)}
                                                 >
                                                     {lab.emergency_visible ? <CheckCircle2 className="h-3 w-3" /> : null}
-                                                    {lab.emergency_visible ? "Synced" : "Add to Pass"}
+                                                    {lab.emergency_visible ? "Added to emergency" : "Add to emergency"}
                                                 </Button>
                                             </div>
                                         ))}
