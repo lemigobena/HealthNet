@@ -24,35 +24,6 @@ async function logAction({ userId, actionType, entityType, entityId, oldValues, 
     }
 }
 
-// Register a file in the FileStorage table
-
-async function registerFile({ fileName, filePath, fileUrl, fileSize, mimeType, entityType, entityId, uploadedBy, isPublic = false }) {
-    try {
-        const fileId = `FILE-${uuidv4().split('-')[0].toUpperCase()}-${Date.now().toString().slice(-4)}`;
-
-        const storedFile = await prisma.fileStorage.create({
-            data: {
-                file_id: fileId,
-                file_name: fileName,
-                file_path: filePath,
-                file_url: fileUrl,
-                file_size: fileSize,
-                mime_type: mimeType,
-                entity_type: entityType,
-                entity_id: entityId,
-                uploaded_by: uploadedBy,
-                is_public: isPublic
-            }
-        });
-
-        return storedFile;
-    } catch (error) {
-        console.error('File Storage Error:', error);
-        throw error;
-    }
-}
-
 module.exports = {
-    logAction,
-    registerFile
+    logAction
 };

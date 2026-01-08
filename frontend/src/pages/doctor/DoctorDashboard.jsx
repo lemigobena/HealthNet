@@ -58,9 +58,9 @@ export default function DoctorDashboard() {
         )
     }
 
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toLocaleDateString()
     const todayAppointments = appointments.filter(a => {
-        const appointmentDate = new Date(a.when).toISOString().split('T')[0]
+        const appointmentDate = new Date(a.when).toLocaleDateString()
         return appointmentDate === today
     })
     const doctorName = user?.name ? user.name.split(' ')[0] : "Practitioner"

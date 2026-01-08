@@ -151,8 +151,8 @@ model User {
   qr_scans FirstResponder[] @relation("UserScans") // Users who scan QR codes
 
   // Audit relationships
-  audit_logs    AuditLog[]
-  fileStorages  FileStorage[]
+  audit_logs AuditLog[]
+
   notifications Notification[]
 
   // Token management
@@ -194,6 +194,7 @@ model Doctor {
   type           DoctorType
   facility_id    String     @map("facility_id") @db.VarChar(13)
   specialization String     @db.VarChar(100)
+  national_id    String?    @map("national_id") @db.VarChar(20)
   created_by_id  String?    @map("created_by_id") @db.VarChar(13) // Admin ID (AM-**********)
   status         UserStatus @default(ACTIVE)
   // Relationships
@@ -231,6 +232,7 @@ model Patient {
   disability_visible Boolean         @default(false) @map("disability_visible")
   allergies_visible  Boolean         @default(false) @map("allergies_visible")
   insurance_status   InsuranceStatus @default(UNINSURED) @map("insurance_status")
+  national_id        String?         @map("national_id") @db.VarChar(20)
   created_by_id      String?         @map("created_by_id") @db.VarChar(13) // Admin ID (AM-**********)
   status             UserStatus      @default(ACTIVE)
 
@@ -520,31 +522,6 @@ model AuditLog {
   @@index([entity_id])
   @@index([created_at])
   @@map("audit_logs")
-}
-
-// File Storage Table 
-model FileStorage {
-  id          Int      @id @default(autoincrement())
-  file_id     String   @unique @map("file_id") @db.VarChar(100)
-  file_name   String   @map("file_name") @db.VarChar(255)
-  file_path   String   @map("file_path") @db.VarChar(500)
-  file_url    String?  @map("file_url") @db.VarChar(500)
-  file_size   Int      @map("file_size")
-  mime_type   String   @map("mime_type") @db.VarChar(100)
-  entity_type String   @map("entity_type") @db.VarChar(50) // LabResult, User, etc.
-  entity_id   String   @map("entity_id") @db.VarChar(50)
-  uploaded_by String?  @map("uploaded_by") @db.VarChar(13) // User ID (AM-/DL-/PT-**********)
-  is_public   Boolean  @default(false) @map("is_public")
-  created_at  DateTime @default(now()) @map("created_at")
-
-  // Relationship
-  uploaded_by_user User? @relation(fields: [uploaded_by], references: [user_id])
-
-  @@index([file_id])
-  @@index([entity_type])
-  @@index([entity_id])
-  @@index([uploaded_by])
-  @@map("file_storage")
 }
 
 // alergies table

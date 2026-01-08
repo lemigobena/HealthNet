@@ -44,7 +44,7 @@ export default function PatientLabResultDetailPage() {
     }, [id])
 
     const handleDownload = (fileUrl, fileName) => {
-        const fullUrl = `https://backend-jgdk.onrender.com${fileUrl}`;
+        const fullUrl = fileUrl.startsWith('http') ? fileUrl : `https://backend-jgdk.onrender.com${fileUrl}`;
         const link = document.createElement('a');
         link.href = fullUrl;
         link.setAttribute('download', fileName || 'report');
@@ -186,8 +186,30 @@ export default function PatientLabResultDetailPage() {
                             </CardHeader>
                             <CardContent className="p-6 space-y-6">
                                 <div className="space-y-1">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Test Metadata</p>
-                                    <div className="space-y-4 pt-3">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b pb-2 mb-3">Biological Profile</p>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase">Gender</p>
+                                            <p className="font-bold text-sm">{labResult.patient?.user?.gender || "N/A"}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase">DOB</p>
+                                            <p className="font-bold text-sm">{labResult.patient?.user?.dob ? new Date(labResult.patient.user.dob).toLocaleDateString() : "N/A"}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase">Blood Type</p>
+                                            <p className="font-bold text-sm">{labResult.patient?.blood_type?.replace('_', ' ') || "N/A"}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase">Insurance</p>
+                                            <p className="font-bold text-sm text-[10px]">{labResult.patient?.insurance_status || "N/A"}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b pb-2 mb-3">Test Metadata</p>
+                                    <div className="space-y-4">
                                         <div className="flex items-center gap-3">
                                             <Calendar className="h-4 w-4 text-primary" />
                                             <div>

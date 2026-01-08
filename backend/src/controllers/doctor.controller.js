@@ -87,28 +87,20 @@ async function createLabResult(req, res, next) {
 
         if (req.file) {
             labData.file_name = req.file.originalname;
+            // When using Cloudinary, req.file.path contains the secure URL
             labData.file_path = req.file.path;
             labData.file_size = req.file.size;
             labData.mime_type = req.file.mimetype;
 
-            labData.file_url = `/uploads/lab-results/${req.file.filename}`;
+            // Use the Cloudinary URL directly
+            labData.file_url = req.file.path;
         }
 
         const labResult = await doctorService.createLabResult(req.user.doctor_profile, patientId, labData);
 
         // 1. Register File in FileStorage table
-        if (req.file) {
-            await auditService.registerFile({
-                fileName: req.file.originalname,
-                filePath: req.file.path,
-                fileUrl: labData.file_url,
-                fileSize: req.file.size,
-                mimeType: req.file.mimetype,
-                entityType: 'LabResult',
-                entityId: labResult.lab_id,
-                uploadedBy: req.user.user_id
-            });
-        }
+        // 1. Register File in FileStorage table - REMOVED due to Cloudinary integration
+        // The file info is now stored directly in the LabResult table.
 
         // 2. Log Action in AuditLog table
         await auditService.logAction({

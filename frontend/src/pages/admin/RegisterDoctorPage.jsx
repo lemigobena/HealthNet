@@ -30,7 +30,8 @@ export default function RegisterDoctorPage() {
         facility_id: "",
         address: "",
         nationality: "Ethiopian",
-        place_of_birth: ""
+        place_of_birth: "",
+        national_id: ""
     })
 
     useEffect(() => {
@@ -126,6 +127,15 @@ export default function RegisterDoctorPage() {
                                         placeholder="+251 91 123 4567"
                                         value={formData.phone}
                                         onChange={(e) => handleChange('phone', e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>National ID *</Label>
+                                    <Input
+                                        placeholder="Enter National ID"
+                                        value={formData.national_id}
+                                        onChange={(e) => handleChange('national_id', e.target.value)}
                                         required
                                     />
                                 </div>

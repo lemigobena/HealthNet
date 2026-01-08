@@ -30,6 +30,8 @@ export default function EmergencyPortal() {
     const [isLoading, setIsLoading] = useState(false)
     const [emergencyData, setEmergencyData] = useState(null)
     const [error, setError] = useState("")
+    const [verificationInput, setVerificationInput] = useState("")
+    const [isVerified, setIsVerified] = useState(false)
 
     useEffect(() => {
         if (id) {
@@ -42,6 +44,7 @@ export default function EmergencyPortal() {
         setIsLoading(true)
         setError("")
         setEmergencyData(null)
+        setIsVerified(false) // Reset verification
 
         try {
             const res = await api.get(`/qr/emergency-search/${searchId}`)
@@ -54,10 +57,21 @@ export default function EmergencyPortal() {
         }
     }
 
+    const handleVerify = (e) => {
+        e.preventDefault()
+        if (emergencyData && verificationInput.trim().toUpperCase() === emergencyData.patient.patient_id.toUpperCase()) {
+            setIsVerified(true)
+        } else {
+            setError("Incorrect Patient ID. Access Denied.")
+        }
+    }
+
     const handleSearch = async (e) => {
         if (e) e.preventDefault()
         if (!patientSearchId) return
 
+        // Reset verify on manual search too
+        setIsVerified(false)
         setIsLoading(true)
         setError("")
         setEmergencyData(null)
@@ -149,6 +163,36 @@ export default function EmergencyPortal() {
                                 <p className="font-bold text-sm">{error}</p>
                             </div>
                         )}
+                    </div>
+                ) : !isVerified ? (
+                    /* VERIFICATION STATE */
+                    <div className="max-w-md mx-auto mt-20 space-y-6 animate-in fade-in zoom-in duration-300">
+                        <div className="text-center space-y-2">
+                            <div className="h-16 w-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto text-rose-600 mb-4 text-2xl font-black">
+                                <ShieldCheck className="h-8 w-8" />
+                            </div>
+                            <h2 className="text-2xl font-bold">Security Verification</h2>
+                            <p className="text-muted-foreground">Enter the Patient ID (PT-XXXXXXXXXX) found on the ID card to unlock medical records.</p>
+                        </div>
+                        <Card>
+                            <CardContent className="pt-6">
+                                <form onSubmit={handleVerify} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Input
+                                            placeholder="Enter Patient ID (e.g. PT-1234567890)"
+                                            value={verificationInput}
+                                            onChange={(e) => setVerificationInput(e.target.value)}
+                                            className="text-center font-mono uppercase tracking-widest text-lg h-12"
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <Button type="submit" className="w-full h-12 font-bold bg-rose-600 hover:bg-rose-700">
+                                        Verify Identity
+                                    </Button>
+                                    {error && <p className="text-red-500 text-sm text-center font-bold">{error}</p>}
+                                </form>
+                            </CardContent>
+                        </Card>
                     </div>
                 ) : (
                     /* DATA STATE */
@@ -279,9 +323,17 @@ export default function EmergencyPortal() {
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="pt-4">
-                                        <p className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-                                            {emergencyData.emergency_info?.current_medications || "No active medications listed."}
-                                        </p>
+                                        <div className="text-slate-600 dark:text-slate-300 font-medium leading-relaxed space-y-2">
+                                            {emergencyData.emergency_info?.current_medications && (
+                                                <p><span className="font-bold text-xs uppercase text-slate-400">Main:</span> {emergencyData.emergency_info.current_medications}</p>
+                                            )}
+                                            {emergencyData.diagnoses?.filter(d => d.medications).map(d => (
+                                                <p key={d.id}><span className="font-bold text-xs uppercase text-slate-400">For {d.disease_name}:</span> {d.medications}</p>
+                                            ))}
+                                            {(!emergencyData.emergency_info?.current_medications && (!emergencyData.diagnoses || emergencyData.diagnoses.filter(d => d.medications).length === 0)) && (
+                                                <p className="italic text-slate-400">No active medications listed.</p>
+                                            )}
+                                        </div>
                                     </CardContent>
                                 </Card>
                             </div>

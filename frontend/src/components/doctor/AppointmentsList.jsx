@@ -136,6 +136,7 @@ export function AppointmentsList() {
                     <TabsList className="mb-4">
                         <TabsTrigger value="upcoming">Upcoming ({upcomingAppointments.length})</TabsTrigger>
                         <TabsTrigger value="past">Past ({pastAppointments.length})</TabsTrigger>
+                        <TabsTrigger value="all">All ({appointments.length})</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="upcoming" className="space-y-4">
@@ -150,6 +151,12 @@ export function AppointmentsList() {
 
                     <TabsContent value="past" className="space-y-4">
                         {pastAppointments.map((appointment) => (
+                            <AppointmentCard key={appointment.appointment_id || appointment.id} appointment={appointment} />
+                        ))}
+                    </TabsContent>
+
+                    <TabsContent value="all" className="space-y-4">
+                        {appointments.map((appointment) => (
                             <AppointmentCard key={appointment.appointment_id || appointment.id} appointment={appointment} />
                         ))}
                     </TabsContent>

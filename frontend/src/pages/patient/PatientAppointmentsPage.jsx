@@ -52,9 +52,10 @@ export default function PatientAppointmentsPage() {
         <PatientLayout title="My Appointments" subtitle="Manage your upcoming and past visits">
             <div className="max-w-4xl mx-auto">
                 <Tabs defaultValue="upcoming" className="w-full">
-                    <TabsList className="mb-6 grid w-full grid-cols-2 max-w-[300px] mx-auto">
+                    <TabsList className="mb-6 grid w-full grid-cols-3 max-w-[450px] mx-auto">
                         <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
                         <TabsTrigger value="history">History</TabsTrigger>
+                        <TabsTrigger value="all">All Appointments</TabsTrigger>
                     </TabsList>
 
                     {/* Upcoming */}
@@ -74,6 +75,16 @@ export default function PatientAppointmentsPage() {
                         ))}
                         {history.length === 0 && (
                             <NoAppointments message="No past appointment history found." />
+                        )}
+                    </TabsContent>
+
+                    {/* All */}
+                    <TabsContent value="all" className="space-y-4">
+                        {appointments.map(appointment => (
+                            <AppointmentCard key={appointment.appointment_id} appointment={appointment} />
+                        ))}
+                        {appointments.length === 0 && (
+                            <NoAppointments message="No appointments found." />
                         )}
                     </TabsContent>
 

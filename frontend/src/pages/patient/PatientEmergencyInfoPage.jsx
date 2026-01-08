@@ -23,8 +23,6 @@ export default function PatientEmergencyInfoPage() {
         blood_type_visible: false,
         disability_visible: false
     })
-    const [password, setPassword] = useState("")
-    const [showPassword, setShowPassword] = useState(false)
 
     const [diagnoses, setDiagnoses] = useState([])
     const [labResults, setLabResults] = useState([])
@@ -97,11 +95,9 @@ export default function PatientEmergencyInfoPage() {
                 known_allergies: emergencyData.known_allergies,
                 chronic_conditions: emergencyData.chronic_conditions,
                 current_medications: emergencyData.current_medications,
-                disability_info: emergencyData.disability_info,
-                password: password || undefined
+                disability_info: emergencyData.disability_info
             })
             setIsEditing(false)
-            setPassword("") // Clear password after save
             await fetchAllData() // Refresh to get updated fields
         } catch (err) {
             console.error("Failed to save emergency info", err)
@@ -346,35 +342,6 @@ export default function PatientEmergencyInfoPage() {
                                 />
                             </div>
 
-                            <div className="space-y-2 pt-2 border-t border-border/50">
-                                <Label className="flex items-center justify-between">
-                                    <span>Access Password</span>
-                                    {isEditing && (
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="h-6 w-6"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                        >
-                                            {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                                        </Button>
-                                    )}
-                                </Label>
-                                <Input
-                                    disabled={!isEditing}
-                                    type={showPassword ? "text" : "password"}
-                                    value={isEditing ? password : "••••••••"}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder={isEditing ? "Enter new password (optional)" : ""}
-                                    className="font-mono bg-muted/10"
-                                />
-                                {isEditing && (
-                                    <p className="text-[10px] text-muted-foreground font-medium italic">
-                                        Leave blank to keep current password. Minimum 6 characters.
-                                    </p>
-                                )}
-                            </div>
-
                             {isEditing && (
                                 <Button
                                     className="w-full mt-4 font-black uppercase tracking-widest h-12"
@@ -475,4 +442,3 @@ export default function PatientEmergencyInfoPage() {
         </PatientLayout>
     )
 }
-

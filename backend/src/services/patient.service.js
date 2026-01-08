@@ -99,7 +99,17 @@ async function getLabResultById(patientId, labId) {
                     }
                 }
             },
-            facility: true
+            facility: true,
+            patient: {
+                include: {
+                    user: {
+                        select: {
+                            name: true,
+                            user_id: true
+                        }
+                    }
+                }
+            }
         }
     });
 
@@ -443,7 +453,7 @@ async function deleteAllergy(patientId, allergyId) {
 async function toggleMedicalInfoVisibility(patientId, field, visible) {
     const data = {};
     if (field === 'blood_type') data.blood_type_visible = visible;
-    if (field === 'blood_type') data.blood_type_visible = visible;
+
     else if (field === 'disability') data.disability_visible = visible;
     else if (field === 'allergies') data.allergies_visible = visible;
     else throw new Error('Invalid medical info field');

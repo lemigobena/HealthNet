@@ -45,7 +45,7 @@ export default function DoctorLabResultDetailPage() {
 
     const handleDownload = (fileUrl, fileName) => {
         // Construct full URL pointing to static files (not API)
-        const fullUrl = `https://backend-jgdk.onrender.com${fileUrl}`;
+        const fullUrl = fileUrl.startsWith('http') ? fileUrl : `https://backend-jgdk.onrender.com${fileUrl}`;
 
         // Create a temporary link to trigger download
         const link = document.createElement('a');

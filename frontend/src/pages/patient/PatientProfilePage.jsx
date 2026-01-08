@@ -199,6 +199,35 @@ export default function PatientProfilePage() {
                         </CardFooter>
                     )}
                 </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Security Settings</CardTitle>
+                        <CardDescription>Update your account password</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <form onSubmit={async (e) => {
+                            e.preventDefault()
+                            const newPass = e.target.newPassword.value
+                            if (newPass) {
+                                try {
+                                    await api.patch('/auth/update-password', { password: newPass })
+                                    alert("Password updated successfully. You may be asked to login again.")
+                                    e.target.reset()
+                                } catch (err) {
+                                    console.error(err)
+                                    alert("Failed to update password")
+                                }
+                            }
+                        }} className="grid gap-4 md:grid-cols-2 items-end">
+                            <div className="space-y-2">
+                                <Label htmlFor="newPassword">New Password</Label>
+                                <Input id="newPassword" type="password" placeholder="Enter new password" required />
+                            </div>
+                            <Button type="submit">Update Password</Button>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
         </PatientLayout>
     )

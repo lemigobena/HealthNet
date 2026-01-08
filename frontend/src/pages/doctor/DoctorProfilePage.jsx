@@ -124,6 +124,37 @@ export default function DoctorProfilePage() {
                         </CardContent>
                     </Card>
                 </div>
+                {/* Password Reset Section */}
+                <Card className="border-border/50 shadow-lg">
+                    <CardHeader>
+                        <CardTitle className="text-xl font-bold tracking-tight">Security Settings</CardTitle>
+                        <CardDescription>Update your secure access credentials</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={async (e) => {
+                            e.preventDefault()
+                            const newPass = e.target.newPassword.value
+                            if (newPass) {
+                                try {
+                                    await api.patch('/auth/update-password', { password: newPass })
+                                    alert("Password updated successfully.")
+                                    e.target.reset()
+                                } catch (err) {
+                                    alert("Failed to update password.")
+                                    console.error(err)
+                                }
+                            }
+                        }} className="space-y-4">
+                            <div className="grid gap-4 md:grid-cols-2 items-end">
+                                <div className="space-y-2">
+                                    <Label htmlFor="docNewPassword">New Password</Label>
+                                    <Input id="docNewPassword" name="newPassword" type="password" placeholder="Enter new password" required />
+                                </div>
+                                <Button type="submit">Update Credentials</Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
         </DoctorLayout>
     )

@@ -151,7 +151,7 @@ export default function PatientDashboard() {
                                 <CardHeader className="bg-emerald-500/5 pb-4">
                                     <CardTitle className="text-lg flex items-center gap-2">
                                         <FlaskConical className="h-5 w-5 text-emerald-600" />
-                                        Latest Diagnostic File
+                                        Latest Lab Result
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="pt-6">

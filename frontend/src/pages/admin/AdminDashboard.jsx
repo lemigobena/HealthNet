@@ -32,11 +32,24 @@ export default function AdminDashboard() {
                 const medDocs = allDoctors.length - labTechs
 
                 // Real-time calculations
-                const today = new Date().toISOString().split('T')[0]
+                const today = new Date().toLocaleDateString()
                 const newRegs = patientsRes.data.data.filter(p => {
                     if (!p.user?.created_at) return false
-                    return new Date(p.user.created_at).toISOString().split('T')[0] === today
+                    return new Date(p.user.created_at).toLocaleDateString() === today
                 }).length
+
+                // Calculate Last 7 Days Registrations
+                const last7Days = [...Array(7)].map((_, i) => {
+                    const d = new Date()
+                    d.setDate(d.getDate() - (6 - i))
+                    return d.toLocaleDateString()
+                })
+
+                const graphData = last7Days.map(date => {
+                    return patientsRes.data.data.filter(p =>
+                        p.user?.created_at && new Date(p.user.created_at).toLocaleDateString() === date
+                    ).length
+                })
 
                 const uniqueFacilities = new Set(allDoctors.map(d => d.hospital_id)).size || 1
 
@@ -48,7 +61,8 @@ export default function AdminDashboard() {
                     newRegistrationsToday: newRegs,
                     activeSessions: allDoctors.length > 0 ? 1 : 0,
                     emergencyAccessesToday: 0,
-                    facilityName: allDoctors.length > 0 ? (allDoctors[0].facility?.name || "National Facility") : "National Headquarters"
+                    facilityName: allDoctors.length > 0 ? (allDoctors[0].facility?.name || "National Facility") : "National Headquarters",
+                    graphData: graphData
                 })
             } catch (err) {
                 console.error("Admin dashboard stats sync error:", err)
@@ -118,16 +132,28 @@ export default function AdminDashboard() {
                             </div>
                         </CardHeader>
                         <CardContent className="pt-8">
-                            {/* Chart Placeholder */}
+                            {/* Chart Placeholder - Dynamic */}
                             <div className="h-[250px] w-full bg-primary/5 rounded-2xl relative overflow-hidden flex items-end justify-between px-10 pb-6 group border-2 border-dashed">
-                                {[40, 65, 45, 90, 85, 55, 75, 60, 95, 80, 70, 85, 60, 40, 50].map((height, i) => (
-                                    <div
-                                        key={i}
-                                        className="w-[4%] bg-primary/20 hover:bg-primary transition-all rounded-t-lg relative group/bar shadow-sm"
-                                        style={{ height: `${height}%` }}
-                                    >
+                                {stats.graphData ? stats.graphData.map((count, i) => {
+                                    const maxVal = Math.max(...stats.graphData, 1)
+                                    const height = (count / maxVal) * 80 + 10 // Min 10% height
+                                    return (
+                                        <div
+                                            key={i}
+                                            className="w-[10%] bg-primary/20 hover:bg-primary transition-all rounded-t-lg relative group/bar shadow-sm"
+                                            style={{ height: `${height}%` }}
+                                            title={`${count} registrations`}
+                                        >
+                                            <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity text-xs font-bold">
+                                                {count}
+                                            </div>
+                                        </div>
+                                    )
+                                }) : (
+                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                        Loading Analytics...
                                     </div>
-                                ))}
+                                )}
                                 <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
                                     <Activity className="h-48 w-48 text-primary" />
                                 </div>

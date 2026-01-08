@@ -6,7 +6,7 @@ const { successResponse, errorResponse } = require('../utils/response');
 async function login(req, res, next) {
     try {
         const { user_id, email, password } = req.body;
-        
+
         // Support both user_id and email for login
         const identifier = user_id || email;
 
@@ -56,8 +56,23 @@ async function getCurrentUser(req, res, next) {
     }
 }
 
+// Update password
+async function updatePassword(req, res, next) {
+    try {
+        const { password } = req.body;
+        if (!password) {
+            return errorResponse(res, 'Password is required', 400);
+        }
+        await authService.updatePassword(req.user.user_id, password);
+        return successResponse(res, null, 'Password updated successfully');
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     login,
     logout,
-    getCurrentUser
+    getCurrentUser,
+    updatePassword
 };

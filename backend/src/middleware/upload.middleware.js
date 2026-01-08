@@ -1,42 +1,29 @@
-
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// Ensure upload directory exists
-const uploadDir = path.join(process.cwd(), 'uploads/lab-results');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Configure storage
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: 'dmsfng4gw',
+    api_key: '918912557465365',
+    api_secret: 'kHLd6sxdsqjqQr9zdxuuNlyROKk'
 });
 
-// File filter 
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|pdf|mp4|mkv|webm|avi/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-
-    if (mimetype && extname) {
-        return cb(null, true);
-    } else {
-        cb(new Error('Only Images (JPEG, JPG, PNG), PDFs, and Videos (MP4, MKV, WEBM, AVI) are allowed!'));
-    }
-};
+// Configure Cloudinary Storage
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'healthnet/lab-results',
+        resource_type: 'auto', // Auto-detect image or video
+        allowed_formats: ['jpg', 'png', 'jpeg', 'pdf', 'mp4', 'mkv', 'webm', 'avi'],
+    },
+});
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-    fileFilter: fileFilter
+    limits: { fileSize: 20 * 1024 * 1024 }, // Increased to 20MB for videos/cloud
+    // CloudinaryStorage handles validation, but we can keep basic checks if needed. 
+    // Usually 'allowed_formats' in params is enough.
 });
 
 module.exports = {

@@ -30,7 +30,7 @@ export default function RegisterPatientPage() {
         address: "",
         nationality: "Ethiopian",
         place_of_birth: "",
-        facility_id: ""
+        national_id: ""
     })
 
     useEffect(() => {
@@ -210,23 +210,13 @@ export default function RegisterPatientPage() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Facility *</Label>
-                                        <Select value={formData.facility_id} onValueChange={(val) => handleChange('facility_id', val)}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select facility" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {facilities.length > 0 ? (
-                                                    facilities.map(f => (
-                                                        <SelectItem key={f.hospital_id} value={f.hospital_id}>{f.name}</SelectItem>
-                                                    ))
-                                                ) : (
-                                                    <SelectItem value={user?.admin_profile?.facility_id || "loading"}>
-                                                        Current Facility
-                                                    </SelectItem>
-                                                )}
-                                            </SelectContent>
-                                        </Select>
+                                        <Label>National ID *</Label>
+                                        <Input
+                                            placeholder="Enter National ID"
+                                            value={formData.national_id}
+                                            onChange={(e) => handleChange('national_id', e.target.value)}
+                                            required
+                                        />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Disability (if any)</Label>

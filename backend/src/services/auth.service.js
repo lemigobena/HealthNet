@@ -123,8 +123,23 @@ async function logout(userId) {
     });
 }
 
+// Update user password
+async function updatePassword(userIdString, newPassword) {
+    const { hashPassword } = require('../utils/hash');
+    const hashedPassword = await hashPassword(newPassword);
+
+    await prisma.user.update({
+        where: { user_id: userIdString },
+        data: {
+            password_hash: hashedPassword,
+            token_version: { increment: 1 } // Optional: Force logout on other devices
+        }
+    });
+}
+
 module.exports = {
     login,
     logout,
-    getCurrentUser
+    getCurrentUser,
+    updatePassword
 };
