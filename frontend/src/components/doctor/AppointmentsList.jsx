@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils"
 
 export function AppointmentsList() {
     const [appointments, setAppointments] = useState([])
-    const [isLoading, setIsLoading] = useState(true)
     const [selectedTab, setSelectedTab] = useState("upcoming")
 
     useEffect(() => {
@@ -21,8 +20,6 @@ export function AppointmentsList() {
                 setAppointments(res.data.data)
             } catch (err) {
                 console.error("Failed to load appointments", err)
-            } finally {
-                setIsLoading(false)
             }
         }
         fetchAppointments()

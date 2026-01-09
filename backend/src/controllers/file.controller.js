@@ -51,10 +51,11 @@ const getLabResultDownloadUrl = async (req, res) => {
             if (labResult.doctor_id === req.user.doctor_profile?.doctor_id) {
                 isAuthorized = true;
             } else {
-                const assignment = await prisma.patientDoctor.findFirst({
+                const assignment = await prisma.assignment.findFirst({
                     where: {
                         patient_id: labResult.patient_id,
-                        doctor_id: req.user.doctor_profile?.doctor_id
+                        doctor_id: req.user.doctor_profile?.doctor_id,
+                        end_date: null
                     }
                 });
                 if (assignment) isAuthorized = true;

@@ -28,12 +28,7 @@ export default function CreateAppointmentPage() {
         duration: "30"
     })
 
-    // Also update patient_id if searching/navigating while on the same page
-    useEffect(() => {
-        if (patientIdParam) {
-            setFormData(prev => ({ ...prev, patient_id: patientIdParam }))
-        }
-    }, [patientIdParam])
+
 
     useEffect(() => {
         const fetchPatients = async () => {

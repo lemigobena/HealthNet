@@ -1,17 +1,19 @@
 import DoctorLayout from "@/layouts/DoctorLayout"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { User, Mail, Phone, MapPin, Award, Building2, Calendar, FileText, Fingerprint } from "lucide-react"
+import { User, Mail, Phone, MapPin, Award, Building2, Calendar, FileText, Fingerprint, Eye, EyeOff } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import dayjs from "dayjs"
 import api from "@/services/api"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { useState } from "react"
 
 export default function DoctorProfilePage() {
     const { user } = useAuth()
     const doctor = user?.doctor_profile
+    const [showPassword, setShowPassword] = useState(false)
 
     if (!doctor) return null
 
@@ -151,8 +153,26 @@ export default function DoctorProfilePage() {
                         }} className="space-y-4">
                             <div className="grid gap-4 md:grid-cols-2 items-end">
                                 <div className="space-y-2">
-                                    <Label htmlFor="docNewPassword">New Password</Label>
-                                    <Input id="docNewPassword" name="newPassword" type="password" placeholder="Enter new password" required />
+                                    <Label htmlFor="docNewPassword" title="Enter New Password">New Password</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="docNewPassword"
+                                            name="newPassword"
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="••••••••"
+                                            required
+                                            className="pr-10"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </Button>
+                                    </div>
                                 </div>
                                 <Button type="submit">Update Credentials</Button>
                             </div>

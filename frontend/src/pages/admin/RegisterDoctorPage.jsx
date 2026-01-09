@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Save, Stethoscope, Loader2 } from "lucide-react"
+import { ArrowLeft, Save, Stethoscope, Loader2, Eye, EyeOff } from "lucide-react"
 import api from "@/services/api"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -15,13 +15,22 @@ export default function RegisterDoctorPage() {
     const { user } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
-    const [facilities, setFacilities] = useState([])
+
+
+    const [showPassword, setShowPassword] = useState(false)
+    const [isOtherSpecialization, setIsOtherSpecialization] = useState(false)
+
+    const specializations = [
+        "Cardiology", "Pediatrics", "Internal Medicine", "Surgery",
+        "Obstetrics & Gynecology", "Laboratory Medicine", "Radiology",
+        "Orthopedics", "Neurology", "Psychiatry"
+    ]
 
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         phone: "",
-        password: "DefaultPassword123!", // Recommended to have a default or field
+        password: "DefaultPassword123!",
         gender: "",
         dob: "",
         license_number: "",
@@ -35,26 +44,24 @@ export default function RegisterDoctorPage() {
     })
 
     useEffect(() => {
-        const fetchFacilities = async () => {
-            try {
-                // In a real app, we'd have an endpoint for this
-                // For now, let's assume we can fetch or use the one from admin profile
-                const response = await api.get('/admin/facilities')
-                setFacilities(response.data.data)
-
-                // Autofill facility if admin belongs to one
-                if (user?.admin_profile?.facility_id) {
-                    setFormData(prev => ({ ...prev, facility_id: user.admin_profile.facility_id }))
-                }
-            } catch (err) {
-                console.error("Failed to fetch facilities", err)
-            }
+        // Autofill facility if admin belongs to one
+        if (user?.admin_profile?.facility_id) {
+            setFormData(prev => ({ ...prev, facility_id: user.admin_profile.facility_id }))
         }
-        fetchFacilities()
     }, [user])
 
     const handleChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }))
+    }
+
+    const handleSpecializationChange = (val) => {
+        if (val === "OTHER") {
+            setIsOtherSpecialization(true)
+            setFormData(prev => ({ ...prev, specialization: "" }))
+        } else {
+            setIsOtherSpecialization(false)
+            setFormData(prev => ({ ...prev, specialization: val }))
+        }
     }
 
     const handleSubmit = async (e) => {
@@ -105,7 +112,7 @@ export default function RegisterDoctorPage() {
                                 <div className="space-y-2">
                                     <Label>Full Name *</Label>
                                     <Input
-                                        placeholder="Enter full name"
+                                        placeholder="Enter doctor's full name"
                                         value={formData.name}
                                         onChange={(e) => handleChange('name', e.target.value)}
                                         required
@@ -115,7 +122,7 @@ export default function RegisterDoctorPage() {
                                     <Label>Email Address *</Label>
                                     <Input
                                         type="email"
-                                        placeholder="doctor@example.com"
+                                        placeholder="doctor.name@healthnet.gov.et"
                                         value={formData.email}
                                         onChange={(e) => handleChange('email', e.target.value)}
                                         required
@@ -124,7 +131,7 @@ export default function RegisterDoctorPage() {
                                 <div className="space-y-2">
                                     <Label>Phone Number *</Label>
                                     <Input
-                                        placeholder="+251 91 123 4567"
+                                        placeholder="+251 9XX XXX XXX"
                                         value={formData.phone}
                                         onChange={(e) => handleChange('phone', e.target.value)}
                                         required
@@ -133,7 +140,7 @@ export default function RegisterDoctorPage() {
                                 <div className="space-y-2">
                                     <Label>National ID *</Label>
                                     <Input
-                                        placeholder="Enter National ID"
+                                        placeholder="Enter Government ID Number"
                                         value={formData.national_id}
                                         onChange={(e) => handleChange('national_id', e.target.value)}
                                         required
@@ -141,12 +148,24 @@ export default function RegisterDoctorPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Temporary Password *</Label>
-                                    <Input
-                                        type="password"
-                                        value={formData.password}
-                                        onChange={(e) => handleChange('password', e.target.value)}
-                                        required
-                                    />
+                                    <div className="relative">
+                                        <Input
+                                            type={showPassword ? "text" : "password"}
+                                            placeholder="Create a secure password"
+                                            value={formData.password}
+                                            onChange={(e) => handleChange('password', e.target.value)}
+                                            required
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground hover:text-foreground"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                        >
+                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </Button>
+                                    </div>
                                 </div>
 
                                 {/* Professional Info */}
@@ -154,7 +173,7 @@ export default function RegisterDoctorPage() {
                                     <Label>Doctor Type *</Label>
                                     <Select value={formData.type} onValueChange={(val) => handleChange('type', val)}>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select type" />
+                                            <SelectValue placeholder="Select clinical role" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="MEDICAL_DOCTOR">Medical Doctor</SelectItem>
@@ -164,17 +183,33 @@ export default function RegisterDoctorPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Specialization *</Label>
-                                    <Input
-                                        placeholder="e.g. Cardiology"
-                                        value={formData.specialization}
-                                        onChange={(e) => handleChange('specialization', e.target.value)}
-                                        required
-                                    />
+                                    <Select
+                                        value={isOtherSpecialization ? "OTHER" : formData.specialization}
+                                        onValueChange={handleSpecializationChange}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select specialization" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {specializations.map(s => (
+                                                <SelectItem key={s} value={s}>{s}</SelectItem>
+                                            ))}
+                                            <SelectItem value="OTHER">Other...</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    {isOtherSpecialization && (
+                                        <Input
+                                            className="mt-2 animate-in fade-in slide-in-from-top-2 duration-300"
+                                            placeholder="Specify other specialization"
+                                            value={formData.specialization}
+                                            onChange={(e) => handleChange('specialization', e.target.value)}
+                                        />
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Medical License Number *</Label>
                                     <Input
-                                        placeholder="Enter license number"
+                                        placeholder="e.g. LIC-XXXXX-2024"
                                         value={formData.license_number}
                                         onChange={(e) => handleChange('license_number', e.target.value)}
                                         required
@@ -207,6 +242,7 @@ export default function RegisterDoctorPage() {
                                 <div className="space-y-2">
                                     <Label>Nationality</Label>
                                     <Input
+                                        placeholder="e.g. Ethiopian"
                                         value={formData.nationality}
                                         onChange={(e) => handleChange('nationality', e.target.value)}
                                     />
@@ -214,7 +250,7 @@ export default function RegisterDoctorPage() {
                                 <div className="space-y-2">
                                     <Label>Place of Birth</Label>
                                     <Input
-                                        placeholder="City / Region"
+                                        placeholder="City / Region of birth"
                                         value={formData.place_of_birth}
                                         onChange={(e) => handleChange('place_of_birth', e.target.value)}
                                     />
@@ -222,7 +258,7 @@ export default function RegisterDoctorPage() {
                                 <div className="space-y-2 md:col-span-2">
                                     <Label>Residential Address</Label>
                                     <Input
-                                        placeholder="Enter full address"
+                                        placeholder="Complete residential address"
                                         value={formData.address}
                                         onChange={(e) => handleChange('address', e.target.value)}
                                     />

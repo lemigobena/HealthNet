@@ -1,41 +1,36 @@
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import PatientLayout from "@/layouts/PatientLayout"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { User, Mail, Phone, MapPin, Save, Shield } from "lucide-react"
+import { User, Mail, Phone, MapPin, Save, Shield, Eye, EyeOff } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import api from "@/services/api"
 
 export default function PatientProfilePage() {
     const { user, setUser } = useAuth()
     const [isEditing, setIsEditing] = useState(false)
-    const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        address: "",
-        dateOfBirth: "",
-        nationalId: ""
-    })
+    const [showPassword, setShowPassword] = useState(false)
+    const names = user?.name?.split(' ') || []
+    const initialData = {
+        firstName: names[0] || "",
+        lastName: names.slice(1).join(' ') || "",
+        email: user?.email || "",
+        phone: user?.phone || "Not Set",
+        address: user?.address || "Not Set",
+        dateOfBirth: user?.patient_profile?.dob ? new Date(user.patient_profile.dob).toLocaleDateString() : "Not Set",
+        nationalId: user?.patient_profile?.upi || user?.patient_profile?.patient_id || "N/A",
+        _userId: user?.id
+    }
 
-    useEffect(() => {
-        if (user) {
-            const names = user.name?.split(' ') || []
-            setFormData({
-                firstName: names[0] || "",
-                lastName: names.slice(1).join(' ') || "",
-                email: user.email || "",
-                phone: user.phone || "Not Set",
-                address: user.address || "Not Set",
-                dateOfBirth: user.patient_profile?.dob ? new Date(user.patient_profile.dob).toLocaleDateString() : "Not Set",
-                nationalId: user.patient_profile?.upi || user.patient_profile?.patient_id || "N/A"
-            })
-        }
-    }, [user])
+    const [formData, setFormData] = useState(initialData)
+
+    // Sync state during render if user changes
+    if (user && formData._userId !== user.id) {
+        setFormData(initialData)
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -132,6 +127,7 @@ export default function PatientProfilePage() {
                                     <Input
                                         id="email"
                                         name="email"
+                                        placeholder="e.g. patient.name@example.com"
                                         value={formData.email}
                                         onChange={handleChange}
                                         className="pl-9"
@@ -147,6 +143,7 @@ export default function PatientProfilePage() {
                                     <Input
                                         id="phone"
                                         name="phone"
+                                        placeholder="+251 9XX XXX XXX"
                                         value={formData.phone}
                                         onChange={handleChange}
                                         className="pl-9"
@@ -162,6 +159,7 @@ export default function PatientProfilePage() {
                                     <Input
                                         id="address"
                                         name="address"
+                                        placeholder="Enter your complete residential address"
                                         value={formData.address}
                                         onChange={handleChange}
                                         className="pl-9"
@@ -222,7 +220,25 @@ export default function PatientProfilePage() {
                         }} className="grid gap-4 md:grid-cols-2 items-end">
                             <div className="space-y-2">
                                 <Label htmlFor="newPassword">New Password</Label>
-                                <Input id="newPassword" type="password" placeholder="Enter new password" required />
+                                <div className="relative">
+                                    <Input
+                                        id="newPassword"
+                                        name="newPassword"
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        required
+                                        className="pr-10"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </Button>
+                                </div>
                             </div>
                             <Button type="submit">Update Password</Button>
                         </form>

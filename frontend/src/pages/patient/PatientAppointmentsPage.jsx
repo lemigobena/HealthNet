@@ -46,7 +46,6 @@ export default function PatientAppointmentsPage() {
 
     const upcoming = appointments.filter(a => a.status === 'SCHEDULED' || a.status === 'RESCHEDULED')
     const history = appointments.filter(a => a.status === 'COMPLETED')
-    const cancelled = appointments.filter(a => a.status === 'CANCELLED')
 
     return (
         <PatientLayout title="My Appointments" subtitle="Manage your upcoming and past visits">

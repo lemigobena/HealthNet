@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Save, Users, Loader2 } from "lucide-react"
+import { ArrowLeft, Save, Users, Loader2, Eye, EyeOff } from "lucide-react"
 import api from "@/services/api"
 import { useAuth } from "@/contexts/AuthContext"
 
@@ -15,7 +15,19 @@ export default function RegisterPatientPage() {
     const { user } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
-    const [facilities, setFacilities] = useState([])
+
+
+    const [showPassword, setShowPassword] = useState(false)
+    const [isOtherDisability, setIsOtherDisability] = useState(false)
+
+    const disabilities = [
+        "No disability",
+        "Visual Impairment",
+        "Hearing Impairment",
+        "Physical Disability",
+        "Intellectual Disability",
+        "Speech Impairment"
+    ]
 
     const [formData, setFormData] = useState({
         name: "",
@@ -25,7 +37,7 @@ export default function RegisterPatientPage() {
         gender: "",
         dob: "",
         blood_type: "",
-        disability: "",
+        disability: "No disability",
         insurance_status: "UNINSURED",
         address: "",
         nationality: "Ethiopian",
@@ -34,23 +46,23 @@ export default function RegisterPatientPage() {
     })
 
     useEffect(() => {
-        const fetchFacilities = async () => {
-            try {
-                const response = await api.get('/admin/facilities')
-                setFacilities(response.data.data)
-
-                if (user?.admin_profile?.facility_id) {
-                    setFormData(prev => ({ ...prev, facility_id: user.admin_profile.facility_id }))
-                }
-            } catch (err) {
-                console.error("Failed to fetch facilities", err)
-            }
+        if (user?.admin_profile?.facility_id) {
+            setFormData(prev => ({ ...prev, facility_id: user.admin_profile.facility_id }))
         }
-        fetchFacilities()
     }, [user])
 
     const handleChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }))
+    }
+
+    const handleDisabilityChange = (val) => {
+        if (val === "OTHER") {
+            setIsOtherDisability(true)
+            setFormData(prev => ({ ...prev, disability: "" }))
+        } else {
+            setIsOtherDisability(false)
+            setFormData(prev => ({ ...prev, disability: val }))
+        }
     }
 
     const handleSubmit = async (e) => {
@@ -102,7 +114,7 @@ export default function RegisterPatientPage() {
                                     <div className="space-y-2">
                                         <Label>Full Name *</Label>
                                         <Input
-                                            placeholder="Enter full name"
+                                            placeholder="Enter patient's full name"
                                             value={formData.name}
                                             onChange={(e) => handleChange('name', e.target.value)}
                                             required
@@ -112,7 +124,7 @@ export default function RegisterPatientPage() {
                                         <Label>Email Address *</Label>
                                         <Input
                                             type="email"
-                                            placeholder="patient@example.com"
+                                            placeholder="patient.name@example.com"
                                             value={formData.email}
                                             onChange={(e) => handleChange('email', e.target.value)}
                                             required
@@ -121,7 +133,7 @@ export default function RegisterPatientPage() {
                                     <div className="space-y-2">
                                         <Label>Phone Number *</Label>
                                         <Input
-                                            placeholder="+251 91 123 4567"
+                                            placeholder="+251 9XX XXX XXX"
                                             value={formData.phone}
                                             onChange={(e) => handleChange('phone', e.target.value)}
                                             required
@@ -129,12 +141,24 @@ export default function RegisterPatientPage() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Temporary Password *</Label>
-                                        <Input
-                                            type="password"
-                                            value={formData.password}
-                                            onChange={(e) => handleChange('password', e.target.value)}
-                                            required
-                                        />
+                                        <div className="relative">
+                                            <Input
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="Create a secure password"
+                                                value={formData.password}
+                                                onChange={(e) => handleChange('password', e.target.value)}
+                                                required
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground hover:text-foreground"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -197,6 +221,7 @@ export default function RegisterPatientPage() {
                                     <div className="space-y-2">
                                         <Label>Nationality</Label>
                                         <Input
+                                            placeholder="e.g. Ethiopian"
                                             value={formData.nationality}
                                             onChange={(e) => handleChange('nationality', e.target.value)}
                                         />
@@ -204,7 +229,7 @@ export default function RegisterPatientPage() {
                                     <div className="space-y-2">
                                         <Label>Place of Birth</Label>
                                         <Input
-                                            placeholder="City / Region"
+                                            placeholder="City / Region of birth"
                                             value={formData.place_of_birth}
                                             onChange={(e) => handleChange('place_of_birth', e.target.value)}
                                         />
@@ -212,24 +237,41 @@ export default function RegisterPatientPage() {
                                     <div className="space-y-2">
                                         <Label>National ID *</Label>
                                         <Input
-                                            placeholder="Enter National ID"
+                                            placeholder="Enter Government ID Number"
                                             value={formData.national_id}
                                             onChange={(e) => handleChange('national_id', e.target.value)}
                                             required
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Disability (if any)</Label>
-                                        <Input
-                                            placeholder="Nature of disability"
-                                            value={formData.disability}
-                                            onChange={(e) => handleChange('disability', e.target.value)}
-                                        />
+                                        <Label>Disability Status</Label>
+                                        <Select
+                                            value={isOtherDisability ? "OTHER" : formData.disability}
+                                            onValueChange={handleDisabilityChange}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select disability status" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {disabilities.map(d => (
+                                                    <SelectItem key={d} value={d}>{d}</SelectItem>
+                                                ))}
+                                                <SelectItem value="OTHER">Other...</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        {isOtherDisability && (
+                                            <Input
+                                                className="mt-2 animate-in fade-in slide-in-from-top-2 duration-300"
+                                                placeholder="Specify other disability"
+                                                value={formData.disability}
+                                                onChange={(e) => handleChange('disability', e.target.value)}
+                                            />
+                                        )}
                                     </div>
                                     <div className="space-y-2 md:col-span-2">
                                         <Label>Residential Address *</Label>
                                         <Input
-                                            placeholder="Enter full address"
+                                            placeholder="Complete residential address"
                                             value={formData.address}
                                             onChange={(e) => handleChange('address', e.target.value)}
                                             required

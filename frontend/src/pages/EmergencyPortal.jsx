@@ -22,7 +22,7 @@ import {
 } from "lucide-react"
 import { Link, useParams } from "react-router-dom"
 import api from "@/services/api"
-import { cn } from "@/lib/utils"
+
 
 export default function EmergencyPortal() {
     const { id } = useParams()

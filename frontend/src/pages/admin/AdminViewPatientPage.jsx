@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { User, Mail, Phone, MapPin, Calendar, Fingerprint, Activity, Heart, ShieldAlert } from "lucide-react"
 import api from "@/services/api"
 import dayjs from "dayjs"
-import { Loader2, Key, ShieldCheck, AlertCircle } from "lucide-react"
+import { Loader2, Key, ShieldCheck, AlertCircle, Eye, EyeOff } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -29,6 +29,7 @@ export default function AdminViewPatientPage() {
     const [isUpdating, setIsUpdating] = useState(false)
     const [passwordError, setPasswordError] = useState("")
     const [passwordSuccess, setPasswordSuccess] = useState("")
+    const [showPassword, setShowPassword] = useState(false)
 
     useEffect(() => {
         const fetchPatient = async () => {
@@ -263,23 +264,36 @@ export default function AdminViewPatientPage() {
 
                             <div className="space-y-2">
                                 <Label className="text-xs uppercase tracking-widest font-black text-muted-foreground">New Secure Password</Label>
-                                <Input
-                                    type="password"
-                                    value={newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                    className="h-12 border-2 rounded-xl"
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type={showPassword ? "text" : "password"}
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        placeholder="••••••••"
+                                        className="h-12 border-2 rounded-xl pr-10"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </Button>
+                                </div>
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-xs uppercase tracking-widest font-black text-muted-foreground">Confirm New Password</Label>
-                                <Input
-                                    type="password"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                    className="h-12 border-2 rounded-xl"
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type={showPassword ? "text" : "password"}
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        placeholder="••••••••"
+                                        className="h-12 border-2 rounded-xl pr-10"
+                                    />
+                                </div>
                             </div>
                         </div>
 

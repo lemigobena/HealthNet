@@ -60,11 +60,7 @@ export default function PatientDashboard() {
         fetchDashboardData()
     }, [])
 
-    const newAssignments = assignments.filter(a => {
-        // Assume assigned_at is available or just consider all current as "new" if they weren't seen before?
-        // Let's just show the 2 most recent assignments if any
-        return true;
-    }).slice(0, 2);
+    const newAssignments = assignments.slice(0, 2);
 
     if (isLoading) {
         return (
