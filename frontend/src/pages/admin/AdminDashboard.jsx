@@ -22,9 +22,10 @@ export default function AdminDashboard() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const [patientsRes, doctorsRes] = await Promise.all([
+                const [patientsRes, doctorsRes, currentUserRes] = await Promise.all([
                     api.get('/admin/patients'),
-                    api.get('/admin/doctors')
+                    api.get('/admin/doctors'),
+                    api.get('/auth/me')
                 ])
 
                 const allDoctors = doctorsRes.data.data
@@ -53,6 +54,10 @@ export default function AdminDashboard() {
 
                 const uniqueFacilities = new Set(allDoctors.map(d => d.hospital_id)).size || 1
 
+                // Get admin's facility name from their profile
+                const adminUser = currentUserRes.data.data
+                const facilityName = adminUser?.admin_profile?.facility?.name || "National Headquarters"
+
                 setStats({
                     totalPatients: patientsRes.data.data.length,
                     activeDoctors: medDocs,
@@ -61,7 +66,7 @@ export default function AdminDashboard() {
                     newRegistrationsToday: newRegs,
                     activeSessions: allDoctors.length > 0 ? 1 : 0,
                     emergencyAccessesToday: 0,
-                    facilityName: allDoctors.length > 0 ? (allDoctors[0].facility?.name || "National Facility") : "National Headquarters",
+                    facilityName: facilityName,
                     graphData: graphData
                 })
             } catch (err) {

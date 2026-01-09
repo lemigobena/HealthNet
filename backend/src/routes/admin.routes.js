@@ -25,6 +25,7 @@ router.get('/doctors/:id', adminController.getDoctorById);
 router.patch('/doctors/:id', adminController.updateDoctor);
 router.patch('/doctors/:id/status', adminController.updateDoctorStatus);
 router.patch('/doctors/:id/password', adminController.updateDoctorPassword);
+router.patch('/doctors/:id/facility', adminController.updateDoctorFacility);
 
 // User profile updates(I dont know why I added it but it might be of use.)
 router.patch('/users/:userId', adminController.updateUserProfile);

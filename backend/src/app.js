@@ -17,6 +17,7 @@ const patientRoutes = require('./routes/patient.routes');
 const qrRoutes = require('./routes/qr.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const publicRoutes = require('./routes/public.routes');
+const facilityRoutes = require('./routes/facility.routes');
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.use('/api/doctor', doctorRoutes);
 app.use('/api/patient', patientRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/facilities', facilityRoutes);
 
 app.get('/api/qr/my-codes', (req, res, next) => {
     next();

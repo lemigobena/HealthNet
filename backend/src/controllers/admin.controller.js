@@ -228,6 +228,27 @@ async function getAllAssignments(req, res, next) {
     }
 }
 
+// Update doctor's facility
+async function updateDoctorFacility(req, res, next) {
+    try {
+        const { id } = req.params;
+        const { facility_id } = req.body;
+
+        if (!facility_id) {
+            return errorResponse(res, 'facility_id is required', 400);
+        }
+
+        const parsedId = !isNaN(id) ? parseInt(id) : id;
+        const doctor = await adminService.getDoctorById(parsedId);
+
+        const updated = await adminService.updateDoctorFacility(doctor.doctor_id, facility_id);
+        return successResponse(res, updated, 'Doctor facility updated successfully');
+    } catch (error) {
+        next(error);
+    }
+}
+
+
 module.exports = {
     createPatient,
     createDoctor,
@@ -245,5 +266,6 @@ module.exports = {
     updateDoctorStatus,
     updatePatientPassword,
     updateDoctorPassword,
-    getAllAssignments
+    getAllAssignments,
+    updateDoctorFacility
 };

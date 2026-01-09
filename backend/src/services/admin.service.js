@@ -514,6 +514,43 @@ async function getAssignmentById(id) {
     return assignment;
 }
 
+// Update doctor's facility
+async function updateDoctorFacility(doctorId, facilityId) {
+    // Verify the facility exists
+    const facility = await prisma.facility.findUnique({
+        where: { hospital_id: facilityId }
+    });
+
+    if (!facility) {
+        throw new Error('Facility not found');
+    }
+
+    // Update the doctor's facility
+    const updatedDoctor = await prisma.doctor.update({
+        where: { doctor_id: doctorId },
+        data: { facility_id: facilityId },
+        include: {
+            user: {
+                select: {
+                    id: true,
+                    user_id: true,
+                    name: true,
+                    email: true,
+                    phone: true,
+                    gender: true,
+                    dob: true,
+                    address: true,
+                    created_at: true
+                }
+            },
+            facility: true
+        }
+    });
+
+    return updatedDoctor;
+}
+
+
 module.exports = {
     createPatient,
     createDoctor,
@@ -528,5 +565,6 @@ module.exports = {
     getDoctorById,
     getUserById,
     getAssignmentById,
-    getAllAssignments
+    getAllAssignments,
+    updateDoctorFacility
 };

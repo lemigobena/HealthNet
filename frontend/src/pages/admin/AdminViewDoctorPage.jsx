@@ -18,6 +18,13 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 export default function AdminViewDoctorPage() {
     const { id } = useParams()
@@ -29,6 +36,14 @@ export default function AdminViewDoctorPage() {
     const [isUpdating, setIsUpdating] = useState(false)
     const [passwordError, setPasswordError] = useState("")
     const [passwordSuccess, setPasswordSuccess] = useState("")
+
+    // Facility change states
+    const [isFacilityModalOpen, setIsFacilityModalOpen] = useState(false)
+    const [facilities, setFacilities] = useState([])
+    const [selectedFacility, setSelectedFacility] = useState("")
+    const [isFacilityUpdating, setIsFacilityUpdating] = useState(false)
+    const [facilityError, setFacilityError] = useState("")
+    const [facilitySuccess, setFacilitySuccess] = useState("")
 
     useEffect(() => {
         const fetchDoctor = async () => {
@@ -76,6 +91,54 @@ export default function AdminViewDoctorPage() {
         }
     }
 
+    // Fetch facilities when facility modal opens
+    useEffect(() => {
+        const fetchFacilities = async () => {
+            if (isFacilityModalOpen) {
+                try {
+                    const response = await api.get('/facilities')
+                    setFacilities(response.data.data)
+                    setSelectedFacility(doctor?.facility_id || "")
+                } catch (err) {
+                    console.error("Failed to fetch facilities:", err)
+                    setFacilityError("Failed to load facilities")
+                }
+            }
+        }
+        fetchFacilities()
+    }, [isFacilityModalOpen, doctor])
+
+    const handleFacilityUpdate = async () => {
+        if (!selectedFacility) {
+            setFacilityError("Please select a facility")
+            return
+        }
+
+        setIsFacilityUpdating(true)
+        setFacilityError("")
+        setFacilitySuccess("")
+
+        try {
+            await api.patch(`/admin/doctors/${doctor.doctor_id}/facility`, {
+                facility_id: selectedFacility
+            })
+            setFacilitySuccess("Facility updated successfully")
+
+            // Refresh doctor data
+            const response = await api.get(`/admin/doctors/${id}`)
+            setDoctor(response.data.data)
+
+            setTimeout(() => {
+                setIsFacilityModalOpen(false)
+                setFacilitySuccess("")
+            }, 2000)
+        } catch (err) {
+            setFacilityError(err.response?.data?.message || "Failed to update facility")
+        } finally {
+            setIsFacilityUpdating(false)
+        }
+    }
+
     if (isLoading) {
         return (
             <AdminLayout title="Practitioner Profile" subtitle="Accessing Registry...">
@@ -115,15 +178,26 @@ export default function AdminViewDoctorPage() {
                             <div className="flex-1 text-center md:text-left space-y-2">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <h2 className="text-3xl font-black tracking-tight">{doctor.user.name}</h2>
-                                    <Button
-                                        onClick={() => setIsPasswordModalOpen(true)}
-                                        variant="outline"
-                                        size="sm"
-                                        className="font-bold border-2 gap-2 h-10 px-4 rounded-xl hover:bg-primary/5 hover:text-primary transition-all"
-                                    >
-                                        <Key className="h-4 w-4" />
-                                        Update Password
-                                    </Button>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            onClick={() => setIsPasswordModalOpen(true)}
+                                            variant="outline"
+                                            size="sm"
+                                            className="font-bold border-2 gap-2 h-10 px-4 rounded-xl hover:bg-primary/5 hover:text-primary transition-all"
+                                        >
+                                            <Key className="h-4 w-4" />
+                                            Update Password
+                                        </Button>
+                                        <Button
+                                            onClick={() => setIsFacilityModalOpen(true)}
+                                            variant="outline"
+                                            size="sm"
+                                            className="font-bold border-2 gap-2 h-10 px-4 rounded-xl hover:bg-primary/5 hover:text-primary transition-all"
+                                        >
+                                            <Building2 className="h-4 w-4" />
+                                            Change Facility
+                                        </Button>
+                                    </div>
                                 </div>
                                 <div className="flex flex-wrap justify-center md:justify-start gap-2">
                                     <Badge className="bg-primary/10 text-primary border-none font-bold uppercase tracking-widest text-[10px] px-3">
@@ -306,6 +380,87 @@ export default function AdminViewDoctorPage() {
                                     </>
                                 ) : (
                                     "Save Credentials"
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Facility Change Modal */}
+                <Dialog open={isFacilityModalOpen} onOpenChange={(open) => {
+                    setIsFacilityModalOpen(open)
+                    if (!open) {
+                        setSelectedFacility("")
+                        setFacilityError("")
+                        setFacilitySuccess("")
+                    }
+                }}>
+                    <DialogContent className="sm:max-w-md border-2">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2 text-2xl font-black">
+                                <Building2 className="h-6 w-6 text-primary" />
+                                Change Facility Assignment
+                            </DialogTitle>
+                            <DialogDescription className="font-bold">
+                                Update the facility where {doctor.user.name} is assigned to work
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-4 py-4">
+                            {(facilityError || facilitySuccess) && (
+                                <div className={`p-4 rounded-xl border flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${facilityError ? 'bg-destructive/10 border-destructive/20 text-destructive' : 'bg-green-500/10 border-green-500/20 text-green-600'
+                                    }`}>
+                                    {facilityError ? <AlertCircle className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
+                                    <span className="text-sm font-bold">{facilityError || facilitySuccess}</span>
+                                </div>
+                            )}
+
+                            <div className="space-y-2">
+                                <Label className="text-xs uppercase tracking-widest font-black text-muted-foreground">Current Facility</Label>
+                                <div className="p-3 rounded-xl bg-muted/30 border border-border/30">
+                                    <p className="font-bold">{doctor.facility?.name || "Not Assigned"}</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-xs uppercase tracking-widest font-black text-muted-foreground">New Facility</Label>
+                                <Select value={selectedFacility} onValueChange={setSelectedFacility}>
+                                    <SelectTrigger className="h-12 border-2 rounded-xl">
+                                        <SelectValue placeholder="Select a facility" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {facilities.map((facility) => (
+                                            <SelectItem key={facility.hospital_id} value={facility.hospital_id}>
+                                                {facility.name} - {facility.city_town}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <DialogFooter className="border-t pt-4">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIsFacilityModalOpen(false)}
+                                className="font-bold uppercase tracking-widest text-[10px]"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={handleFacilityUpdate}
+                                disabled={isFacilityUpdating || !selectedFacility}
+                                className="font-black uppercase tracking-widest text-[10px] min-w-[140px]"
+                            >
+                                {isFacilityUpdating ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                        Updating...
+                                    </>
+                                ) : (
+                                    "Update Facility"
                                 )}
                             </Button>
                         </DialogFooter>
