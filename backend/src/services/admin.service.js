@@ -12,39 +12,56 @@ async function createPatient(adminId, patientData) {
     const hashedPassword = await hashPassword(password);
     const patientId = generatePatientId();
 
-    const patient = await prisma.user.create({
-        data: {
-            user_id: patientId,
-            name,
-            email,
-            phone,
-            password_hash: hashedPassword,
-            role: 'PATIENT',
-            gender,
-            dob: dob ? new Date(dob) : null,
-            address,
-            nationality,
-            place_of_birth,
+    const patient = await prisma.$transaction(async (tx) => {
+        // 1. Create User
+        const user = await tx.user.create({
+            data: {
+                user_id: patientId,
+                name,
+                email,
+                phone,
+                password_hash: hashedPassword,
+                role: 'PATIENT',
+                gender,
+                dob: dob ? new Date(dob) : null,
+                address,
+                nationality,
+                place_of_birth
+            }
+        });
+
+        // 2. Create Patient Profile
+        await tx.patient.create({
+            data: {
+                patient_id: patientId,
+                user_id: patientId,
+                blood_type,
+                disability,
+                national_id: patientData.national_id,
+                insurance_status: insurance_status || 'UNINSURED',
+                facility_id,
+                created_by_id: adminId,
+                status: 'ACTIVE'
+            }
+        });
+
+        return user;
+    });
+
+    // 3. Fetch full patient profile
+    const fullPatient = await prisma.user.findUnique({
+        where: { user_id: patientId },
+        include: {
             patient_profile: {
-                create: {
-                    patient_id: patientId,
-                    blood_type,
-                    disability,
-                    national_id: patientData.national_id,
-                    insurance_status: insurance_status || 'UNINSURED',
-                    facility_id,
-                    created_by_id: adminId,
-                    status: 'ACTIVE'
+                include: {
+                    facility: true
                 }
             }
-        },
-        include: {
-            patient_profile: true
         }
     });
 
-    delete patient.password_hash;
-    return patient;
+    delete fullPatient.password_hash;
+    return fullPatient;
 }
 
 
@@ -56,32 +73,45 @@ async function createDoctor(adminId, doctorData) {
     const hashedPassword = await hashPassword(password);
     const doctorId = generateDoctorId();
 
-    const doctor = await prisma.user.create({
-        data: {
-            user_id: doctorId,
-            name,
-            email,
-            phone,
-            password_hash: hashedPassword,
-            role: 'DOCTOR',
-            gender,
-            dob: dob ? new Date(dob) : null,
-            address,
-            nationality,
-            place_of_birth,
-            doctor_profile: {
-                create: {
-                    doctor_id: doctorId,
-                    license_number,
-                    type,
-                    specialization,
-                    national_id: doctorData.national_id,
-                    facility_id,
-                    created_by_id: adminId,
-                    status: 'ACTIVE'
-                }
+    const doctor = await prisma.$transaction(async (tx) => {
+        // 1. Create User
+        const user = await tx.user.create({
+            data: {
+                user_id: doctorId,
+                name,
+                email,
+                phone,
+                password_hash: hashedPassword,
+                role: 'DOCTOR',
+                gender,
+                dob: dob ? new Date(dob) : null,
+                address,
+                nationality,
+                place_of_birth
             }
-        },
+        });
+
+        // 2. Create Doctor Profile
+        await tx.doctor.create({
+            data: {
+                doctor_id: doctorId,
+                user_id: doctorId,
+                license_number,
+                type,
+                specialization,
+                national_id: doctorData.national_id,
+                facility_id,
+                created_by_id: adminId,
+                status: 'ACTIVE'
+            }
+        });
+
+        return user;
+    });
+
+    // 3. Fetch full doctor profile with inclusion
+    const fullDoctor = await prisma.user.findUnique({
+        where: { user_id: doctorId },
         include: {
             doctor_profile: {
                 include: {
@@ -91,8 +121,8 @@ async function createDoctor(adminId, doctorData) {
         }
     });
 
-    delete doctor.password_hash;
-    return doctor;
+    delete fullDoctor.password_hash;
+    return fullDoctor;
 }
 
 
