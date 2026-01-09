@@ -49,7 +49,6 @@ export default function RegisterPatientPage() {
         address: "",
         nationality: "Ethiopian",
         place_of_birth: "",
-        national_id: ""
     })
 
     useEffect(() => {
@@ -249,15 +248,6 @@ export default function RegisterPatientPage() {
                                                 <SelectItem value="OTHER">Other...</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label>National ID *</Label>
-                                        <Input
-                                            placeholder="Enter Government ID Number"
-                                            value={formData.national_id}
-                                            onChange={(e) => handleChange('national_id', e.target.value)}
-                                            required
-                                        />
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Disability Status</Label>

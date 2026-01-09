@@ -83,7 +83,6 @@ model Doctor {
   user_id           String        @unique @map("user_id") @db.VarChar(13)
   license_number    String        @unique @map("license_number") @db.VarChar(50)
   type              DoctorType
-  national_id       String?       @map("national_id") @db.VarChar(20)
   facility_id       String        @map("facility_id") @db.VarChar(13)
   specialization    String        @db.VarChar(100)
   created_by_id     String?       @map("created_by_id") @db.VarChar(13)
@@ -118,7 +117,6 @@ model Patient {
   blood_type_visible Boolean          @default(false) @map("blood_type_visible")
   disability_visible Boolean          @default(false) @map("disability_visible")
   allergies_visible  Boolean          @default(false) @map("allergies_visible")
-  national_id        String?          @map("national_id") @db.VarChar(20)
   allergies          Allergy[]        @relation("PatientAllergies")
   appointments       Appointment[]
   assignments        Assignment[]     @relation("PatientAssignments")

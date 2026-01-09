@@ -37,7 +37,6 @@ async function createPatient(adminId, patientData) {
                 user_id: patientId,
                 blood_type,
                 disability,
-                national_id: patientData.national_id,
                 insurance_status: insurance_status || 'UNINSURED',
                 facility_id,
                 created_by_id: adminId,
@@ -99,7 +98,6 @@ async function createDoctor(adminId, doctorData) {
                 license_number,
                 type,
                 specialization,
-                national_id: doctorData.national_id,
                 facility_id,
                 created_by_id: adminId,
                 status: 'ACTIVE'
