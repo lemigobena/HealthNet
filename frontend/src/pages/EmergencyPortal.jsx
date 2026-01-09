@@ -195,7 +195,7 @@ export default function EmergencyPortal() {
                         </Card>
 
                         {error && (
-                            <div className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 flex items-center gap-3 animate-in fade-in zoom-in duration-300 shadow-sm">
+                            <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive flex items-center gap-3 animate-in fade-in zoom-in duration-300 shadow-sm">
                                 <AlertTriangle className="h-5 w-5 shrink-0" />
                                 <p className="font-bold text-sm">{error}</p>
                             </div>
@@ -242,8 +242,8 @@ export default function EmergencyPortal() {
                             <div className="relative pt-10 px-6 pb-6 md:px-10">
                                 <div className="flex flex-col md:flex-row gap-6 items-start md:items-end">
                                     {/* Profile Image / Initials */}
-                                    <div className="h-32 w-32 rounded-2xl bg-white p-1.5 shadow-xl rotate-3 md:rotate-0 transition-transform hover:rotate-2">
-                                        <div className="h-full w-full rounded-xl bg-slate-100 text-slate-300 flex items-center justify-center text-4xl font-black border-4 border-white">
+                                    <div className="h-32 w-32 rounded-2xl bg-card p-1.5 shadow-xl rotate-3 md:rotate-0 transition-transform hover:rotate-2">
+                                        <div className="h-full w-full rounded-xl bg-muted text-muted-foreground flex items-center justify-center text-4xl font-black border-4 border-card">
                                             {emergencyData.patient.name.split(' ').map(n => n[0]).join('')}
                                         </div>
                                     </div>
@@ -308,7 +308,7 @@ export default function EmergencyPortal() {
                                             <div className="space-y-2">
                                                 {emergencyData.emergency_info?.chronic_conditions ? (
                                                     emergencyData.emergency_info.chronic_conditions.split(',').map(c => (
-                                                        <Badge key={c} variant="outline" className="border-rose-100 bg-rose-50 text-rose-700 mr-2 mb-1">
+                                                        <Badge key={c} variant="outline" className="border-rose-200 dark:border-rose-900 bg-rose-500/10 text-rose-700 dark:text-rose-400 mr-2 mb-1">
                                                             {c.trim()}
                                                         </Badge>
                                                     ))
@@ -352,8 +352,8 @@ export default function EmergencyPortal() {
                                 </Card>
 
                                 {/* MEDICATIONS CARD */}
-                                <Card className="shadow-lg bg-white dark:bg-slate-900">
-                                    <CardHeader className="pb-2 border-b border-slate-50">
+                                <Card className="shadow-lg bg-card transition-colors">
+                                    <CardHeader className="pb-2 border-b border-border/10">
                                         <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-700">
                                             <Pill className="h-4 w-4 text-slate-400" /> Current Medications
                                         </CardTitle>
@@ -403,7 +403,7 @@ export default function EmergencyPortal() {
                                 </Card>
 
                                 {/* RECENT HISTORY */}
-                                <Card className="shadow-lg bg-slate-50 border-0">
+                                <Card className="shadow-lg bg-muted/30 border-0">
                                     <CardHeader className="pb-3">
                                         <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
                                             <Stethoscope className="h-4 w-4" /> Clinical History
@@ -413,13 +413,13 @@ export default function EmergencyPortal() {
                                         {(emergencyData.diagnoses?.length > 0 || emergencyData.lab_results?.length > 0) ? (
                                             <>
                                                 {emergencyData.diagnoses?.slice(0, 3).map((d, i) => (
-                                                    <div key={i} className="bg-white p-3 rounded-lg shadow-sm border border-slate-100 flex flex-col gap-1 text-sm">
+                                                    <div key={i} className="bg-card p-3 rounded-lg shadow-sm border border-border/30 flex flex-col gap-1 text-sm">
                                                         <div className="flex justify-between items-center">
-                                                            <span className="font-bold text-slate-700">{d.disease_name}</span>
-                                                            <span className="text-[10px] text-slate-400 font-mono">{new Date(d.created_at).toLocaleDateString()}</span>
+                                                            <span className="font-bold text-foreground/80">{d.disease_name}</span>
+                                                            <span className="text-[10px] text-muted-foreground font-mono">{new Date(d.created_at).toLocaleDateString()}</span>
                                                         </div>
                                                         {d.medications && (
-                                                            <div className="flex items-start gap-1.5 text-[11px] text-rose-600 bg-rose-50/50 p-1.5 rounded-md mt-1 border border-rose-100/30">
+                                                            <div className="flex items-start gap-1.5 text-[11px] text-rose-600 dark:text-rose-400 bg-rose-500/10 p-1.5 rounded-md mt-1 border border-rose-500/20">
                                                                 <Pill className="h-3 w-3 mt-0.5 shrink-0" />
                                                                 <span className="font-medium tracking-tight">Rx: {d.medications}</span>
                                                             </div>
@@ -427,8 +427,8 @@ export default function EmergencyPortal() {
                                                     </div>
                                                 ))}
                                                 {emergencyData.lab_results?.slice(0, 2).map((l, i) => (
-                                                    <div key={`lab-${i}`} className="bg-white p-3 rounded-lg shadow-sm border border-slate-100 flex justify-between items-center text-sm">
-                                                        <span className="font-bold text-slate-700 flex items-center gap-2">
+                                                    <div key={`lab-${i}`} className="bg-card p-3 rounded-lg shadow-sm border border-border/30 flex justify-between items-center text-sm">
+                                                        <span className="font-bold text-foreground/80 flex items-center gap-2">
                                                             <Thermometer className="h-3 w-3 text-emerald-500" /> {l.type}
                                                         </span>
                                                         {l.is_abnormal && <Badge variant="destructive" className="h-1.5 w-1.5 p-0 rounded-full" />}

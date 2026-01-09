@@ -16,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { HealthNetLogo } from "@/components/icons"
 import { cn } from "@/lib/utils"
 import api from "@/services/api"
+import { ThemeToggle } from "@/components/ThemeToggle"
 
 export function DashboardHeader({ title, subtitle, onMenuClick, children }) {
     const { user, logout } = useAuth()
@@ -68,8 +69,7 @@ export function DashboardHeader({ title, subtitle, onMenuClick, children }) {
             {children}
 
             <div className="flex items-center gap-4">
-                {/* Search removed from global header as requested */}
-
+                <ThemeToggle />
                 {/* Notifications - Hidden for ADMIN as requested */}
                 {user?.role !== 'ADMIN' && (
                     <DropdownMenu>

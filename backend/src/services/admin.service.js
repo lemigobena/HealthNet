@@ -7,7 +7,7 @@ const notificationService = require('./notification.service');
 
 // Create a new patient (Admin only)
 async function createPatient(adminId, patientData) {
-    const { name, email, phone, password, gender, dob, blood_type, disability, insurance_status, address, nationality, place_of_birth } = patientData;
+    const { name, email, phone, password, gender, dob, blood_type, disability, insurance_status, address, nationality, place_of_birth, facility_id } = patientData;
 
     const hashedPassword = await hashPassword(password);
     const patientId = generatePatientId();
@@ -32,6 +32,7 @@ async function createPatient(adminId, patientData) {
                     disability,
                     national_id: patientData.national_id,
                     insurance_status: insurance_status || 'UNINSURED',
+                    facility_id,
                     created_by_id: adminId,
                     status: 'ACTIVE'
                 }

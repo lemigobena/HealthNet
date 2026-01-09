@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { HealthNetLogo, QRCodeIcon } from "@/components/icons"
 import { Menu, X } from "lucide-react"
+import { ThemeToggle } from "@/components/ThemeToggle"
 
 export function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -63,6 +64,7 @@ export function Header() {
 
                 {/* Desktop CTA */}
                 <div className="hidden items-center gap-4 md:flex">
+                    <ThemeToggle />
                     <Button variant="ghost" asChild className="transition-transform hover:scale-105">
                         <Link to="/emergency">
                             <QRCodeIcon className="mr-2 h-4 w-4" aria-hidden="true" />

@@ -154,11 +154,11 @@ export default function DoctorDashboard() {
                         <Card className="shadow-lg border-border/50 overflow-hidden">
                             <CardHeader className="flex flex-row items-center justify-between bg-primary/5 pb-6">
                                 <div className="space-y-1.5">
-                                    <CardTitle className="text-xl font-black tracking-tight">Today's Clinical Lineup</CardTitle>
-                                    <CardDescription className="font-bold opacity-70">Authenticated patient sessions for {new Date().toLocaleDateString()}</CardDescription>
+                                    <CardTitle className="text-xl font-black tracking-tight">Today's Appointments</CardTitle>
+                                    <CardDescription className="font-bold opacity-70">Scheduled consultations for {new Date().toLocaleDateString()}</CardDescription>
                                 </div>
                                 <Button variant="outline" className="font-bold border-2" asChild>
-                                    <Link to="/doctor/appointments">Full Ledger</Link>
+                                    <Link to="/doctor/appointments">All Appointments</Link>
                                 </Button>
                             </CardHeader>
                             <CardContent className="pt-6">
@@ -220,7 +220,7 @@ export default function DoctorDashboard() {
                                             <Badge className="mt-2 bg-primary text-primary-foreground">{nearestAppointment.reason}</Badge>
                                         </div>
                                         <Button className="w-full rounded-xl font-bold" asChild>
-                                            <Link to={`/doctor/patients/${nearestAppointment.patient_id}`}>Prepare Session</Link>
+                                            <Link to={`/doctor/patients/${nearestAppointment.patient_id}`}>View Patient</Link>
                                         </Button>
                                     </div>
                                 ) : (

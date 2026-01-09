@@ -38,6 +38,7 @@ import PatientDoctorsPage from './pages/patient/PatientDoctorsPage';
 import PatientDoctorDetailPage from './pages/patient/PatientDoctorDetailPage';
 import EmergencyPortal from './pages/EmergencyPortal';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -58,55 +59,57 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/emergency" element={<EmergencyPortal />} />
-          <Route path="/emergency/:id" element={<EmergencyPortal />} />
+        <ThemeProvider>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/emergency" element={<EmergencyPortal />} />
+            <Route path="/emergency/:id" element={<EmergencyPortal />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/admin/assignment" element={<ProtectedRoute allowedRoles={['ADMIN']}><AssignmentPage /></ProtectedRoute>} />
-          <Route path="/admin/register" element={<ProtectedRoute allowedRoles={['ADMIN']}><RegisterPage /></ProtectedRoute>} />
-          <Route path="/admin/register/doctor" element={<ProtectedRoute allowedRoles={['ADMIN']}><RegisterDoctorPage /></ProtectedRoute>} />
-          <Route path="/admin/register/patient" element={<ProtectedRoute allowedRoles={['ADMIN']}><RegisterPatientPage /></ProtectedRoute>} />
-          <Route path="/admin/my-patients" element={<ProtectedRoute allowedRoles={['ADMIN']}><MyPatientsPage /></ProtectedRoute>} />
-          <Route path="/admin/my-doctors" element={<ProtectedRoute allowedRoles={['ADMIN']}><MyDoctorsPage /></ProtectedRoute>} />
-          <Route path="/admin/patients/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminViewPatientPage /></ProtectedRoute>} />
-          <Route path="/admin/doctors/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminViewDoctorPage /></ProtectedRoute>} />
-          <Route path="/admin/profile" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminProfilePage /></ProtectedRoute>} />
+            {/* Admin Routes */}
+            <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/assignment" element={<ProtectedRoute allowedRoles={['ADMIN']}><AssignmentPage /></ProtectedRoute>} />
+            <Route path="/admin/register" element={<ProtectedRoute allowedRoles={['ADMIN']}><RegisterPage /></ProtectedRoute>} />
+            <Route path="/admin/register/doctor" element={<ProtectedRoute allowedRoles={['ADMIN']}><RegisterDoctorPage /></ProtectedRoute>} />
+            <Route path="/admin/register/patient" element={<ProtectedRoute allowedRoles={['ADMIN']}><RegisterPatientPage /></ProtectedRoute>} />
+            <Route path="/admin/my-patients" element={<ProtectedRoute allowedRoles={['ADMIN']}><MyPatientsPage /></ProtectedRoute>} />
+            <Route path="/admin/my-doctors" element={<ProtectedRoute allowedRoles={['ADMIN']}><MyDoctorsPage /></ProtectedRoute>} />
+            <Route path="/admin/patients/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminViewPatientPage /></ProtectedRoute>} />
+            <Route path="/admin/doctors/:id" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminViewDoctorPage /></ProtectedRoute>} />
+            <Route path="/admin/profile" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminProfilePage /></ProtectedRoute>} />
 
-          {/* Doctor Routes */}
-          <Route path="/doctor" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorDashboard /></ProtectedRoute>} />
-          <Route path="/doctor/patients" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorPatientsPage /></ProtectedRoute>} />
-          <Route path="/doctor/patients/:id" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorPatientDetailPage /></ProtectedRoute>} />
-          <Route path="/doctor/appointments" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorAppointmentsPage /></ProtectedRoute>} />
-          <Route path="/doctor/appointments/new" element={<ProtectedRoute allowedRoles={['DOCTOR']}><CreateAppointmentPage /></ProtectedRoute>} />
-          <Route path="/doctor/appointments/reschedule/:id" element={<ProtectedRoute allowedRoles={['DOCTOR']}><RescheduleAppointmentPage /></ProtectedRoute>} />
-          <Route path="/doctor/records" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorRecordsPage /></ProtectedRoute>} />
-          <Route path="/doctor/lab-results" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorMyLabResultsPage /></ProtectedRoute>} />
-          <Route path="/doctor/lab-results/new" element={<ProtectedRoute allowedRoles={['DOCTOR']}><CreateLabResultPage /></ProtectedRoute>} />
-          <Route path="/doctor/lab-results/:id" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorLabResultDetailPage /></ProtectedRoute>} />
-          <Route path="/doctor/diagnoses/:id" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorDiagnosesPage /></ProtectedRoute>} />
-          <Route path="/doctor/diagnoses" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorDiagnosesPage /></ProtectedRoute>} />
-          <Route path="/doctor/profile" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorProfilePage /></ProtectedRoute>} />
+            {/* Doctor Routes */}
+            <Route path="/doctor" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorDashboard /></ProtectedRoute>} />
+            <Route path="/doctor/patients" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorPatientsPage /></ProtectedRoute>} />
+            <Route path="/doctor/patients/:id" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorPatientDetailPage /></ProtectedRoute>} />
+            <Route path="/doctor/appointments" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorAppointmentsPage /></ProtectedRoute>} />
+            <Route path="/doctor/appointments/new" element={<ProtectedRoute allowedRoles={['DOCTOR']}><CreateAppointmentPage /></ProtectedRoute>} />
+            <Route path="/doctor/appointments/reschedule/:id" element={<ProtectedRoute allowedRoles={['DOCTOR']}><RescheduleAppointmentPage /></ProtectedRoute>} />
+            <Route path="/doctor/records" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorRecordsPage /></ProtectedRoute>} />
+            <Route path="/doctor/lab-results" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorMyLabResultsPage /></ProtectedRoute>} />
+            <Route path="/doctor/lab-results/new" element={<ProtectedRoute allowedRoles={['DOCTOR']}><CreateLabResultPage /></ProtectedRoute>} />
+            <Route path="/doctor/lab-results/:id" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorLabResultDetailPage /></ProtectedRoute>} />
+            <Route path="/doctor/diagnoses/:id" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorDiagnosesPage /></ProtectedRoute>} />
+            <Route path="/doctor/diagnoses" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorDiagnosesPage /></ProtectedRoute>} />
+            <Route path="/doctor/profile" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorProfilePage /></ProtectedRoute>} />
 
-          {/* Patient Routes */}
-          <Route path="/patient" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientDashboard /></ProtectedRoute>} />
-          <Route path="/patient/records" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientRecordsPage /></ProtectedRoute>} />
-          <Route path="/patient/records/:id" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientRecordDetailPage /></ProtectedRoute>} />
-          <Route path="/patient/lab-results" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientLabResultsPage /></ProtectedRoute>} />
-          <Route path="/patient/lab-results/:id" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientLabResultDetailPage /></ProtectedRoute>} />
-          <Route path="/patient/appointments" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientAppointmentsPage /></ProtectedRoute>} />
-          <Route path="/patient/profile" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientProfilePage /></ProtectedRoute>} />
-          <Route path="/patient/emergency-info" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientEmergencyInfoPage /></ProtectedRoute>} />
-          <Route path="/patient/qr" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientQRCodePage /></ProtectedRoute>} />
-          <Route path="/patient/doctors" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientDoctorsPage /></ProtectedRoute>} />
-          <Route path="/patient/doctors/:id" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientDoctorDetailPage /></ProtectedRoute>} />
+            {/* Patient Routes */}
+            <Route path="/patient" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientDashboard /></ProtectedRoute>} />
+            <Route path="/patient/records" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientRecordsPage /></ProtectedRoute>} />
+            <Route path="/patient/records/:id" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientRecordDetailPage /></ProtectedRoute>} />
+            <Route path="/patient/lab-results" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientLabResultsPage /></ProtectedRoute>} />
+            <Route path="/patient/lab-results/:id" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientLabResultDetailPage /></ProtectedRoute>} />
+            <Route path="/patient/appointments" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientAppointmentsPage /></ProtectedRoute>} />
+            <Route path="/patient/profile" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientProfilePage /></ProtectedRoute>} />
+            <Route path="/patient/emergency-info" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientEmergencyInfoPage /></ProtectedRoute>} />
+            <Route path="/patient/qr" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientQRCodePage /></ProtectedRoute>} />
+            <Route path="/patient/doctors" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientDoctorsPage /></ProtectedRoute>} />
+            <Route path="/patient/doctors/:id" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientDoctorDetailPage /></ProtectedRoute>} />
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
   );

@@ -9,7 +9,8 @@ async function createPatient(req, res, next) {
         if (!name || !email || !phone || !password) {
             return errorResponse(res, 'Name, email, phone, and password are required', 400);
         }
-        const patient = await adminService.createPatient(req.user.user_id, req.body);
+        const facility_id = req.user.admin_profile?.facility_id;
+        const patient = await adminService.createPatient(req.user.user_id, { ...req.body, facility_id });
         return successResponse(res, patient, 'Patient created successfully', 201);
     } catch (error) {
         next(error);
@@ -19,11 +20,8 @@ async function createPatient(req, res, next) {
 // Create doctor
 async function createDoctor(req, res, next) {
     try {
-        const { name, email, phone, password, license_number, type, facility_id } = req.body;
-        if (!name || !email || !phone || !password || !license_number || !type || !facility_id) {
-            return errorResponse(res, 'Name, email, phone, password, license_number, type, and facility_id are required', 400);
-        }
-        const doctor = await adminService.createDoctor(req.user.user_id, req.body);
+        const adminFacilityId = req.user.admin_profile?.facility_id;
+        const doctor = await adminService.createDoctor(req.user.user_id, { ...req.body, facility_id: adminFacilityId });
         return successResponse(res, doctor, 'Doctor created successfully', 201);
     } catch (error) {
         next(error);

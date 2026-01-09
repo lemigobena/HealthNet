@@ -40,7 +40,7 @@ export function LoginForm() {
     }
 
     return (
-        <Card className="w-full border-none shadow-xl bg-white/50 backdrop-blur-xl dark:bg-card/50 ring-1 ring-border/20">
+        <Card className="w-full border-none shadow-xl bg-background/50 backdrop-blur-xl dark:bg-card/50 ring-1 ring-border/20">
             <CardHeader className="text-center space-y-2 pb-8">
                 <CardTitle className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Welcome Back</CardTitle>
                 <CardDescription className="text-base">Sign in to your HealthNet workspace</CardDescription>

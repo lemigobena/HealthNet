@@ -15,7 +15,6 @@ export default function RegisterDoctorPage() {
     const { user } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
-    const [facilities, setFacilities] = useState([])
 
 
     const [showPassword, setShowPassword] = useState(false)
@@ -44,29 +43,13 @@ export default function RegisterDoctorPage() {
         license_number: "",
         type: "",
         specialization: "",
-        facility_id: "",
-        address: "",
         nationality: "Ethiopian",
         place_of_birth: "",
         national_id: ""
     })
 
     useEffect(() => {
-        const fetchInitialData = async () => {
-            try {
-                // Autofill facility if admin belongs to one
-                if (user?.admin_profile?.facility_id) {
-                    setFormData(prev => ({ ...prev, facility_id: user.admin_profile.facility_id }))
-                } else {
-                    // Fetch facilities if admin is super admin or lacks facility_id
-                    const response = await api.get('/facilities')
-                    setFacilities(response.data.data)
-                }
-            } catch (err) {
-                console.error("Failed to load initial data:", err)
-            }
-        }
-        fetchInitialData()
+        // No longer need to fetch facilities as it's inferred from Admin ID on backend
     }, [user])
 
     const handleChange = (field, value) => {
@@ -285,23 +268,6 @@ export default function RegisterDoctorPage() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                {!user?.admin_profile?.facility_id && (
-                                    <div className="space-y-2 md:col-span-2">
-                                        <Label>Facility Assignment *</Label>
-                                        <Select value={formData.facility_id} onValueChange={(val) => handleChange('facility_id', val)}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Assign to a medical facility" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                {facilities.map(f => (
-                                                    <SelectItem key={f.hospital_id} value={f.hospital_id}>
-                                                        {f.name} ({f.city_town})
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                )}
                                 <div className="space-y-2 md:col-span-2">
                                     <Label>Residential Address</Label>
                                     <Input
