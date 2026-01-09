@@ -290,7 +290,7 @@ export default function EmergencyPortal() {
                                             <p className="text-rose-100 text-[10px] font-black uppercase tracking-widest mb-1">Blood Type</p>
                                             <div className="flex items-baseline gap-1">
                                                 <span className="text-3xl font-black tracking-tighter">
-                                                    {emergencyData.blood_type || "-"}
+                                                    {emergencyData.blood_type?.replace('_POSITIVE', '+').replace('_NEGATIVE', '-') || "-"}
                                                 </span>
                                             </div>
                                             <div className="mt-2 flex items-center gap-2 text-rose-100 text-[9px] font-bold bg-white/10 w-fit px-2 py-0.5 rounded-full">

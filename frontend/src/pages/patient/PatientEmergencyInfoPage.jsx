@@ -185,7 +185,7 @@ export default function PatientEmergencyInfoPage() {
                             <div className="space-y-4">
                                 <Label>Blood Type</Label>
                                 <div className="p-3 bg-muted/20 border-2 border-dashed rounded-lg text-center relative group">
-                                    <span className="text-xl font-black">{emergencyData.blood_type || "N/A"}</span>
+                                    <span className="text-xl font-black">{emergencyData.blood_type?.replace('_POSITIVE', '+').replace('_NEGATIVE', '-') || "N/A"}</span>
                                     <Button
                                         variant="ghost"
                                         size="icon"
@@ -333,12 +333,14 @@ export default function PatientEmergencyInfoPage() {
                                 />
                             </div>
                             <div className="space-y-2">
+                                <Label>Emergency Contact Phone</Label>
                                 <Input
                                     disabled={!isEditing}
                                     name="emergency_contact_phone"
                                     value={emergencyData.emergency_contact_phone || ""}
                                     onChange={handleChange}
                                     className="font-mono"
+                                    placeholder="+251 9XX XXX XXX"
                                 />
                             </div>
 

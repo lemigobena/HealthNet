@@ -287,7 +287,7 @@ export default function PatientDashboard() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="bg-white p-4 rounded-xl border border-red-100 shadow-sm">
                                         <div className="flex items-center gap-2 mb-2 text-red-600"><Droplets className="h-4 w-4" /><span className="text-[10px] font-black uppercase tracking-widest">Blood Type</span></div>
-                                        <p className="text-3xl font-black text-foreground">{emergencyInfo?.blood_type || "N/A"}</p>
+                                        <p className="text-3xl font-black text-foreground">{emergencyInfo?.blood_type?.replace('_POSITIVE', '+').replace('_NEGATIVE', '-') || "N/A"}</p>
                                     </div>
                                     <div className="bg-white p-4 rounded-xl border border-red-100 shadow-sm">
                                         <div className="flex items-center gap-2 mb-2 text-red-600"><Zap className="h-4 w-4" /><span className="text-[10px] font-black uppercase tracking-widest">Priority</span></div>

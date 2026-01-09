@@ -104,7 +104,7 @@ export function PatientsList() {
                                         </div>
 
                                         <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.2em] flex items-center gap-2">
-                                            {patient.upi || "UPI-PENDING"} • {patient.user?.gender} • BLOOD {patient.blood_type || "--"}
+                                            {patient.upi || "UPI-PENDING"} • {patient.user?.gender} • BLOOD {patient.blood_type?.replace('_POSITIVE', '+').replace('_NEGATIVE', '-') || "--"}
                                         </p>
                                     </CardContent>
                                 </Card>

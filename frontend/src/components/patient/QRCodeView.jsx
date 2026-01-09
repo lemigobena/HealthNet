@@ -151,7 +151,7 @@ export function QRCodeView() {
                                         <div className="bg-muted/30 p-4 rounded-xl border border-border/50">
                                             <p className="text-sm font-medium text-muted-foreground mb-1">Blood Type</p>
                                             <p className="text-lg font-black tracking-tight text-primary flex items-center gap-2">
-                                                {patientInfo.bloodType}
+                                                {patientInfo.bloodType?.replace('_POSITIVE', '+').replace('_NEGATIVE', '-')}
                                                 <span className="text-[10px] font-normal text-muted-foreground bg-background px-2 py-0.5 rounded-full border border-border">Medically Verify</span>
                                             </p>
                                         </div>

@@ -156,7 +156,7 @@ export default function AdminViewPatientPage() {
                                 <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-2">
                                     <Heart className="h-3 w-3" /> Blood Type
                                 </p>
-                                <p className="font-bold">{patient.blood_type || "N/A"}</p>
+                                <p className="font-bold">{patient.blood_type?.replace('_POSITIVE', '+').replace('_NEGATIVE', '-') || "N/A"}</p>
                             </div>
                             <div className="space-y-1">
                                 <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-2">

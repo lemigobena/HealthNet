@@ -256,7 +256,7 @@ export default function DoctorPatientDetailPage() {
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-black uppercase text-destructive/60 tracking-widest mb-1">Blood Type</p>
-                                    <p className="text-4xl font-black text-destructive">{patient?.blood_type || "N/A"}</p>
+                                    <p className="text-4xl font-black text-destructive">{patient?.blood_type?.replace('_POSITIVE', '+').replace('_NEGATIVE', '-') || "N/A"}</p>
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-black uppercase text-destructive/60 tracking-widest mb-1 text-xs">Physical Disability</p>
@@ -357,7 +357,7 @@ export default function DoctorPatientDetailPage() {
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {['A_POSITIVE', 'A_NEGATIVE', 'B_POSITIVE', 'B_NEGATIVE', 'O_POSITIVE', 'O_NEGATIVE', 'AB_POSITIVE', 'AB_NEGATIVE'].map(type => (
-                                                    <SelectItem key={type} value={type}>{type.replace('_', ' ')}</SelectItem>
+                                                    <SelectItem key={type} value={type}>{type.replace('_POSITIVE', '+').replace('_NEGATIVE', '-')}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>

@@ -15,6 +15,7 @@ export default function RegisterDoctorPage() {
     const { user } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
+    const [facilities, setFacilities] = useState([])
 
 
     const [showPassword, setShowPassword] = useState(false)
@@ -24,6 +25,13 @@ export default function RegisterDoctorPage() {
         "Cardiology", "Pediatrics", "Internal Medicine", "Surgery",
         "Obstetrics & Gynecology", "Laboratory Medicine", "Radiology",
         "Orthopedics", "Neurology", "Psychiatry"
+    ]
+
+    const nationalities = ["Ethiopian", "Eritrean", "Djiboutian", "Kenyan", "Sudanese", "Somali", "Other"]
+    const regions = [
+        "Addis Ababa", "Afar", "Amhara", "Benishangul-Gumuz", "Dire Dawa", "Gambela",
+        "Harari", "Oromia", "Sidama", "South Ethiopia", "South West Ethiopia",
+        "Southern Nations, Nationalities, and Peoples", "Tigray"
     ]
 
     const [formData, setFormData] = useState({
@@ -44,10 +52,21 @@ export default function RegisterDoctorPage() {
     })
 
     useEffect(() => {
-        // Autofill facility if admin belongs to one
-        if (user?.admin_profile?.facility_id) {
-            setFormData(prev => ({ ...prev, facility_id: user.admin_profile.facility_id }))
+        const fetchInitialData = async () => {
+            try {
+                // Autofill facility if admin belongs to one
+                if (user?.admin_profile?.facility_id) {
+                    setFormData(prev => ({ ...prev, facility_id: user.admin_profile.facility_id }))
+                } else {
+                    // Fetch facilities if admin is super admin or lacks facility_id
+                    const response = await api.get('/facilities')
+                    setFacilities(response.data.data)
+                }
+            } catch (err) {
+                console.error("Failed to load initial data:", err)
+            }
         }
+        fetchInitialData()
     }, [user])
 
     const handleChange = (field, value) => {
@@ -241,20 +260,48 @@ export default function RegisterDoctorPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Nationality</Label>
-                                    <Input
-                                        placeholder="e.g. Ethiopian"
-                                        value={formData.nationality}
-                                        onChange={(e) => handleChange('nationality', e.target.value)}
-                                    />
+                                    <Select value={formData.nationality} onValueChange={(val) => handleChange('nationality', val)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select nationality" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {nationalities.map(n => (
+                                                <SelectItem key={n} value={n}>{n}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Place of Birth</Label>
-                                    <Input
-                                        placeholder="City / Region of birth"
-                                        value={formData.place_of_birth}
-                                        onChange={(e) => handleChange('place_of_birth', e.target.value)}
-                                    />
+                                    <Select value={formData.place_of_birth} onValueChange={(val) => handleChange('place_of_birth', val)}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select region/city" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {regions.map(r => (
+                                                <SelectItem key={r} value={r}>{r}</SelectItem>
+                                            ))}
+                                            <SelectItem value="OTHER">Other...</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
+                                {!user?.admin_profile?.facility_id && (
+                                    <div className="space-y-2 md:col-span-2">
+                                        <Label>Facility Assignment *</Label>
+                                        <Select value={formData.facility_id} onValueChange={(val) => handleChange('facility_id', val)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Assign to a medical facility" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {facilities.map(f => (
+                                                    <SelectItem key={f.hospital_id} value={f.hospital_id}>
+                                                        {f.name} ({f.city_town})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                )}
                                 <div className="space-y-2 md:col-span-2">
                                     <Label>Residential Address</Label>
                                     <Input

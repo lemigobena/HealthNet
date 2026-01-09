@@ -10,7 +10,7 @@ export default function LoginPage() {
         <div className="flex min-h-screen bg-background font-sans">
             {/* Absolute Home Link (Mobile & Desktop) */}
             <div className="absolute top-4 left-4 z-50 lg:top-8 lg:left-8">
-                <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground hover:bg-background/20 font-medium">
+                <Button variant="outline" asChild className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm text-slate-900 dark:text-white border-2 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold shadow-xl transition-all hover:scale-105 active:scale-95">
                     <Link to="/">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Return to Home

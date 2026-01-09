@@ -216,7 +216,7 @@ export default function PatientLabResultDetailPage() {
                                         </div>
                                         <div>
                                             <p className="text-[10px] font-bold text-muted-foreground uppercase">Blood Type</p>
-                                            <p className="font-bold text-sm">{labResult.patient?.blood_type?.replace('_', ' ') || "N/A"}</p>
+                                            <p className="font-bold text-sm">{labResult.patient?.blood_type?.replace('_POSITIVE', '+').replace('_NEGATIVE', '-') || "N/A"}</p>
                                         </div>
                                         <div>
                                             <p className="text-[10px] font-bold text-muted-foreground uppercase">Insurance</p>

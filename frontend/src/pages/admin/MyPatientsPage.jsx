@@ -106,7 +106,7 @@ export default function MyPatientsPage() {
                                                 </Badge>
                                             </div>
                                             <p className="text-sm text-muted-foreground">
-                                                {patient.patient_id} • {calculateAge(patient.user.dob)} yrs • {patient.user.gender} • Blood: {patient.blood_type || 'Unknown'}
+                                                {patient.patient_id} • {calculateAge(patient.user.dob)} yrs • {patient.user.gender} • Blood: {patient.blood_type?.replace('_POSITIVE', '+').replace('_NEGATIVE', '-') || 'Unknown'}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
                                                 Registered: {new Date(patient.user.created_at).toLocaleDateString()} • {patient.assignments?.length || 0} assignments
