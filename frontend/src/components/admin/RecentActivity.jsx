@@ -10,7 +10,9 @@ import {
     ShieldAlert,
     Eye,
     ArrowUpRight,
-    Loader2
+    Loader2,
+    Stethoscope,
+    Building
 } from "lucide-react"
 import { Link } from "react-router-dom"
 import api from "@/services/api"
