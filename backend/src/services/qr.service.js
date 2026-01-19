@@ -182,6 +182,10 @@ async function searchEmergencyData(patientId) {
                     test_date: true,
                     is_abnormal: true
                 }
+            },
+            allergies: {
+                where: { emergency_visible: true },
+                select: { allergies: true }
             }
         }
     });
@@ -192,6 +196,12 @@ async function searchEmergencyData(patientId) {
 
     if (patient.status === 'INACTIVE') {
         throw new Error('Patient record is currently restricted');
+    }
+
+    // Override legacy CSV string with only visible relational allergies
+    const visibleAllergiesString = patient.allergies.map(a => a.allergies).join(',');
+    if (patient.emergency_info) {
+        patient.emergency_info.known_allergies = visibleAllergiesString;
     }
 
     return {
