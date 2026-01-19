@@ -284,6 +284,7 @@ async function getAllPatients(filters = {}, adminUser = null) {
                     phone: true,
                     gender: true,
                     dob: true,
+                    dob: true,
                     address: true,
                     created_at: true
                 }
@@ -325,7 +326,7 @@ async function getAllDoctors(filters = {}, adminUser = null) {
                     email: true,
                     phone: true,
                     gender: true,
-                    dob: true,
+
                     address: true,
                     created_at: true
                 }
@@ -369,6 +370,7 @@ async function getPatientById(id) {
                     email: true,
                     phone: true,
                     gender: true,
+                    dob: true,
                     dob: true,
                     address: true,
                     created_at: true
@@ -418,6 +420,7 @@ async function getDoctorById(id) {
                     email: true,
                     phone: true,
                     gender: true,
+                    dob: true,
                     dob: true,
                     address: true,
                     created_at: true

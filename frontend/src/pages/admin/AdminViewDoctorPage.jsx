@@ -26,6 +26,8 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 
+import { formatName } from "@/utils/nameUtils"
+
 export default function AdminViewDoctorPage() {
     const { id } = useParams()
     const [doctor, setDoctor] = useState(null)
@@ -162,10 +164,21 @@ export default function AdminViewDoctorPage() {
         )
     }
 
+    // Helper to format name with doctor profile
+    const getFormattedName = () => {
+        // Construct a user object that formatName expects for a doctor
+        // formatName checks user.role, user.gender, and user.doctor_profile.type (or user.type)
+        const userForFormat = {
+            ...doctor.user,
+            doctor_profile: { type: doctor.type }
+        }
+        return formatName(userForFormat)
+    }
+
     return (
         <AdminLayout
             title="Practitioner Professional Profile"
-            subtitle={`Administrative view for ${doctor.user.name}`}
+            subtitle={`Administrative view for ${getFormattedName()}`}
         >
             <div className="max-w-5xl mx-auto space-y-8">
                 {/* Profile Header */}
@@ -178,7 +191,7 @@ export default function AdminViewDoctorPage() {
                             </div>
                             <div className="flex-1 text-center md:text-left space-y-2">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                    <h2 className="text-3xl font-black tracking-tight">{doctor.user.name}</h2>
+                                    <h2 className="text-3xl font-black tracking-tight">{getFormattedName()}</h2>
                                     <div className="flex gap-2">
                                         <Button
                                             onClick={() => setIsPasswordModalOpen(true)}

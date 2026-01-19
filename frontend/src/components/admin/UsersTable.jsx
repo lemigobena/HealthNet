@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import api from "@/services/api"
-import { Loader2, AlertCircle, CheckCircle } from "lucide-react"
+import { Loader2, AlertCircle } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -39,6 +39,12 @@ const roleColors = {
     LAB_TECH: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
 }
 
+import { formatName } from "@/utils/nameUtils"
+
+// ... imports remain the same
+
+// ... roleLabels and roleColors remain the same
+
 export function UsersTable() {
     const [users, setUsers] = useState([])
     const [isLoading, setIsLoading] = useState(true)
@@ -55,7 +61,7 @@ export function UsersTable() {
 
             const patients = patientsRes.data.data.map(p => ({
                 id: p.patient_id,
-                name: p.user.name,
+                name: formatName(p.user),
                 email: p.user.email,
                 role: p.user.role,
                 status: p.status, // Use status from patient object
@@ -64,7 +70,7 @@ export function UsersTable() {
 
             const doctors = doctorsRes.data.data.map(d => ({
                 id: d.doctor_id,
-                name: d.user.name,
+                name: formatName({ ...d.user, doctor_profile: { type: d.type } }),
                 email: d.user.email,
                 role: d.user.role,
                 status: d.status, // Use status from doctor object
@@ -92,142 +98,109 @@ export function UsersTable() {
 
             await api.patch(endpoint, { status: newStatus })
             fetchUsers() // Refresh list
-        } catch (err) {
-            console.error("Failed to toggle status", err)
+        } catch (error) {
+            console.error("Failed to update status", error)
         }
     }
 
-    const filteredUsers = users.filter((u) => {
-        const matchesSearch =
-            u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            u.id.toLowerCase().includes(searchQuery.toLowerCase())
-
-        const normalizedRole = roleFilter.toUpperCase()
-        const matchesRole = roleFilter === "all" || u.role === normalizedRole || (roleFilter === "lab_technician" && u.role === "LAB_TECH")
+    const filteredUsers = users.filter(user => {
+        const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchQuery.toLowerCase())
+        const matchesRole = roleFilter === "all" || user.role.toLowerCase() === roleFilter.toLowerCase()
         return matchesSearch && matchesRole
     })
 
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>System Users</CardTitle>
-                <CardDescription>Manage all registered users in the system</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
-                    <div className="relative flex-1 max-w-sm">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                            placeholder="Search users..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9"
-                        />
-                    </div>
-                    <Select value={roleFilter} onValueChange={setRoleFilter}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Filter by role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Roles</SelectItem>
-                            <SelectItem value="admin">Administrators</SelectItem>
-                            <SelectItem value="doctor">Doctors</SelectItem>
-                            <SelectItem value="patient">Patients</SelectItem>
-                            <SelectItem value="lab_technician">Lab Technicians</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+    if (isLoading) {
+        return <div className="p-8 flex justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+    }
 
-                <div className="rounded-md border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Role</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Created</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {isLoading ? (
-                                <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center">
-                                        <div className="flex items-center justify-center gap-2">
-                                            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                                            <span>Synchronizing registry...</span>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ) : filteredUsers.length > 0 ? (
-                                filteredUsers.map((user) => (
-                                    <TableRow key={user.id}>
-                                        <TableCell className="font-medium">{user.name}</TableCell>
-                                        <TableCell>{user.email}</TableCell>
-                                        <TableCell>
-                                            <Badge variant="secondary" className={roleColors[user.role]}>
-                                                {roleLabels[user.role]}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant={user.status === "ACTIVE" || user.status === "active" ? "default" : "secondary"} className="uppercase text-[10px] font-black">
-                                                {user.status}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-xs font-medium">{new Date(user.createdAt).toLocaleDateString()}</TableCell>
-                                        <TableCell className="text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon">
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem>
-                                                        <Eye className="mr-2 h-4 w-4" />
-                                                        View Details
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem>
-                                                        <UserCog className="mr-2 h-4 w-4" />
-                                                        Edit User
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem
-                                                        className={user.status === "ACTIVE" || user.status === "active" ? "text-destructive" : "text-green-600"}
-                                                        onClick={() => handleStatusToggle(user)}
-                                                    >
-                                                        {user.status === "ACTIVE" || user.status === "active" ? (
-                                                            <>
-                                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                                Deactivate
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <CheckCircle className="mr-2 h-4 w-4" />
-                                                                Activate
-                                                            </>
-                                                        )}
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground uppercase tracking-widest text-[10px] font-bold italic">
-                                        No users matching registry parameters.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+    return (
+        <div className="space-y-4">
+            <div className="flex items-center gap-4">
+                <div className="relative flex-1">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Search users..."
+                        className="pl-8"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
-            </CardContent>
-        </Card>
+                <Select value={roleFilter} onValueChange={setRoleFilter}>
+                    <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Filter by role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Roles</SelectItem>
+                        <SelectItem value="doctor">Doctors</SelectItem>
+                        <SelectItem value="patient">Patients</SelectItem>
+                        <SelectItem value="lab_technician">Lab Technicians</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <div className="rounded-md border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>User</TableHead>
+                            <TableHead>Role</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Joined</TableHead>
+                            <TableHead className="w-[50px]"></TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {filteredUsers.map((user) => (
+                            <TableRow key={user.id}>
+                                <TableCell>
+                                    <div className="flex flex-col">
+                                        <span className="font-medium flex items-center gap-2">
+                                            {user.name}
+                                        </span>
+                                        <span className="text-xs text-muted-foreground">{user.email}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant="outline" className={`${roleColors[user.role]} border-0`}>
+                                        {roleLabels[user.role]}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge
+                                        variant={user.status === "ACTIVE" ? "default" : "secondary"}
+                                        className={user.status === "ACTIVE" ? "bg-green-100 text-green-800 hover:bg-green-100" : ""}
+                                    >
+                                        {user.status}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell className="text-muted-foreground text-sm">
+                                    {new Date(user.createdAt).toLocaleDateString()}
+                                </TableCell>
+                                <TableCell>
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                                <MoreHorizontal className="h-4 w-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(user.id)}>
+                                                Copy ID
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem onClick={() => handleStatusToggle(user)}>
+                                                {user.status === "ACTIVE" ? "Suspend User" : "Activate User"}
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+        </div>
     )
 }

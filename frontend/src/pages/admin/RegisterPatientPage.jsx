@@ -10,12 +10,16 @@ import { ArrowLeft, Save, Users, Loader2, Eye, EyeOff } from "lucide-react"
 import api from "@/services/api"
 import { useAuth } from "@/contexts/AuthContext"
 
+import { CredentialModal } from "@/components/admin/CredentialModal"
+
 export default function RegisterPatientPage() {
     const navigate = useNavigate()
     const { user } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
 
+    const [showCredentialModal, setShowCredentialModal] = useState(false)
+    const [newCredentials, setNewCredentials] = useState(null)
 
     const [showPassword, setShowPassword] = useState(false)
     const [isOtherDisability, setIsOtherDisability] = useState(false)
@@ -75,13 +79,26 @@ export default function RegisterPatientPage() {
         setIsLoading(true)
 
         try {
-            await api.post('/admin/patients', formData)
-            navigate('/admin/my-patients')
+            const response = await api.post('/admin/patients', formData)
+            const createdPatient = response.data.data
+
+            setNewCredentials({
+                name: formData.name,
+                id: createdPatient.patient_id,
+                password: formData.password,
+                role: "Patient"
+            })
+            setShowCredentialModal(true)
         } catch (err) {
             setError(err.response?.data?.message || "Failed to register patient")
         } finally {
             setIsLoading(false)
         }
+    }
+
+    const handleCloseModal = () => {
+        setShowCredentialModal(false)
+        navigate('/admin/my-patients')
     }
 
     return (
@@ -308,6 +325,12 @@ export default function RegisterPatientPage() {
                     </CardContent>
                 </Card>
             </div>
+
+            <CredentialModal
+                isOpen={showCredentialModal}
+                onClose={handleCloseModal}
+                credentials={newCredentials}
+            />
         </AdminLayout>
     )
 }

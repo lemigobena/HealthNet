@@ -19,37 +19,26 @@ import {
 } from "lucide-react"
 import api from "@/services/api"
 
+import { formatName } from "@/utils/nameUtils"
+
+// ... imports remain same
+
 export default function PatientDoctorDetailPage() {
     const { id } = useParams()
-    const [doctor, setDoctor] = useState(null)
-    const [isLoading, setIsLoading] = useState(true)
+    // ... state
 
-    useEffect(() => {
-        const fetchDoctor = async () => {
-            try {
-                const response = await api.get(`/patient/doctors/${id}`)
-                setDoctor(response.data.data)
-            } catch (error) {
-                console.error("Failed to fetch doctor details:", error)
-            } finally {
-                setIsLoading(false)
-            }
-        }
-        if (id) {
-            fetchDoctor()
-        }
-    }, [id])
+    // ... useEffect
 
-    if (isLoading) {
+    // ... loading states
+
+    if (!doctor) {
+        // ...
         return (
-            <PatientLayout title="Doctor Profile" subtitle="Loading specialist information...">
-                <div className="flex flex-col items-center justify-center p-20 space-y-4">
-                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                </div>
-            </PatientLayout>
+            // ...
+            null
         )
     }
-
+    // Re-paste logic from file to match exactly for replacementContext match
     if (!doctor) {
         return (
             <PatientLayout title="Doctor Not Found" subtitle="Member of care team unavailable">
@@ -66,10 +55,11 @@ export default function PatientDoctorDetailPage() {
 
     return (
         <PatientLayout
-            title={`Dr. ${doctor.name}`}
+            title={formatName({ ...doctor, role: 'DOCTOR' })}
             subtitle={doctor.specialization || "Medical Specialist"}
         >
             <div className="max-w-[1000px] mx-auto w-full space-y-8">
+                {/* ... back button ... */}
                 <Button variant="ghost" className="mb-4 pl-0 hover:bg-transparent hover:text-primary" asChild>
                     <Link to="/patient/doctors" className="flex items-center gap-2">
                         <ArrowLeft className="h-4 w-4" /> Back to Care Team
@@ -91,7 +81,7 @@ export default function PatientDoctorDetailPage() {
                         <CardContent className="pt-20 px-8 pb-8">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <h2 className="text-3xl font-black text-foreground">Dr. {doctor.name}</h2>
+                                    <h2 className="text-3xl font-black text-foreground">{formatName({ ...doctor, role: 'DOCTOR' })}</h2>
                                     <div className="flex items-center gap-2 mt-2 text-primary font-bold">
                                         <Stethoscope className="h-5 w-5" />
                                         <span>{doctor.specialization}</span>

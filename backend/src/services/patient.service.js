@@ -284,7 +284,8 @@ async function getAssignedDoctors(patientId) {
         ...a.doctor.user,
         specialization: a.doctor.specialization,
         doctor_id: a.doctor.doctor_id,
-        facility: a.doctor.facility
+        facility: a.doctor.facility,
+        type: a.doctor.type
     }));
 }
 
@@ -324,7 +325,8 @@ async function getAssignedDoctorById(patientId, doctorId) {
         ...assignment.doctor.user,
         specialization: assignment.doctor.specialization,
         doctor_id: assignment.doctor.doctor_id,
-        facility: assignment.doctor.facility
+        facility: assignment.doctor.facility,
+        type: assignment.doctor.type
     };
 }
 

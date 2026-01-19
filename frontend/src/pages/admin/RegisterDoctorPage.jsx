@@ -10,12 +10,16 @@ import { ArrowLeft, Save, Stethoscope, Loader2, Eye, EyeOff } from "lucide-react
 import api from "@/services/api"
 import { useAuth } from "@/contexts/AuthContext"
 
+import { CredentialModal } from "@/components/admin/CredentialModal"
+
 export default function RegisterDoctorPage() {
     const navigate = useNavigate()
     const { user } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState("")
 
+    const [showCredentialModal, setShowCredentialModal] = useState(false)
+    const [newCredentials, setNewCredentials] = useState(null)
 
     const [showPassword, setShowPassword] = useState(false)
     const [isOtherSpecialization, setIsOtherSpecialization] = useState(false)
@@ -71,13 +75,32 @@ export default function RegisterDoctorPage() {
         setIsLoading(true)
 
         try {
-            await api.post('/admin/doctors', formData)
-            navigate('/admin/my-doctors')
+            const response = await api.post('/admin/doctors', formData)
+            // Function to generate ID is handled by backend, but we need it for the modal.
+            // Assuming the backend returns the created doctor object which contains user info or at least the generated ID.
+            // If the backend response structure is standard { data: { ... } }
+
+            const createdDoctor = response.data.data
+            // If the response doesn't strictly follow this, we might need to adjust.
+            // Based on other controllers, it usually returns the created resource.
+
+            setNewCredentials({
+                name: formData.name,
+                id: createdDoctor.doctor_id, // Or createdDoctor.user.user_id if available
+                password: formData.password,
+                role: "Doctor"
+            })
+            setShowCredentialModal(true)
         } catch (err) {
             setError(err.response?.data?.message || "Failed to register doctor")
         } finally {
             setIsLoading(false)
         }
+    }
+
+    const handleCloseModal = () => {
+        setShowCredentialModal(false)
+        navigate('/admin/my-doctors')
     }
 
     return (
@@ -288,8 +311,17 @@ export default function RegisterDoctorPage() {
                             </div>
                         </form>
                     </CardContent>
-                </Card>
             </div>
-        </AdminLayout>
+        </form>
+                    </CardContent >
+                </Card >
+            </div >
+
+        <CredentialModal
+            isOpen={showCredentialModal}
+            onClose={handleCloseModal}
+            credentials={newCredentials}
+        />
+        </AdminLayout >
     )
 }

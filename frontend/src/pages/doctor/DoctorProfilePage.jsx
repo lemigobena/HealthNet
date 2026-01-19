@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 
+import { formatName } from "@/utils/nameUtils"
+
 export default function DoctorProfilePage() {
     const { user } = useAuth()
     const doctor = user?.doctor_profile
@@ -32,7 +34,7 @@ export default function DoctorProfilePage() {
                                 {user.name?.[0]}
                             </div>
                             <div className="flex-1 text-center md:text-left space-y-2">
-                                <h2 className="text-3xl font-black tracking-tight">{user.name}</h2>
+                                <h2 className="text-3xl font-black tracking-tight">{formatName(user)}</h2>
                                 <div className="flex flex-wrap justify-center md:justify-start gap-2">
                                     <Badge className="bg-primary/10 text-primary border-none font-bold uppercase tracking-widest text-[10px] px-3">
                                         {doctor.specialization}

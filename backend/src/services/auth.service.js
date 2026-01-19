@@ -45,6 +45,7 @@ async function login(identifier, password) {
         throw new Error('Your account has been suspended. Please contact admin.');
     }
 
+    // Check if user is suspended
     if (user.role === USER_ROLES.PATIENT && user.patient_profile?.status === 'INACTIVE') {
         throw new Error('Your account has been suspended. Please contact admin.');
     }
@@ -55,7 +56,7 @@ async function login(identifier, password) {
     // Generate JWT token
     const token = generateToken({
         userId: user.id,
-        userIdString: user.user_id,
+        userIdString: user.user_id, // Add user_id string to payload
         role: user.role,
         email: user.email,
         version: newTokenVersion // Add version to payload
@@ -136,6 +137,8 @@ async function updatePassword(userIdString, newPassword) {
         }
     });
 }
+
+
 
 module.exports = {
     login,

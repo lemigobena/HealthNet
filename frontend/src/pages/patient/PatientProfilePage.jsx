@@ -9,6 +9,8 @@ import { User, Mail, Phone, MapPin, Save, Shield, Eye, EyeOff } from "lucide-rea
 import { useAuth } from "@/contexts/AuthContext"
 import api from "@/services/api"
 
+import { formatName } from "@/utils/nameUtils"
+
 export default function PatientProfilePage() {
     const { user, setUser } = useAuth()
     const [isEditing, setIsEditing] = useState(false)
@@ -20,7 +22,7 @@ export default function PatientProfilePage() {
         email: user?.email || "",
         phone: user?.phone || "Not Set",
         address: user?.address || "Not Set",
-        dateOfBirth: user?.patient_profile?.dob ? new Date(user.patient_profile.dob).toLocaleDateString() : "Not Set",
+        dateOfBirth: user?.dob ? new Date(user.dob).toLocaleDateString() : "Not Set",
         nationalId: user?.patient_profile?.upi || user?.patient_profile?.patient_id || "N/A",
         _userId: user?.id
     }
@@ -65,10 +67,10 @@ export default function PatientProfilePage() {
                 {/* Header Card */}
                 <div className="flex items-center gap-6 p-6 bg-card rounded-xl border shadow-sm">
                     <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-3xl font-black border-4 border-white dark:border-card shadow-lg">
-                        {formData.firstName?.[0]}{formData.lastName?.[0]}
+                        {user.name?.[0]}
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold">{formData.firstName} {formData.lastName}</h2>
+                        <h2 className="text-2xl font-bold">{formatName(user)}</h2>
                         <p className="text-muted-foreground">{formData.email}</p>
                         <div className="flex items-center gap-2 mt-2">
                             <span className="bg-primary/10 text-primary text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">

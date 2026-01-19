@@ -19,6 +19,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 
+import { formatName } from "@/utils/nameUtils"
+
 export default function AdminViewPatientPage() {
     const { id } = useParams()
     const [patient, setPatient] = useState(null)
@@ -102,7 +104,7 @@ export default function AdminViewPatientPage() {
     return (
         <AdminLayout
             title="Patient Clinical Profile"
-            subtitle={`Administrative view for ${patient.user.name}`}
+            subtitle={`Administrative view for ${formatName(patient.user)}`}
         >
             <div className="max-w-5xl mx-auto space-y-8">
                 {/* Profile Header */}
@@ -115,7 +117,7 @@ export default function AdminViewPatientPage() {
                             </div>
                             <div className="flex-1 text-center md:text-left space-y-2">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                    <h2 className="text-3xl font-black tracking-tight">{patient.user.name}</h2>
+                                    <h2 className="text-3xl font-black tracking-tight">{formatName(patient.user)}</h2>
                                     <Button
                                         onClick={() => setIsPasswordModalOpen(true)}
                                         variant="outline"
