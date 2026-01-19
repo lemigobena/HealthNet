@@ -47,7 +47,8 @@ export default function RegisterDoctorPage() {
         name: "",
         email: "",
         phone: "",
-        password: "DefaultPassword123!",
+        password: "Password123!",
+        confirmPassword: "Password123!",
         gender: "",
         dob: "",
         license_number: "",
@@ -106,17 +107,29 @@ export default function RegisterDoctorPage() {
             // Assuming the backend returns the created doctor object which contains user info or at least the generated ID.
             // If the backend response structure is standard { data: { ... } }
 
-            const createdDoctor = response.data.data
-            // If the response doesn't strictly follow this, we might need to adjust.
-            // Based on other controllers, it usually returns the created resource.
+            if (response.data.success) {
+                const dobDate = new Date(formData.dob);
+                const today = new Date();
+                if (dobDate > today) {
+                    // Assuming 'toast' is defined elsewhere, e.g., from react-hot-toast
+                    // toast.error("Date of birth cannot be in the future");
+                    setError("Date of birth cannot be in the future"); // Using existing error state
+                    setIsLoading(false);
+                    return;
+                }
 
-            setNewCredentials({
-                name: formData.name,
-                id: createdDoctor.doctor_id, // Or createdDoctor.user.user_id if available
-                password: formData.password,
-                role: "Doctor"
-            })
-            setShowCredentialModal(true)
+                const newUserId = response.data.data.doctor_id || response.data.data.user_id || "ID-ERROR";
+
+                setNewCredentials({
+                    name: formData.name, // Keep name for modal
+                    id: newUserId,
+                    password: "Password123!", // As per instruction
+                    role: "Doctor" // Keep role for modal
+                })
+                setShowCredentialModal(true) // Using existing modal state
+                // toast.success("Doctor registered successfully") // Assuming 'toast' is defined
+                // handleReset() // Assuming 'handleReset' is defined
+            }
         } catch (err) {
             setError(err.response?.data?.message || "Failed to register doctor")
         } finally {
@@ -199,7 +212,6 @@ export default function RegisterDoctorPage() {
                                         />
                                         <Button
                                             type="button"
-                                            variant="ghost"
                                             size="icon"
                                             className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground hover:text-foreground"
                                             onClick={() => setShowPassword(!showPassword)}

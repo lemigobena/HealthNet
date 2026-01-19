@@ -231,30 +231,52 @@ async function updateUserStatus(userId, status) {
     return { message: `User ${status === 'ACTIVE' ? 'activated' : 'suspended'} successfully` };
 }
 
-// Create doctor-patient assignment
-
+// Create new assignment
 async function createAssignment(adminId, doctorId, patientId, notes) {
+    // Check if duplicate assignment exists
+    const existingAssignment = await prisma.assignment.findFirst({
+        where: {
+            doctor_id: doctorId,
+            patient_id: patientId,
+            status: 'ACTIVE'
+        }
+    });
+
+    if (existingAssignment) {
+        throw new Error('This patient is already assigned to this doctor');
+    }
+
     const assignmentId = generateAssignmentId();
 
     const assignment = await prisma.assignment.create({
         data: {
             assignment_id: assignmentId,
-            assigned_by: adminId,
             doctor_id: doctorId,
             patient_id: patientId,
-            notes
+            assigned_by: adminId,
+            notes,
+            status: 'ACTIVE'
         },
         include: {
             doctor: {
-                include: {
-                    user: true
-                }
+                include: { user: true }
             },
             patient: {
-                include: {
-                    user: true
-                }
+                include: { user: true }
             }
+        }
+    });
+
+    // Audit Log
+    await prisma.auditLog.create({
+        data: {
+            user_id: adminId, // Admin ID
+            action_type: 'CLINICAL_ASSIGNMENT',
+            entity_type: 'ASSIGNMENT',
+            entity_id: assignment.assignment_id.toString(),
+            description: `Admin assigned Patient ${patientId} to Doctor ${doctorId}`,
+            ip_address: '127.0.0.1',
+            user_agent: 'System'
         }
     });
 
@@ -624,7 +646,7 @@ async function updateDoctorFacility(doctorId, facilityId, adminId) {
 
 
 // Update patient insurance status
-async function updatePatientInsurance(patientId, status) {
+async function updatePatientInsurance(patientId, status, adminId) {
     const patient = await prisma.patient.findUnique({
         where: { patient_id: patientId },
         include: { user: true } // Include user to get ID for audit log? Wait, we need ADMIN ID here.
@@ -658,11 +680,45 @@ async function updatePatientInsurance(patientId, status) {
         }
     });
 
-    // Logging handled in Controller? Or here? 
-    // createPatient has adminId.
-    // updatePatientInsurance needs it too.
+    // Audit Log
+    if (adminId) {
+        await prisma.auditLog.create({
+            data: {
+                user_id: adminId,
+                action_type: 'UPDATE_INSURANCE',
+                entity_type: 'PATIENT',
+                entity_id: patientId,
+                description: `Admin updated insurance to ${status} for patient ${patientId}`,
+                ip_address: '127.0.0.1',
+                user_agent: 'System'
+            }
+        });
+    }
 
     return updated;
+}
+
+// Get system audit logs (Admin only)
+async function getSystemAuditLogs() {
+    return prisma.auditLog.findMany({
+        where: {
+            user: {
+                role: 'ADMIN' // Filter by role using the relation
+            }
+        },
+        include: {
+            user: {
+                select: {
+                    name: true,
+                    role: true
+                }
+            }
+        },
+        orderBy: {
+            created_at: 'desc'
+        },
+        take: 50
+    });
 }
 
 
@@ -682,5 +738,6 @@ module.exports = {
     getAssignmentById,
     getAllAssignments,
     updateDoctorFacility,
-    updatePatientInsurance
+    updatePatientInsurance,
+    getSystemAuditLogs
 };

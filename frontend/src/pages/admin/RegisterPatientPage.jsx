@@ -50,7 +50,8 @@ export default function RegisterPatientPage() {
         name: "",
         email: "",
         phone: "",
-        password: "DefaultPatient123!",
+        password: "Password123!",
+        confirmPassword: "Password123!",
         gender: "",
         dob: "",
         blood_type: "",
@@ -105,6 +106,14 @@ export default function RegisterPatientPage() {
         setIsLoading(true)
 
         try {
+            const dobDate = new Date(formData.dob);
+            const today = new Date();
+            if (dobDate > today) {
+                setError("Date of birth cannot be in the future");
+                setIsLoading(false);
+                return;
+            }
+
             const response = await api.post('/admin/patients', formData)
             const createdPatient = response.data.data
 
