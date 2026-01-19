@@ -22,7 +22,12 @@ const actionIcons = {
     EMERGENCY_ACCESS: { icon: Activity, color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" },
     SYSTEM_CONFIG_CHANGE: { icon: UserCog, color: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" },
     SECURITY_ALERT: { icon: ShieldAlert, color: "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400" },
-    CLINICAL_ASSIGNMENT: { icon: UserPlus, color: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" }
+    CLINICAL_ASSIGNMENT: { icon: UserPlus, color: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" },
+    CREATE_PATIENT: { icon: UserPlus, color: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400" },
+    CREATE_DOCTOR: { icon: Stethoscope, color: "bg-teal-100 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400" },
+    UPDATE_INSURANCE: { icon: ShieldAlert, color: "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400" },
+    UPDATE_FACILITY: { icon: Building, color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" },
+    UPDATE_PASSWORD: { icon: UserCog, color: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400" }
 }
 
 export function RecentActivity() {
@@ -32,8 +37,8 @@ export function RecentActivity() {
     useEffect(() => {
         const fetchActivities = async () => {
             try {
-                const response = await api.get('/admin/assignments')
-                setActivities(response.data.data.slice(0, 5)) // Get latest 5
+                const response = await api.get('/admin/audit-logs')
+                setActivities(response.data.data.slice(0, 10))
             } catch {
                 console.error("Failed to fetch activity logs")
             } finally {
@@ -64,8 +69,8 @@ export function RecentActivity() {
                         </div>
                     ) : activities.length > 0 ? (
                         activities.map((log, index) => {
-                            const config = actionIcons['CLINICAL_ASSIGNMENT']
-                            const Icon = config.icon
+                            const config = actionIcons[log.action_type] || actionIcons['SYSTEM_CONFIG_CHANGE']
+                            const Icon = config.icon || Activity
 
                             return (
                                 <div key={log.id} className="group relative flex items-start gap-4 transition-all">
@@ -80,20 +85,20 @@ export function RecentActivity() {
                                     <div className="flex-1 space-y-1 pt-1">
                                         <div className="flex items-center justify-between gap-2">
                                             <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                                                Registry Admin
+                                                {log.user?.name || log.user_id} ({log.user?.role || 'SYSTEM'})
                                             </p>
                                             <time className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                                                {new Date(log.assigned_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </time>
                                         </div>
                                         <p className="text-sm text-muted-foreground leading-relaxed line-clamp-1">
-                                            Authorized {log.doctor.user.name} for {log.patient.user.name}
+                                            {log.description}
                                         </p>
                                         <div className="flex items-center gap-3 pt-1">
                                             <Badge variant="outline" className="text-[10px] font-bold uppercase transition-colors group-hover:border-primary/30">
-                                                Clinical Access
+                                                {log.action_type.replace('_', ' ')}
                                             </Badge>
-                                            <span className="text-[10px] text-muted-foreground/60 font-mono">ID: {log.assignment_id}</span>
+                                            <span className="text-[10px] text-muted-foreground/60 font-mono">ID: {log.id}</span>
                                         </div>
                                     </div>
                                 </div>

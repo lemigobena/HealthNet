@@ -23,6 +23,8 @@ export default function RegisterPatientPage() {
 
     const [showPassword, setShowPassword] = useState(false)
     const [isOtherDisability, setIsOtherDisability] = useState(false)
+    const [isOtherNationality, setIsOtherNationality] = useState(false)
+    const [isOtherRegion, setIsOtherRegion] = useState(false)
 
     const disabilities = [
         "No disability",
@@ -33,7 +35,11 @@ export default function RegisterPatientPage() {
         "Speech Impairment"
     ]
 
-    const nationalities = ["Ethiopian", "Eritrean", "Djiboutian", "Kenyan", "Sudanese", "Somali", "Other"]
+
+
+    // Restricted nationalities per requirement
+    const nationalities = ["Ethiopian", "Other"]
+
     const regions = [
         "Addis Ababa", "Afar", "Amhara", "Benishangul-Gumuz", "Dire Dawa", "Gambela",
         "Harari", "Oromia", "Sidama", "South Ethiopia", "South West Ethiopia",
@@ -70,6 +76,26 @@ export default function RegisterPatientPage() {
         } else {
             setIsOtherDisability(false)
             setFormData(prev => ({ ...prev, disability: val }))
+        }
+    }
+
+    const handleNationalityChange = (val) => {
+        if (val === "Other") {
+            setIsOtherNationality(true)
+            setFormData(prev => ({ ...prev, nationality: "" }))
+        } else {
+            setIsOtherNationality(false)
+            setFormData(prev => ({ ...prev, nationality: val }))
+        }
+    }
+
+    const handleRegionChange = (val) => {
+        if (val === "OTHER") {
+            setIsOtherRegion(true)
+            setFormData(prev => ({ ...prev, place_of_birth: "" }))
+        } else {
+            setIsOtherRegion(false)
+            setFormData(prev => ({ ...prev, place_of_birth: val }))
         }
     }
 
@@ -241,7 +267,10 @@ export default function RegisterPatientPage() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Nationality</Label>
-                                        <Select value={formData.nationality} onValueChange={(val) => handleChange('nationality', val)}>
+                                        <Select
+                                            value={isOtherNationality ? "Other" : formData.nationality}
+                                            onValueChange={handleNationalityChange}
+                                        >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select nationality" />
                                             </SelectTrigger>
@@ -251,10 +280,21 @@ export default function RegisterPatientPage() {
                                                 ))}
                                             </SelectContent>
                                         </Select>
+                                        {isOtherNationality && (
+                                            <Input
+                                                className="mt-2 animate-in fade-in slide-in-from-top-2 duration-300"
+                                                placeholder="Please specify nationality"
+                                                value={formData.nationality}
+                                                onChange={(e) => handleChange('nationality', e.target.value)}
+                                            />
+                                        )}
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Place of Birth</Label>
-                                        <Select value={formData.place_of_birth} onValueChange={(val) => handleChange('place_of_birth', val)}>
+                                        <Select
+                                            value={isOtherRegion ? "OTHER" : formData.place_of_birth}
+                                            onValueChange={handleRegionChange}
+                                        >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select region/city" />
                                             </SelectTrigger>
@@ -265,6 +305,14 @@ export default function RegisterPatientPage() {
                                                 <SelectItem value="OTHER">Other...</SelectItem>
                                             </SelectContent>
                                         </Select>
+                                        {isOtherRegion && (
+                                            <Input
+                                                className="mt-2 animate-in fade-in slide-in-from-top-2 duration-300"
+                                                placeholder="Please specify place of birth"
+                                                value={formData.place_of_birth}
+                                                onChange={(e) => handleChange('place_of_birth', e.target.value)}
+                                            />
+                                        )}
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Disability Status</Label>

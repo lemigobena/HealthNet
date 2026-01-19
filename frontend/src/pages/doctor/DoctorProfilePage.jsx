@@ -141,19 +141,32 @@ export default function DoctorProfilePage() {
                     <CardContent>
                         <form onSubmit={async (e) => {
                             e.preventDefault()
+                            const oldPass = e.target.oldPassword.value
                             const newPass = e.target.newPassword.value
-                            if (newPass) {
+                            if (newPass && oldPass) {
                                 try {
-                                    await api.patch('/auth/update-password', { password: newPass })
-                                    alert("Password updated successfully.")
+                                    await api.patch('/auth/update-password', { oldPassword: oldPass, password: newPass })
+                                    showAlert("Success", "Password updated successfully.")
                                     e.target.reset()
                                 } catch (err) {
-                                    alert("Failed to update password.")
+                                    showAlert("Error", err.response?.data?.message || "Failed to update password.")
                                     console.error(err)
                                 }
+                            } else {
+                                showAlert("Action Required", "Please provide both current and new passwords.")
                             }
                         }} className="space-y-4">
                             <div className="grid gap-4 md:grid-cols-2 items-end">
+                                <div className="space-y-2">
+                                    <Label htmlFor="docOldPassword">Current Password</Label>
+                                    <Input
+                                        id="docOldPassword"
+                                        name="oldPassword"
+                                        type="password"
+                                        placeholder="••••••••"
+                                        required
+                                    />
+                                </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="docNewPassword" title="Enter New Password">New Password</Label>
                                     <div className="relative">
@@ -176,12 +189,26 @@ export default function DoctorProfilePage() {
                                         </Button>
                                     </div>
                                 </div>
-                                <Button type="submit">Update Credentials</Button>
+                                <Button type="submit" className="md:col-span-2 w-full">Update Credentials</Button>
                             </div>
                         </form>
                     </CardContent>
                 </Card>
             </div>
+
+            <Dialog open={alertOpen} onOpenChange={setAlertOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{alertConfig.title}</DialogTitle>
+                        <DialogDescription>
+                            {alertConfig.message}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button onClick={() => setAlertOpen(false)}>Close</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </DoctorLayout>
     )
 }

@@ -59,13 +59,16 @@ async function getCurrentUser(req, res, next) {
 // Update password
 async function updatePassword(req, res, next) {
     try {
-        const { password } = req.body;
-        if (!password) {
-            return errorResponse(res, 'Password is required', 400);
+        const { oldPassword, password } = req.body;
+        if (!password || !oldPassword) {
+            return errorResponse(res, 'Both current and new passwords are required', 400);
         }
-        await authService.updatePassword(req.user.user_id, password);
+        await authService.updatePassword(req.user.user_id, oldPassword, password);
         return successResponse(res, null, 'Password updated successfully');
     } catch (error) {
+        if (error.message === 'Invalid current password') {
+            return errorResponse(res, 'Current password is incorrect', 400);
+        }
         next(error);
     }
 }

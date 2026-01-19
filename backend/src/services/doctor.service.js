@@ -217,6 +217,19 @@ async function createDiagnosis(doctorProfile, patientId, diagnosisData) {
         `A new diagnosis has been recorded in your medical profile by ${diagnosis.doctor.user.name}.`
     );
 
+    // Audit Log
+    await prisma.auditLog.create({
+        data: {
+            user_id: doctorProfile.user_id,
+            action_type: 'CREATE_DIAGNOSIS',
+            entity_type: 'DIAGNOSIS',
+            entity_id: diagnosisId,
+            description: `Doctor created diagnosis for patient ${patientId}`,
+            ip_address: '127.0.0.1',
+            user_agent: 'System'
+        }
+    });
+
     return diagnosis;
 }
 
@@ -271,6 +284,21 @@ async function updateDiagnosis(doctorProfile, diagnosisId, updateData) {
         }
     });
 
+
+
+    // Audit Log
+    await prisma.auditLog.create({
+        data: {
+            user_id: doctorProfile.user_id,
+            action_type: 'UPDATE_DIAGNOSIS',
+            entity_type: 'DIAGNOSIS',
+            entity_id: diagnosisId,
+            description: `Doctor updated diagnosis ${diagnosisId}`,
+            ip_address: '127.0.0.1',
+            user_agent: 'System'
+        }
+    });
+
     return updated;
 }
 
@@ -305,6 +333,19 @@ async function completeDiagnosis(doctorProfile, diagnosisId) {
             patient: { include: { user: true } },
             doctor: { include: { user: true } },
             facility: true
+        }
+    });
+
+    // Audit Log
+    await prisma.auditLog.create({
+        data: {
+            user_id: doctorProfile.user_id,
+            action_type: 'COMPLETE_DIAGNOSIS',
+            entity_type: 'DIAGNOSIS',
+            entity_id: diagnosisId,
+            description: `Doctor completed diagnosis ${diagnosisId}`,
+            ip_address: '127.0.0.1',
+            user_agent: 'System'
         }
     });
 
@@ -557,6 +598,22 @@ async function addAllergy(doctorId, patientId, allergyData) {
             });
         }
     }
+
+    // Audit Log (We need doctor's user_id, but the function arg is doctorId (string). Assuming standard doctorId=userId format or lookup needed?
+    // Looking at other functions, doctorId is passed.
+    // doctorId is usually the user_id in this system schema (based on generateDoctorId usage which uses similar ID).
+    // Let's assume doctorId is the user_id for logging.
+    await prisma.auditLog.create({
+        data: {
+            user_id: doctorId,
+            action_type: 'ADD_ALLERGY',
+            entity_type: 'ALLERGY',
+            entity_id: allergy.id.toString(),
+            description: `Doctor added allergy ${allergyData.allergies} for patient ${patientId}`,
+            ip_address: '127.0.0.1',
+            user_agent: 'System'
+        }
+    });
 
     return allergy;
 }

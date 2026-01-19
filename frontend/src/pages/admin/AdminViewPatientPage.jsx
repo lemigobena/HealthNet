@@ -15,6 +15,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -32,6 +33,11 @@ export default function AdminViewPatientPage() {
     const [passwordError, setPasswordError] = useState("")
     const [passwordSuccess, setPasswordSuccess] = useState("")
     const [showPassword, setShowPassword] = useState(false)
+
+    // Insurance Update State
+    const [isInsuranceModalOpen, setIsInsuranceModalOpen] = useState(false)
+    const [insuranceStatus, setInsuranceStatus] = useState("")
+    const [isUpdatingInsurance, setIsUpdatingInsurance] = useState(false)
 
     useEffect(() => {
         const fetchPatient = async () => {
@@ -76,6 +82,24 @@ export default function AdminViewPatientPage() {
             setPasswordError(err.response?.data?.message || "Failed to update password")
         } finally {
             setIsUpdating(false)
+        }
+    }
+
+    const handleInsuranceUpdate = async () => {
+        setIsUpdatingInsurance(true)
+        try {
+            await api.patch(`/admin/patients/${patient.patient_id}/insurance`, {
+                insurance_status: insuranceStatus
+            })
+            setPatient(prev => ({
+                ...prev,
+                insurance_status: insuranceStatus
+            }))
+            setIsInsuranceModalOpen(false)
+        } catch (err) {
+            console.error("Failed to update insurance", err)
+        } finally {
+            setIsUpdatingInsurance(false)
         }
     }
 
@@ -126,6 +150,18 @@ export default function AdminViewPatientPage() {
                                     >
                                         <Key className="h-4 w-4" />
                                         Update Password
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            setInsuranceStatus(patient.insurance_status)
+                                            setIsInsuranceModalOpen(true)
+                                        }}
+                                        variant="outline"
+                                        size="sm"
+                                        className="font-bold border-2 gap-2 h-10 px-4 rounded-xl hover:bg-primary/5 hover:text-primary transition-all"
+                                    >
+                                        <ShieldAlert className="h-4 w-4" />
+                                        Edit Insurance
                                     </Button>
                                 </div>
                                 <div className="flex flex-wrap justify-center md:justify-start gap-2">
@@ -321,6 +357,61 @@ export default function AdminViewPatientPage() {
                                     </>
                                 ) : (
                                     "Save Credentials"
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Insurance Update Modal */}
+                <Dialog open={isInsuranceModalOpen} onOpenChange={setIsInsuranceModalOpen}>
+                    <DialogContent className="sm:max-w-md border-2">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2 text-2xl font-black">
+                                <ShieldAlert className="h-6 w-6 text-primary" />
+                                Insurance Status
+                            </DialogTitle>
+                            <DialogDescription className="font-bold">
+                                Update insurance coverage status for {patient.user.name}
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="py-4">
+                            <div className="space-y-2">
+                                <Label className="text-xs uppercase tracking-widest font-black text-muted-foreground">Current Status</Label>
+                                <Select value={insuranceStatus} onValueChange={setInsuranceStatus}>
+                                    <SelectTrigger className="h-12 border-2 rounded-xl">
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="INSURED">Insured</SelectItem>
+                                        <SelectItem value="UNINSURED">Uninsured</SelectItem>
+                                        <SelectItem value="PENDING_VERIFICATION">Pending Verification</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <DialogFooter className="border-t pt-4">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIsInsuranceModalOpen(false)}
+                                className="font-bold uppercase tracking-widest text-[10px]"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={handleInsuranceUpdate}
+                                disabled={isUpdating || isUpdatingInsurance}
+                                className="font-black uppercase tracking-widest text-[10px] min-w-[140px]"
+                            >
+                                {isUpdatingInsurance ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                        Updating...
+                                    </>
+                                ) : (
+                                    "Save Changes"
                                 )}
                             </Button>
                         </DialogFooter>

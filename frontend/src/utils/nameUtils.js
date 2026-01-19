@@ -2,27 +2,14 @@ export const formatName = (user) => {
     if (!user) return "";
 
     const { name, role, gender } = user;
+    const type = user.doctor_profile?.type || user.type;
 
-    // Check if user is a doctor
-    if (role === 'DOCTOR') {
-        // If we have the doctor profile and type, check if Medical Doctor
-        // Some user objects might have doctor_profile nested
-        const type = user.doctor_profile?.type || user.type;
-
-        // If type is explicitly MEDICAL_DOCTOR or simply not a LAB_TECHNICIAN (assuming default to Dr if unknown for Doctor role, unless strictly Medical Doctor specified)
-        // Requirements: "Dr. For all medical doctors"
-        // If we don't have type info but role is DOCTOR, what to do?
-        // Assuming 'type' is available on the user object or nested profile.
-
-        if (type === 'MEDICAL_DOCTOR') {
-            return `Dr. ${name}`;
-        }
-
-        // If Lab Tech, fall through to gender check? 
-        // "Mr. for all males except Medical Doctors" -> Implies Lab Tech Male = Mr.
+    // Check if user is a Medical Doctor
+    if (role === 'DOCTOR' && type === 'MEDICAL_DOCTOR') {
+        return `Dr. ${name}`;
     }
 
-    // Gender based prefixes
+    // Gender based prefixes for everyone else (including Lab Technicians, Patients, Admins)
     if (gender === 'MALE') {
         return `Mr. ${name}`;
     } else if (gender === 'FEMALE') {

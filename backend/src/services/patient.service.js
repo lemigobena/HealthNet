@@ -252,6 +252,30 @@ async function updateEmergencyInfo(patientId, emergencyData) {
         });
     }
 
+
+
+    // Audit Log for Patient Updates
+    // We need to know WHAT changed to be specific, but generic update log depends on requirement.
+    // Spec mentions: patients(alergies, password changing).
+    let actions = [];
+    if (emergencyData.password) actions.push('PASSWORD_CHANGE');
+    if (emergencyData.known_allergies) actions.push('ALLERGY_UPDATE');
+
+    // Only log if relevant actions occurred
+    if (actions.length > 0) {
+        await prisma.auditLog.create({
+            data: {
+                user_id: patientId,
+                action_type: 'UPDATE_PROFILE', // or more specific
+                entity_type: 'PATIENT',
+                entity_id: patientId,
+                description: `Patient updated profile: ${actions.join(', ')}`,
+                ip_address: '127.0.0.1',
+                user_agent: 'System'
+            }
+        });
+    }
+
     return emergencyInfo;
 }
 
@@ -434,23 +458,51 @@ async function toggleAllergyVisibility(patientId, allergyId, visible) {
     });
 }
 
-// Add new allergy
-async function addAllergy(patientId, allergyName) {
-    return prisma.allergy.create({
-        data: {
-            patient_id: patientId,
-            allergies: allergyName,
-            severity: 'MILD', // Default
-            emergency_visible: true
-        }
-    });
+const allergy = await prisma.allergy.create({
+    data: {
+        patient_id: patientId,
+        allergies: allergyName,
+        severity: 'MILD', // Default
+        emergency_visible: true
+    }
+});
+
+// Audit Log
+await prisma.auditLog.create({
+    data: {
+        user_id: patientId,
+        action_type: 'ADD_ALLERGY',
+        entity_type: 'ALLERGY',
+        entity_id: allergy.id.toString(),
+        description: `Patient added allergy: ${allergyName}`,
+        ip_address: '127.0.0.1',
+        user_agent: 'System'
+    }
+});
+
+return allergy;
 }
 
 // Delete allergy (Patient management)
 async function deleteAllergy(patientId, allergyId) {
-    return prisma.allergy.delete({
+    const deleted = await prisma.allergy.delete({
         where: { id: parseInt(allergyId), patient_id: patientId }
     });
+
+    // Audit Log
+    await prisma.auditLog.create({
+        data: {
+            user_id: patientId,
+            action_type: 'DELETE_ALLERGY',
+            entity_type: 'ALLERGY',
+            entity_id: allergyId.toString(),
+            description: `Patient deleted allergy ${deleted.allergies}`,
+            ip_address: '127.0.0.1',
+            user_agent: 'System'
+        }
+    });
+
+    return deleted;
 }
 
 // Toggle medical info visibility (blood type, disability)

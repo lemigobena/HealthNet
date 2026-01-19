@@ -42,7 +42,7 @@ export function DashboardHeader({ title, subtitle, onMenuClick, children }) {
     const handleMarkRead = async (id) => {
         try {
             await api.patch(`/notifications/${id}/read`)
-            setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n))
+            setNotifications(prev => prev.filter(n => n.id !== id))
             setUnreadCount(prev => Math.max(0, prev - 1))
         } catch (err) {
             console.error("Failed to mark read", err)

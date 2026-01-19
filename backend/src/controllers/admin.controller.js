@@ -1,4 +1,5 @@
 
+const { prisma } = require('../config/db');
 const adminService = require('../services/admin.service');
 const { successResponse, errorResponse } = require('../utils/response');
 
@@ -196,6 +197,20 @@ async function updatePatientPassword(req, res, next) {
         const parsedId = !isNaN(id) ? parseInt(id) : id;
         const patient = await adminService.getPatientById(parsedId);
         const result = await adminService.updateUserPassword(patient.user.id, password);
+
+        // Audit Log
+        await prisma.auditLog.create({
+            data: {
+                user_id: req.user.user_id, // Admin ID
+                action_type: 'UPDATE_PASSWORD',
+                entity_type: 'PATIENT',
+                entity_id: patient.patient_id,
+                description: `Admin updated password for Patient ${patient.patient_id}`,
+                ip_address: req.ip,
+                user_agent: req.headers['user-agent']
+            }
+        });
+
         return successResponse(res, result, 'Patient password updated successfully');
     } catch (error) {
         next(error);
@@ -210,6 +225,20 @@ async function updateDoctorPassword(req, res, next) {
         const parsedId = !isNaN(id) ? parseInt(id) : id;
         const doctor = await adminService.getDoctorById(parsedId);
         const result = await adminService.updateUserPassword(doctor.user.id, password);
+
+        // Audit Log
+        await prisma.auditLog.create({
+            data: {
+                user_id: req.user.user_id, // Admin ID
+                action_type: 'UPDATE_PASSWORD',
+                entity_type: 'DOCTOR',
+                entity_id: doctor.doctor_id,
+                description: `Admin updated password for Doctor ${doctor.doctor_id}`,
+                ip_address: req.ip,
+                user_agent: req.headers['user-agent']
+            }
+        });
+
         return successResponse(res, result, 'Doctor password updated successfully');
     } catch (error) {
         next(error);
@@ -239,13 +268,46 @@ async function updateDoctorFacility(req, res, next) {
         const parsedId = !isNaN(id) ? parseInt(id) : id;
         const doctor = await adminService.getDoctorById(parsedId);
 
-        const updated = await adminService.updateDoctorFacility(doctor.doctor_id, facility_id);
+        const updated = await adminService.updateDoctorFacility(doctor.doctor_id, facility_id, req.user.user_id);
         return successResponse(res, updated, 'Doctor facility updated successfully');
     } catch (error) {
         next(error);
     }
 }
 
+
+// Update patient insurance
+async function updatePatientInsurance(req, res, next) {
+    try {
+        const { id } = req.params; // Admin passes integer ID usually to get patient, but service uses patient_id string
+        const { insurance_status } = req.body;
+
+        const parsedId = !isNaN(id) ? parseInt(id) : id;
+
+        // First get the patient to retrieve the patient_id (UPI)
+        const patientData = await adminService.getPatientById(parsedId);
+
+        // patientData is the user object with patient_profile included
+        if (!patientData || !patientData.patient_profile) {
+            return errorResponse(res, 'Patient profile not found', 404);
+        }
+
+        const result = await adminService.updatePatientInsurance(patientData.patient_profile.patient_id, insurance_status, req.user.user_id);
+        return successResponse(res, result, 'Patient insurance status updated successfully');
+    } catch (error) {
+        next(error);
+    }
+}
+
+// Get system audit logs
+async function getSystemAuditLogs(req, res, next) {
+    try {
+        const logs = await adminService.getSystemAuditLogs();
+        return successResponse(res, logs, 'Audit logs retrieved successfully');
+    } catch (error) {
+        next(error);
+    }
+}
 
 module.exports = {
     createPatient,
@@ -265,5 +327,7 @@ module.exports = {
     updatePatientPassword,
     updateDoctorPassword,
     getAllAssignments,
-    updateDoctorFacility
+    updateDoctorFacility,
+    updatePatientInsurance,
+    getSystemAuditLogs
 };

@@ -20,6 +20,7 @@ router.get('/patients/:id', adminController.getPatientById);
 router.patch('/patients/:id', adminController.updatePatient);
 router.patch('/patients/:id/status', adminController.updatePatientStatus);
 router.patch('/patients/:id/password', adminController.updatePatientPassword);
+router.patch('/patients/:id/insurance', adminController.updatePatientInsurance);
 
 router.get('/doctors/:id', adminController.getDoctorById);
 router.patch('/doctors/:id', adminController.updateDoctor);
@@ -36,4 +37,9 @@ router.post('/assignments', adminController.createAssignment);
 router.get('/assignments', adminController.getAllAssignments);
 router.delete('/assignments/:assignmentId', adminController.deleteAssignment);
 
-module.exports = router;
+// System Audit Logs
+router.get('/audit-logs', adminController.getSystemAuditLogs);
+
+module.exports = {
+    router
+};

@@ -10,9 +10,26 @@ import { useAuth } from "@/contexts/AuthContext"
 import api from "@/services/api"
 
 import { formatName } from "@/utils/nameUtils"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog"
 
 export default function PatientProfilePage() {
     const { user, setUser } = useAuth()
+    // Alert Dialog State
+    const [alertOpen, setAlertOpen] = useState(false)
+    const [alertConfig, setAlertConfig] = useState({ title: "", message: "" })
+
+    const showAlert = (title, message) => {
+        setAlertConfig({ title, message })
+        setAlertOpen(true)
+    }
+
     const [isEditing, setIsEditing] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const names = user?.name?.split(' ') || []
@@ -208,18 +225,31 @@ export default function PatientProfilePage() {
                     <CardContent className="space-y-4">
                         <form onSubmit={async (e) => {
                             e.preventDefault()
+                            const oldPass = e.target.oldPassword.value
                             const newPass = e.target.newPassword.value
-                            if (newPass) {
+                            if (newPass && oldPass) {
                                 try {
-                                    await api.patch('/auth/update-password', { password: newPass })
-                                    alert("Password updated successfully. You may be asked to login again.")
+                                    await api.patch('/auth/update-password', { oldPassword: oldPass, password: newPass })
+                                    showAlert("Success", "Password updated successfully. You may be asked to login again.")
                                     e.target.reset()
                                 } catch (err) {
                                     console.error(err)
-                                    alert("Failed to update password")
+                                    showAlert("Error", err.response?.data?.message || "Failed to update password")
                                 }
+                            } else {
+                                showAlert("Action Required", "Please provide both current and new passwords.")
                             }
                         }} className="grid gap-4 md:grid-cols-2 items-end">
+                            <div className="space-y-2">
+                                <Label htmlFor="oldPassword">Current Password</Label>
+                                <Input
+                                    id="oldPassword"
+                                    name="oldPassword"
+                                    type="password"
+                                    placeholder="••••••••"
+                                    required
+                                />
+                            </div>
                             <div className="space-y-2">
                                 <Label htmlFor="newPassword">New Password</Label>
                                 <div className="relative">
@@ -242,11 +272,25 @@ export default function PatientProfilePage() {
                                     </Button>
                                 </div>
                             </div>
-                            <Button type="submit">Update Password</Button>
+                            <Button type="submit" className="md:col-span-2 w-full">Update Password</Button>
                         </form>
                     </CardContent>
                 </Card>
             </div>
+
+            <Dialog open={alertOpen} onOpenChange={setAlertOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{alertConfig.title}</DialogTitle>
+                        <DialogDescription>
+                            {alertConfig.message}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button onClick={() => setAlertOpen(false)}>Close</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </PatientLayout>
     )
 }
