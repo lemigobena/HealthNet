@@ -143,17 +143,19 @@ async function getEmergencyInfo(patientId) {
             }
         });
     } else {
-        // Sync if missing in emergency info but present in patient record
-        if (!emergencyInfo.blood_type && patient?.blood_type) {
-            emergencyInfo = await prisma.emergencyInfo.update({
-                where: { patient_id: patientId },
-                data: { blood_type: patient.blood_type }
-            });
+        // Sync if missing or different in emergency info but present in patient record
+        const updates = {};
+        if (patient?.blood_type && emergencyInfo.blood_type !== patient.blood_type) {
+            updates.blood_type = patient.blood_type;
         }
-        if (!emergencyInfo.disability_info && patient?.disability) {
+        if (patient?.disability && emergencyInfo.disability_info !== patient.disability) {
+            updates.disability_info = patient.disability;
+        }
+
+        if (Object.keys(updates).length > 0) {
             emergencyInfo = await prisma.emergencyInfo.update({
                 where: { patient_id: patientId },
-                data: { disability_info: patient.disability }
+                data: updates
             });
         }
     }
@@ -276,7 +278,15 @@ async function updateEmergencyInfo(patientId, emergencyData) {
         });
     }
 
-    return emergencyInfo;
+    // Fetch individual allergy records
+    const allergies = await prisma.allergy.findMany({
+        where: { patient_id: patientId }
+    });
+
+    return {
+        ...emergencyInfo,
+        allergies
+    };
 }
 
 // Get assigned doctors for a patient

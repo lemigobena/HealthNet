@@ -187,6 +187,22 @@ async function updateUserProfile(userId, updateData) {
         }
     });
 
+    // If user is a Patient and blood_type or disability is provided, update Patient profile
+    if (user.role === 'PATIENT' && (updateData.blood_type || updateData.disability)) {
+        await prisma.patient.update({
+            where: { patient_id: user.patient_profile.patient_id },
+            data: {
+                blood_type: updateData.blood_type,
+                disability: updateData.disability
+            }
+        });
+
+        // Refresh the updated object's patient_profile
+        updated.patient_profile = await prisma.patient.findUnique({
+            where: { patient_id: user.patient_profile.patient_id }
+        });
+    }
+
     delete updated.password_hash;
     return updated;
 }
