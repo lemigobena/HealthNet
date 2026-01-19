@@ -38,7 +38,11 @@ export function RecentActivity() {
         const fetchActivities = async () => {
             try {
                 const response = await api.get('/admin/audit-logs')
-                setActivities(response.data.data.slice(0, 10))
+                if (response.data && Array.isArray(response.data.data)) {
+                    setActivities(response.data.data.slice(0, 10))
+                } else {
+                    setActivities([])
+                }
             } catch {
                 console.error("Failed to fetch activity logs")
             } finally {
@@ -88,7 +92,7 @@ export function RecentActivity() {
                                                 {log.user?.name || log.user_id} ({log.user?.role || 'SYSTEM'})
                                             </p>
                                             <time className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                                                {new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                {log.created_at ? new Date(log.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
                                             </time>
                                         </div>
                                         <p className="text-sm text-muted-foreground leading-relaxed line-clamp-1">
