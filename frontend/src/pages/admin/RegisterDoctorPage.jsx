@@ -311,17 +311,14 @@ export default function RegisterDoctorPage() {
                             </div>
                         </form>
                     </CardContent>
+                </Card>
             </div>
-        </form>
-                    </CardContent >
-                </Card >
-            </div >
 
-        <CredentialModal
-            isOpen={showCredentialModal}
-            onClose={handleCloseModal}
-            credentials={newCredentials}
-        />
+            <CredentialModal
+                isOpen={showCredentialModal}
+                onClose={handleCloseModal}
+                credentials={newCredentials}
+            />
         </AdminLayout >
     )
 }
