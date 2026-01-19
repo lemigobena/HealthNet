@@ -458,29 +458,31 @@ async function toggleAllergyVisibility(patientId, allergyId, visible) {
     });
 }
 
-const allergy = await prisma.allergy.create({
-    data: {
-        patient_id: patientId,
-        allergies: allergyName,
-        severity: 'MILD', // Default
-        emergency_visible: true
-    }
-});
+// Add new allergy
+async function addAllergy(patientId, allergyName) {
+    const allergy = await prisma.allergy.create({
+        data: {
+            patient_id: patientId,
+            allergies: allergyName,
+            severity: 'MILD', // Default
+            emergency_visible: true
+        }
+    });
 
-// Audit Log
-await prisma.auditLog.create({
-    data: {
-        user_id: patientId,
-        action_type: 'ADD_ALLERGY',
-        entity_type: 'ALLERGY',
-        entity_id: allergy.id.toString(),
-        description: `Patient added allergy: ${allergyName}`,
-        ip_address: '127.0.0.1',
-        user_agent: 'System'
-    }
-});
+    // Audit Log
+    await prisma.auditLog.create({
+        data: {
+            user_id: patientId,
+            action_type: 'ADD_ALLERGY',
+            entity_type: 'ALLERGY',
+            entity_id: allergy.id.toString(),
+            description: `Patient added allergy: ${allergyName}`,
+            ip_address: '127.0.0.1',
+            user_agent: 'System'
+        }
+    });
 
-return allergy;
+    return allergy;
 }
 
 // Delete allergy (Patient management)

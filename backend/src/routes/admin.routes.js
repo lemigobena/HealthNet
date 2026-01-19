@@ -40,6 +40,4 @@ router.delete('/assignments/:assignmentId', adminController.deleteAssignment);
 // System Audit Logs
 router.get('/audit-logs', adminController.getSystemAuditLogs);
 
-module.exports = {
-    router
-};
+module.exports = router;
