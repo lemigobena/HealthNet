@@ -210,7 +210,7 @@ export default function DoctorPatientDetailPage() {
                                         <div>
                                             <h2 className="text-3xl font-black tracking-tight">{patientName}</h2>
                                             <p className="text-muted-foreground font-medium uppercase tracking-widest text-[10px] mt-1">
-                                                {patient?.gender} • Born {birthDate} • ID: {patient?.patient_id}
+                                                {patient?.user?.gender} • Born {birthDate} • ID: {patient?.patient_id}
                                             </p>
                                         </div>
                                         <Badge className="bg-green-500/10 text-green-600 border-green-500/20 px-4 py-1 font-black uppercase tracking-tighter">
@@ -550,20 +550,20 @@ export default function DoctorPatientDetailPage() {
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">Gender Identity</p>
-                                        <p className="font-bold text-lg">{patient?.gender}</p>
+                                        <p className="font-bold text-lg">{patient?.user?.gender}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">Nationality</p>
-                                        <p className="font-bold text-lg">{patient?.nationality || "Ethiopian"}</p>
+                                        <p className="font-bold text-lg">{patient?.user?.nationality || "Ethiopian"}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">Place of Birth</p>
-                                        <p className="font-bold text-lg">{patient?.place_of_birth || "N/A"}</p>
+                                        <p className="font-bold text-lg">{patient?.user?.place_of_birth || "N/A"}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">Registration Date</p>
                                         <p className="font-bold text-lg">
-                                            {patient?.createdAt ? new Date(patient.createdAt).toLocaleDateString() : "N/A"}
+                                            {patient?.user?.created_at ? new Date(patient.user.created_at).toLocaleDateString() : "N/A"}
                                         </p>
                                     </div>
                                 </div>
