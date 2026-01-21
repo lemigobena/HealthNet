@@ -557,10 +557,6 @@ export default function DoctorPatientDetailPage() {
                                         <p className="font-bold text-lg">{patient?.user?.nationality || "Ethiopian"}</p>
                                     </div>
                                     <div className="space-y-1">
-                                        <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">Place of Birth</p>
-                                        <p className="font-bold text-lg">{patient?.user?.place_of_birth || "N/A"}</p>
-                                    </div>
-                                    <div className="space-y-1">
                                         <p className="text-[10px] font-black uppercase text-muted-foreground/60 tracking-widest">Registration Date</p>
                                         <p className="font-bold text-lg">
                                             {patient?.user?.created_at ? new Date(patient.user.created_at).toLocaleDateString() : "N/A"}
