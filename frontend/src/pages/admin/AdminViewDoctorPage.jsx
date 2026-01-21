@@ -38,7 +38,8 @@ export default function AdminViewDoctorPage() {
     const [isUpdating, setIsUpdating] = useState(false)
     const [passwordError, setPasswordError] = useState("")
     const [passwordSuccess, setPasswordSuccess] = useState("")
-    const [showPassword, setShowPassword] = useState(false)
+    const [showNewPassword, setShowNewPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
     // Facility change states
     const [isFacilityModalOpen, setIsFacilityModalOpen] = useState(false)
@@ -354,7 +355,7 @@ export default function AdminViewDoctorPage() {
                                 <Label className="text-xs uppercase tracking-widest font-black text-muted-foreground">New Secure Password</Label>
                                 <div className="relative">
                                     <Input
-                                        type={showPassword ? "text" : "password"}
+                                        type={showNewPassword ? "text" : "password"}
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
                                         placeholder="••••••••"
@@ -365,9 +366,9 @@ export default function AdminViewDoctorPage() {
                                         variant="ghost"
                                         size="icon"
                                         className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
-                                        onClick={() => setShowPassword(!showPassword)}
+                                        onClick={() => setShowNewPassword(!showNewPassword)}
                                     >
-                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                     </Button>
                                 </div>
                             </div>
@@ -375,12 +376,21 @@ export default function AdminViewDoctorPage() {
                                 <Label className="text-xs uppercase tracking-widest font-black text-muted-foreground">Confirm New Password</Label>
                                 <div className="relative">
                                     <Input
-                                        type={showPassword ? "text" : "password"}
+                                        type={showConfirmPassword ? "text" : "password"}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         placeholder="••••••••"
                                         className="h-12 border-2 rounded-xl pr-10"
                                     />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    >
+                                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </Button>
                                 </div>
                             </div>
                         </div>

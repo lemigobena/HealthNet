@@ -23,7 +23,6 @@ import {
 export default function DoctorProfilePage() {
     const { user } = useAuth()
     const doctor = user?.doctor_profile
-    const [showPassword, setShowPassword] = useState(false)
     const [alertOpen, setAlertOpen] = useState(false)
     const [alertConfig, setAlertConfig] = useState({ title: "", message: "" })
 
@@ -154,41 +153,67 @@ export default function DoctorProfilePage() {
                         <CardDescription>Update your secure access credentials</CardDescription>
                     </CardHeader>
                     <CardContent>
+                        const [showOldPassword, setShowOldPassword] = useState(false)
+                        const [showNewPassword, setShowNewPassword] = useState(false)
+                        const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+                        // ... inside the component render ...
+
                         <form onSubmit={async (e) => {
                             e.preventDefault()
                             const oldPass = e.target.oldPassword.value
                             const newPass = e.target.newPassword.value
-                            if (newPass && oldPass) {
-                                try {
-                                    await api.patch('/auth/update-password', { oldPassword: oldPass, password: newPass })
-                                    showAlert("Success", "Password updated successfully.")
-                                    e.target.reset()
-                                } catch (err) {
-                                    showAlert("Error", err.response?.data?.message || "Failed to update password.")
-                                    console.error(err)
-                                }
-                            } else {
-                                showAlert("Action Required", "Please provide both current and new passwords.")
+                            const confirmPass = e.target.confirmPassword.value
+
+                            // 1. Check if fields are empty
+                            if (!newPass || !oldPass || !confirmPass) {
+                                showAlert("Action Required", "Please provide current, new, and confirmation passwords.")
+                                return
+                            }
+
+                            // 2. Check Password Length
+                            if (newPass.length < 6) {
+                                showAlert("Weak Password", "Password must be greater than 6 characters.")
+                                return
+                            }
+
+                            // 3. Check Complexity (1 Upper, 1 Lower, 1 Number)
+                            const hasUpperCase = /[A-Z]/.test(newPass)
+                            const hasLowerCase = /[a-z]/.test(newPass)
+                            const hasNumber = /[0-9]/.test(newPass)
+
+                            if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+                                showAlert("Weak Password", "Password must contain at least one uppercase letter, one lowercase letter, and one number.")
+                                return
+                            }
+
+                            // 4. Check Match
+                            if (newPass !== confirmPass) {
+                                showAlert("Mismatch", "New password and confirmation do not match.")
+                                return
+                            }
+
+                            try {
+                                await api.patch('/auth/update-password', { oldPassword: oldPass, password: newPass })
+                                showAlert("Success", "Password updated successfully.")
+                                e.target.reset()
+                                // Reset visibility states
+                                setShowOldPassword(false)
+                                setShowNewPassword(false)
+                                setShowConfirmPassword(false)
+                            } catch (err) {
+                                showAlert("Error", err.response?.data?.message || "Failed to update password.")
+                                console.error(err)
                             }
                         }} className="space-y-4">
-                            <div className="grid gap-4 md:grid-cols-2 items-end">
+                            <div className="grid gap-4 md:grid-cols-2 items-start">
                                 <div className="space-y-2">
                                     <Label htmlFor="docOldPassword">Current Password</Label>
-                                    <Input
-                                        id="docOldPassword"
-                                        name="oldPassword"
-                                        type="password"
-                                        placeholder="••••••••"
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="docNewPassword" title="Enter New Password">New Password</Label>
                                     <div className="relative">
                                         <Input
-                                            id="docNewPassword"
-                                            name="newPassword"
-                                            type={showPassword ? "text" : "password"}
+                                            id="docOldPassword"
+                                            name="oldPassword"
+                                            type={showOldPassword ? "text" : "password"}
                                             placeholder="••••••••"
                                             required
                                             className="pr-10"
@@ -198,13 +223,57 @@ export default function DoctorProfilePage() {
                                             variant="ghost"
                                             size="icon"
                                             className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
-                                            onClick={() => setShowPassword(!showPassword)}
+                                            onClick={() => setShowOldPassword(!showOldPassword)}
                                         >
-                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                            {showOldPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </Button>
                                     </div>
                                 </div>
-                                <Button type="submit" className="md:col-span-2 w-full">Update Credentials</Button>
+                                <div className="space-y-2">
+                                    <Label htmlFor="docNewPassword" title="Enter New Password">New Password</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="docNewPassword"
+                                            name="newPassword"
+                                            type={showNewPassword ? "text" : "password"}
+                                            placeholder="••••••••"
+                                            required
+                                            className="pr-10"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+                                            onClick={() => setShowNewPassword(!showNewPassword)}
+                                        >
+                                            {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="space-y-2 md:col-start-2">
+                                    <Label htmlFor="docConfirmPassword" title="Confirm New Password">Confirm Password</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="docConfirmPassword"
+                                            name="confirmPassword"
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            placeholder="••••••••"
+                                            required
+                                            className="pr-10"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        >
+                                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </Button>
+                                    </div>
+                                </div>
+                                <Button type="submit" className="md:col-span-2 w-full mt-2">Update Credentials</Button>
                             </div>
                         </form>
                     </CardContent>
