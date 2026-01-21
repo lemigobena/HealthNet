@@ -11,11 +11,26 @@ import { Button } from "@/components/ui/button"
 import { useState } from "react"
 
 import { formatName } from "@/utils/nameUtils"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog"
 
 export default function DoctorProfilePage() {
     const { user } = useAuth()
     const doctor = user?.doctor_profile
     const [showPassword, setShowPassword] = useState(false)
+    const [alertOpen, setAlertOpen] = useState(false)
+    const [alertConfig, setAlertConfig] = useState({ title: "", message: "" })
+
+    const showAlert = (title, message) => {
+        setAlertConfig({ title, message })
+        setAlertOpen(true)
+    }
 
     if (!doctor) return null
 

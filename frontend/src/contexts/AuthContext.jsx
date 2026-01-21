@@ -9,11 +9,25 @@ export const AuthProvider = ({ children }) => {
         const storedUser = localStorage.getItem('user');
         return storedUser ? JSON.parse(storedUser) : null;
     });
-    const [loading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Initial token check logic removed as it's now handled by lazy initialization
+        const validateToken = async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const res = await api.get('/auth/me');
+                    // Backend returns the user in res.data.data
+                    setUser(res.data.data);
+                } catch (err) {
+                    console.error("Token validation failed", err);
+                    logout(); // Clear invalid token
+                }
+            }
+            setLoading(false);
+        };
+        validateToken();
     }, []);
 
     const login = async (userId, password) => {

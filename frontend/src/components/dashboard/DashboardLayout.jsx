@@ -28,8 +28,9 @@ export function DashboardHeader({ title, subtitle, onMenuClick, children }) {
         const fetchNotifications = async () => {
             try {
                 const res = await api.get('/notifications')
-                setNotifications(res.data.data)
-                setUnreadCount(res.data.data.filter(n => !n.is_read).length)
+                const notifs = Array.isArray(res.data.data) ? res.data.data : []
+                setNotifications(notifs)
+                setUnreadCount(notifs.filter(n => !n.is_read).length)
             } catch (err) {
                 console.error("Failed to load notifications", err)
             }
