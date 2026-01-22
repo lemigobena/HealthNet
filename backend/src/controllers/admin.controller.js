@@ -67,6 +67,7 @@ async function createAssignment(req, res, next) {
 
         const assignment = await adminService.createAssignment(
             req.user.admin_profile.admin_id,
+            req.user.user_id,
             doctor.doctor_id,
             patient.patient_id,
             notes

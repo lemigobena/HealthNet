@@ -248,7 +248,7 @@ async function updateUserStatus(userId, status) {
 }
 
 // Create new assignment
-async function createAssignment(adminId, doctorId, patientId, notes) {
+async function createAssignment(adminProfileId, adminUserId, doctorId, patientId, notes) {
     // Check if duplicate assignment exists
     const existingAssignment = await prisma.assignment.findFirst({
         where: {
@@ -269,7 +269,7 @@ async function createAssignment(adminId, doctorId, patientId, notes) {
             assignment_id: assignmentId,
             doctor_id: doctorId,
             patient_id: patientId,
-            assigned_by: adminId,
+            assigned_by: adminProfileId, // Uses Admin Profile ID
             notes,
             status: 'ACTIVE'
         },
@@ -286,7 +286,7 @@ async function createAssignment(adminId, doctorId, patientId, notes) {
     // Audit Log
     await prisma.auditLog.create({
         data: {
-            user_id: adminId, // Admin ID
+            user_id: adminUserId, // Uses User ID
             action_type: 'CLINICAL_ASSIGNMENT',
             entity_type: 'ASSIGNMENT',
             entity_id: assignment.assignment_id.toString(),
