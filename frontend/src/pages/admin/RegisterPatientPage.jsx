@@ -119,7 +119,7 @@ export default function RegisterPatientPage() {
 
             setNewCredentials({
                 name: formData.name,
-                id: createdPatient.patient_id,
+                id: createdPatient.user_id,
                 password: formData.password,
                 role: "Patient"
             })
