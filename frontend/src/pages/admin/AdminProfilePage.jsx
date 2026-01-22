@@ -1,13 +1,36 @@
 import AdminLayout from "@/layouts/AdminLayout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { User, Mail, Phone, MapPin, Building2, Calendar, FileText, Fingerprint, ShieldCheck } from "lucide-react"
+import { User, Mail, Phone, MapPin, Building2, Calendar, FileText, Fingerprint, ShieldCheck, Eye, EyeOff } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import dayjs from "dayjs"
+import { useState } from "react"
+import api from "@/services/api"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog"
 
 export default function AdminProfilePage() {
     const { user } = useAuth()
     const admin = user?.admin_profile
+    const [alertOpen, setAlertOpen] = useState(false)
+    const [alertConfig, setAlertConfig] = useState({ title: "", message: "" })
+    const [showOldPassword, setShowOldPassword] = useState(false)
+    const [showNewPassword, setShowNewPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+    const showAlert = (title, message) => {
+        setAlertConfig({ title, message })
+        setAlertOpen(true)
+    }
 
     if (!user) return null
 
@@ -124,7 +147,136 @@ export default function AdminProfilePage() {
                         </CardContent>
                     </Card>
                 </div>
+
+                {/* Password Reset Section */}
+                <Card className="border-border/50 shadow-lg">
+                    <CardHeader>
+                        <CardTitle className="text-xl font-bold tracking-tight">Security Settings</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={async (e) => {
+                            e.preventDefault()
+                            const oldPass = e.target.oldPassword.value
+                            const newPass = e.target.newPassword.value
+                            const confirmPass = e.target.confirmPassword.value
+
+                            // 1. Check if fields are empty
+                            if (!newPass || !oldPass || !confirmPass) {
+                                showAlert("Action Required", "Please provide current, new, and confirmation passwords.")
+                                return
+                            }
+
+                            // 2. Check Password Length
+                            if (newPass.length < 6) {
+                                showAlert("Weak Password", "Password must be greater than 6 characters.")
+                                return
+                            }
+
+                            // 3. Confirm Match
+                            if (newPass !== confirmPass) {
+                                showAlert("Mismatch", "New password and confirmation do not match.")
+                                return
+                            }
+
+                            try {
+                                await api.patch('/auth/update-password', { oldPassword: oldPass, password: newPass })
+                                showAlert("Success", "Password updated successfully.")
+                                e.target.reset()
+                                setShowOldPassword(false)
+                                setShowNewPassword(false)
+                                setShowConfirmPassword(false)
+                            } catch (err) {
+                                showAlert("Error", err.response?.data?.message || "Failed to update password.")
+                                console.error(err)
+                            }
+                        }} className="space-y-4">
+                            <div className="grid gap-4 md:grid-cols-2 items-start">
+                                <div className="space-y-2">
+                                    <Label htmlFor="admOldPassword">Current Password</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="admOldPassword"
+                                            name="oldPassword"
+                                            type={showOldPassword ? "text" : "password"}
+                                            placeholder="••••••••"
+                                            required
+                                            className="pr-10"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+                                            onClick={() => setShowOldPassword(!showOldPassword)}
+                                        >
+                                            {showOldPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="admNewPassword">New Password</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="admNewPassword"
+                                            name="newPassword"
+                                            type={showNewPassword ? "text" : "password"}
+                                            placeholder="••••••••"
+                                            required
+                                            className="pr-10"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+                                            onClick={() => setShowNewPassword(!showNewPassword)}
+                                        >
+                                            {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="space-y-2 md:col-start-2">
+                                    <Label htmlFor="admConfirmPassword">Confirm Password</Label>
+                                    <div className="relative">
+                                        <Input
+                                            id="admConfirmPassword"
+                                            name="confirmPassword"
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            placeholder="••••••••"
+                                            required
+                                            className="pr-10"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        >
+                                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </Button>
+                                    </div>
+                                </div>
+                                <Button type="submit" className="md:col-span-2 w-full mt-2">Update Credentials</Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
+
+            <Dialog open={alertOpen} onOpenChange={setAlertOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{alertConfig.title}</DialogTitle>
+                        <DialogDescription>
+                            {alertConfig.message}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button onClick={() => setAlertOpen(false)}>Close</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AdminLayout>
     )
 }

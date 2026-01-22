@@ -25,6 +25,9 @@ export default function DoctorProfilePage() {
     const doctor = user?.doctor_profile
     const [alertOpen, setAlertOpen] = useState(false)
     const [alertConfig, setAlertConfig] = useState({ title: "", message: "" })
+    const [showOldPassword, setShowOldPassword] = useState(false)
+    const [showNewPassword, setShowNewPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
     const showAlert = (title, message) => {
         setAlertConfig({ title, message })
@@ -153,9 +156,6 @@ export default function DoctorProfilePage() {
                         <CardDescription>Update your secure access credentials</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        const [showOldPassword, setShowOldPassword] = useState(false)
-                        const [showNewPassword, setShowNewPassword] = useState(false)
-                        const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
                         // ... inside the component render ...
 

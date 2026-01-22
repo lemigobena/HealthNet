@@ -32,6 +32,9 @@ export default function PatientProfilePage() {
 
     const [isEditing, setIsEditing] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
+    const [showOldPassword, setShowOldPassword] = useState(false)
+    const [showNewPassword, setShowNewPassword] = useState(false)
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
     const names = user?.name?.split(' ') || []
     const initialData = {
         firstName: names[0] || "",
@@ -223,9 +226,6 @@ export default function PatientProfilePage() {
                         <CardDescription>Update your account password</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        const [showOldPassword, setShowOldPassword] = useState(false)
-                        const [showNewPassword, setShowNewPassword] = useState(false)
-                        const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
                         <form onSubmit={async (e) => {
                             e.preventDefault()
