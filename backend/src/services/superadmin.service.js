@@ -10,21 +10,22 @@ const { generateAssignmentId } = require('../utils/idGenerator'); // Not needed?
 
 const crypto = require('crypto');
 
-function generateAdminId() {
-    // Format: ADM-XXXXXXXXX
-    return 'ADM-' + crypto.randomBytes(4).toString('hex').toUpperCase();
-}
+const { generateHospitalId, generateAdminId, generateUserId } = require('../utils/idGenerator');
 
 // 1. Create Facility (Hospital)
 async function createFacility(facilityData) {
-    const { hospital_id, name, type, city_town, phone, email, address } = facilityData;
+    const { name, type, city_town, phone, email, address } = facilityData;
 
-    // Check existing
+    // Generate ID automatically
+    let hospital_id = generateHospitalId(); // e.g. HO-ABC1234567
+
+    // Check existing (unlikely collision but good practice)
     const existing = await prisma.facility.findUnique({
         where: { hospital_id }
     });
     if (existing) {
-        throw new Error('Facility with this ID already exists');
+        // Retry once or throw
+        hospital_id = generateHospitalId();
     }
 
     const facility = await prisma.facility.create({
@@ -44,14 +45,26 @@ async function createFacility(facilityData) {
 
 // 2. Create Hospital Admin
 async function createHospitalAdmin(adminData, superAdminId) {
-    const { name, email, phone, password, facility_id, address, gender, dob } = adminData;
+    const { name, email, phone, password, facility_id, address, gender } = adminData;
 
     const hashedPassword = await hashPassword(password);
-    const adminId = generateAdminId();
-    // User ID is same or different? Schema says user_id and admin_id are distinct fields.
-    // User.user_id (13 chars) vs Admin.admin_id (13 chars).
-    // Let's use same generator style for user_id.
-    const userId = 'USR-' + crypto.randomBytes(5).toString('hex').toUpperCase();
+    const adminId = generateAdminId(); // e.g. AM-XYZ
+    // Use proper User ID generator
+    // The previous implementation used 'USR-' which is not standard. 
+    // Let's use `generateUserId('ADMIN')` but that calls `generateAdminId`, so we might have collision if we use it for both user_id and admin_id?
+    // Schema says: Admin has admin_id (unique) AND user_id (unique, FK to User).
+    // Usually they can be same or different. 
+    // Let's use `generateUserId('ADMIN')` for the User record ID.
+    // And `generateAdminId()` for the Admin profile ID.
+    // Actually, `generateUserId` returns the same format. It's fine if they differ.
+
+    // Wait, `generateUserId('ADMIN')` calls `generateAdminId`.
+    // So both will look like `AM-XXXXXXXX`. 
+    // I will call it twice to get two unique IDs, or use one for both if consistent.
+    // Let's call twice to be safe they are treated as distinct entities/keys.
+
+    const userId = generateUserId('ADMIN');
+    const adminProfileId = generateAdminId();
 
     const admin = await prisma.$transaction(async (tx) => {
         // Create User
@@ -64,7 +77,7 @@ async function createHospitalAdmin(adminData, superAdminId) {
                 password_hash: hashedPassword,
                 role: 'ADMIN',
                 gender,
-                dob: dob ? new Date(dob) : null,
+                // dob: dob ? new Date(dob) : null, // Removed dob if not in form
                 address
             }
         });
@@ -72,19 +85,19 @@ async function createHospitalAdmin(adminData, superAdminId) {
         // Create Admin Profile
         const adminProfile = await tx.admin.create({
             data: {
-                admin_id: adminId,
+                admin_id: adminProfileId,
                 user_id: userId,
                 facility_id: facility_id
             }
         });
 
-        // Log it?
+        // Log it
         await tx.auditLog.create({
             data: {
                 user_id: superAdminId,
                 action_type: 'CREATE_ADMIN',
                 entity_type: 'ADMIN',
-                entity_id: adminId,
+                entity_id: adminProfileId,
                 description: `Super Admin created admin ${name} for facility ${facility_id}`,
                 ip_address: 'System',
                 user_agent: 'System'
@@ -96,6 +109,7 @@ async function createHospitalAdmin(adminData, superAdminId) {
 
     return admin;
 }
+
 
 // 3. Get All Facilities
 async function getAllFacilities() {
@@ -162,6 +176,37 @@ async function getAllUsers(filters) {
     });
 
     return users;
+}
+
+// 5b. Get Single User By ID (Generic)
+async function getUserById(id) {
+    // id can be integer ID or string user_id
+    // Try to find by user_id first.
+    let user = await prisma.user.findFirst({
+        where: { user_id: id },
+        include: {
+            admin_profile: true,
+            doctor_profile: true,
+            patient_profile: true
+        }
+    });
+
+    if (!user) {
+        // Try int id
+        if (!isNaN(parseInt(id))) {
+            user = await prisma.user.findUnique({
+                where: { id: parseInt(id) },
+                include: {
+                    admin_profile: true,
+                    doctor_profile: true,
+                    patient_profile: true
+                }
+            });
+        }
+    }
+
+    if (!user) throw new Error('User not found');
+    return user;
 }
 
 // 6. Suspend User
@@ -266,12 +311,60 @@ async function getDashboardStats() {
     };
 }
 
+// 8. Get Facility Doctors
+async function getFacilityDoctors(facilityId) {
+    return prisma.doctor.findMany({
+        where: { facility_id: facilityId },
+        include: {
+            user: {
+                select: { name: true, email: true, phone: true }
+            }
+        }
+    });
+}
+
+// 9. Get Facility Diagnoses
+async function getFacilityDiagnoses(facilityId) {
+    return prisma.diagnosis.findMany({
+        where: { facility_id: facilityId },
+        include: {
+            patient: {
+                include: { user: { select: { name: true } } }
+            },
+            doctor: {
+                include: { user: { select: { name: true } } }
+            }
+        },
+        orderBy: { created_at: 'desc' }
+    });
+}
+
+// 10. Get Facility Lab Results
+async function getFacilityLabResults(facilityId) {
+    return prisma.labResult.findMany({
+        where: { facility_id: facilityId },
+        include: {
+            patient: {
+                include: { user: { select: { name: true } } }
+            },
+            doctor: {
+                include: { user: { select: { name: true } } }
+            }
+        },
+        orderBy: { uploaded_at: 'desc' }
+    });
+}
+
 module.exports = {
     createFacility,
     createHospitalAdmin,
     getAllFacilities,
     getFacilityById,
     getAllUsers,
+    getUserById,
     suspendUser,
-    getDashboardStats
+    getDashboardStats,
+    getFacilityDoctors,
+    getFacilityDiagnoses,
+    getFacilityLabResults
 };

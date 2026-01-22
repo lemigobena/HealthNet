@@ -43,6 +43,7 @@ import MyHospitalsPage from './pages/superadmin/MyHospitalsPage';
 import HospitalProfilePage from './pages/superadmin/HospitalProfilePage';
 import AllUsersPage from './pages/superadmin/AllUsersPage';
 import SuperAdminProfilePage from './pages/superadmin/SuperAdminProfilePage';
+import UserProfileViewer from './pages/superadmin/UserProfileViewer';
 import EmergencyPortal from './pages/EmergencyPortal';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -108,6 +109,7 @@ function App() {
               <Route path="/super-admin/hospitals" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><MyHospitalsPage /></ProtectedRoute>} />
               <Route path="/super-admin/hospitals/:id" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><HospitalProfilePage /></ProtectedRoute>} />
               <Route path="/super-admin/users" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><AllUsersPage /></ProtectedRoute>} />
+              <Route path="/super-admin/users/:id" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><UserProfileViewer /></ProtectedRoute>} />
               <Route path="/super-admin/profile" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><SuperAdminProfilePage /></ProtectedRoute>} />
 
               {/* Patient Routes */}

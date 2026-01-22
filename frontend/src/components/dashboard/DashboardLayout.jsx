@@ -136,7 +136,12 @@ export function DashboardHeader({ title, subtitle, onMenuClick, children }) {
                     <DropdownMenuContent align="end" className="w-56">
                         <DropdownMenuLabel>My Account</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => navigate(user?.role === 'ADMIN' ? '/admin/profile' : user?.role === 'DOCTOR' ? '/doctor/profile' : '/patient/profile')} className="cursor-pointer">
+                        <DropdownMenuItem onClick={() => navigate(
+                            user?.role === 'ADMIN' ? '/admin/profile' :
+                                user?.role === 'DOCTOR' ? '/doctor/profile' :
+                                    user?.role === 'PATIENT' ? '/patient/profile' :
+                                        user?.role === 'SUPER_ADMIN' ? '/super-admin/profile' : '/'
+                        )} className="cursor-pointer">
                             <UserCircle className="mr-2 h-4 w-4" />
                             <span>Profile</span>
                         </DropdownMenuItem>

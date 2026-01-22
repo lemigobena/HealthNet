@@ -1,20 +1,18 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import SuperAdminLayout from '../../layouts/SuperAdminLayout';
 import api from '../../services/api';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/use-toast";
-import { Search } from "lucide-react";
 
 export default function AllUsersPage() {
+    const [searchParams] = useSearchParams();
+    const initialRole = searchParams.get('role') || 'ALL';
+
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [filterRole, setFilterRole] = useState('ALL');
+    const [filterRole, setFilterRole] = useState(initialRole);
     const [search, setSearch] = useState('');
     const { toast } = useToast();
+    const navigate = useNavigate();
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -24,7 +22,8 @@ export default function AllUsersPage() {
             if (search) params.search = search;
 
             const res = await api.get('/super-admin/users', { params });
-            setUsers(res.data.data);
+            // Backend should exclude Super Admin, but filter here just in case
+            setUsers(res.data.data.filter(u => u.role !== 'SUPER_ADMIN'));
         } catch (error) {
             console.error("Failed to fetch users", error);
         } finally {
@@ -34,13 +33,14 @@ export default function AllUsersPage() {
 
     useEffect(() => {
         fetchUsers();
-    }, [filterRole]); // Search is manual trigger usually, or debounce. Let's make search trigger on enter or button? Or effect?
+    }, [filterRole]);
 
     const handleSearch = () => {
         fetchUsers();
     };
 
-    const handleSuspend = async (userId, currentStatus) => {
+    const handleSuspend = async (e, userId, currentStatus) => {
+        e.stopPropagation(); // Prevent row click
         const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
         if (!window.confirm(`Are you sure you want to ${newStatus === 'INACTIVE' ? 'suspend' : 'activate'} this user?`)) return;
 
@@ -51,6 +51,24 @@ export default function AllUsersPage() {
         } catch (error) {
             toast({ title: "Error", description: error.response?.data?.message || "Action failed", variant: "destructive" });
         }
+    };
+
+    const handleRowClick = (user) => {
+        // Navigate to their profile if possible.
+        // For now, we don't have a "View User Profile" page for Super Admin that handles all roles perfectly, 
+        // but user requested "if a user is clicked it should show their profile".
+        // I'll assume I should route to:
+        // /super-admin/users/:userId -> but I haven't implemented a generic user profile viewer yet.
+        // I only have HospitalProfilePage. I have no generic user profile page.
+        // But the user said "the view profile should work for admin and doctor in the super admin dashboard".
+        // So I need a page. I'll create a simple one or reuse existing components if any.
+        // Actually, for Doctor and Patient, we have views (AdminViewPatientPage etc) but those are for Facility Admins.
+        // I should probably make a new generic "UserProfileViewer" or just alert for now if not implemented.
+        // NO, user said "should show their profile". I will create a basic Viewer page or Modal.
+        // Let's create a Modal or a new Route `/super-admin/users/:id`.
+        // I'll add that route in the summary/plan or next step.
+        // For now, let's navigate to `/super-admin/users/${user.user_id}`.
+        navigate(`/super-admin/users/${user.user_id}`);
     };
 
     const getStatus = (user) => {
@@ -107,7 +125,7 @@ export default function AllUsersPage() {
                             users.map((user) => {
                                 const status = getStatus(user);
                                 return (
-                                    <TableRow key={user.id}>
+                                    <TableRow key={user.id} className="cursor-pointer hover:bg-muted/50" onClick={() => handleRowClick(user)}>
                                         <TableCell className="font-medium">{user.user_id}</TableCell>
                                         <TableCell>{user.name}</TableCell>
                                         <TableCell><Badge variant="outline">{user.role}</Badge></TableCell>
@@ -115,7 +133,7 @@ export default function AllUsersPage() {
                                         <TableCell>
                                             {status !== 'N/A' && (
                                                 <Badge variant={status === 'ACTIVE' ? 'success' : 'destructive'}
-                                                    className={status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                                                    className={status === 'ACTIVE' ? 'bg-green-100 text-green-800 border-none' : 'bg-red-100 text-red-800 border-none'}>
                                                     {status}
                                                 </Badge>
                                             )}
@@ -125,7 +143,7 @@ export default function AllUsersPage() {
                                                 <Button
                                                     variant={status === 'ACTIVE' ? "destructive" : "default"}
                                                     size="sm"
-                                                    onClick={() => handleSuspend(user.id, status)}
+                                                    onClick={(e) => handleSuspend(e, user.id, status)}
                                                 >
                                                     {status === 'ACTIVE' ? 'Suspend' : 'Activate'}
                                                 </Button>

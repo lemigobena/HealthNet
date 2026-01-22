@@ -16,12 +16,16 @@ router.get('/dashboard/stats', superAdminController.getDashboardStats);
 router.post('/facilities', superAdminController.createFacility);
 router.get('/facilities', superAdminController.getAllFacilities);
 router.get('/facilities/:id', superAdminController.getFacilityById);
+router.get('/facilities/:id/doctors', superAdminController.getFacilityDoctors);
+router.get('/facilities/:id/diagnoses', superAdminController.getFacilityDiagnoses);
+router.get('/facilities/:id/lab-results', superAdminController.getFacilityLabResults);
 
 // Admins
 router.post('/admins', superAdminController.createHospitalAdmin);
 
 // Users (Global)
 router.get('/users', superAdminController.getAllUsers);
+router.get('/users/:userId', superAdminController.getUserById);
 router.patch('/users/:userId/status', superAdminController.suspendUser);
 
 module.exports = router;

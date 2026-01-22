@@ -14,7 +14,6 @@ export default function RegisterHospitalPage() {
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
-        hospital_id: '',
         name: '',
         type: 'HOSPITAL',
         city_town: '',
@@ -55,27 +54,21 @@ export default function RegisterHospitalPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Facility Details</CardTitle>
-                        <CardDescription>Enter the information for the new hospital or laboratory.</CardDescription>
+                        <CardDescription>Enter the information for the new hospital or laboratory. ID will be generated automatically.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="hospital_id">Hospital ID</Label>
-                                    <Input id="hospital_id" name="hospital_id" value={formData.hospital_id} onChange={handleChange} required placeholder="e.g. HOS-001" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="type">Type</Label>
-                                    <Select name="type" value={formData.type} onValueChange={(val) => handleSelectChange('type', val)}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="HOSPITAL">Hospital</SelectItem>
-                                            <SelectItem value="LABORATORY">Laboratory</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="type">Type</Label>
+                                <Select name="type" value={formData.type} onValueChange={(val) => handleSelectChange('type', val)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="HOSPITAL">Hospital</SelectItem>
+                                        <SelectItem value="LABORATORY">Laboratory</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
 
                             <div className="space-y-2">

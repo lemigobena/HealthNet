@@ -54,6 +54,17 @@ async function getAllUsers(req, res, next) {
     }
 }
 
+// Get Single User
+async function getUserById(req, res, next) {
+    try {
+        const { userId } = req.params;
+        const user = await superAdminService.getUserById(userId);
+        return successResponse(res, user, 'User retrieved successfully');
+    } catch (error) {
+        next(error);
+    }
+}
+
 // Suspend User
 async function suspendUser(req, res, next) {
     try {
@@ -76,6 +87,39 @@ async function getDashboardStats(req, res, next) {
     }
 }
 
+// Get Facility Doctors
+async function getFacilityDoctors(req, res, next) {
+    try {
+        const { id } = req.params;
+        const doctors = await superAdminService.getFacilityDoctors(id);
+        return successResponse(res, doctors, 'Doctors retrieved successfully');
+    } catch (error) {
+        next(error);
+    }
+}
+
+// Get Facility Diagnoses
+async function getFacilityDiagnoses(req, res, next) {
+    try {
+        const { id } = req.params;
+        const diagnoses = await superAdminService.getFacilityDiagnoses(id);
+        return successResponse(res, diagnoses, 'Diagnoses retrieved successfully');
+    } catch (error) {
+        next(error);
+    }
+}
+
+// Get Facility Lab Results
+async function getFacilityLabResults(req, res, next) {
+    try {
+        const { id } = req.params;
+        const results = await superAdminService.getFacilityLabResults(id);
+        return successResponse(res, results, 'Lab results retrieved successfully');
+    } catch (error) {
+        next(error);
+    }
+}
+
 module.exports = {
     createFacility,
     createHospitalAdmin,
@@ -83,5 +127,8 @@ module.exports = {
     getFacilityById,
     getAllUsers,
     suspendUser,
-    getDashboardStats
+    getDashboardStats,
+    getFacilityDoctors,
+    getFacilityDiagnoses,
+    getFacilityLabResults
 };
