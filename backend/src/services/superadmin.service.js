@@ -147,7 +147,9 @@ async function getAllUsers(filters) {
     const { role, status, search } = filters;
 
     let where = {};
-    if (role) where.role = role;
+    if (role && ['ADMIN', 'DOCTOR', 'PATIENT', 'SUPER_ADMIN'].includes(role)) {
+        where.role = role;
+    }
 
     // Status search is tricky because status is in profile tables, not User table.
     // If status filter is applied, we might need to join/filter.
