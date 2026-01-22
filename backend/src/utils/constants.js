@@ -2,7 +2,8 @@
 const USER_ROLES = {
     ADMIN: 'ADMIN',
     DOCTOR: 'DOCTOR',
-    PATIENT: 'PATIENT'
+    PATIENT: 'PATIENT',
+    SUPER_ADMIN: 'SUPER_ADMIN'
 };
 
 const DOCTOR_TYPES = {

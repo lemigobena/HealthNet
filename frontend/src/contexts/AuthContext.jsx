@@ -46,6 +46,8 @@ export const AuthProvider = ({ children }) => {
                 navigate('/doctor');
             } else if (user.role === 'PATIENT') {
                 navigate('/patient');
+            } else if (user.role === 'SUPER_ADMIN') {
+                navigate('/super-admin');
             }
 
             return user;

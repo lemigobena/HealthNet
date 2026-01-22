@@ -37,9 +37,16 @@ import PatientEmergencyInfoPage from './pages/patient/PatientEmergencyInfoPage';
 import PatientQRCodePage from './pages/patient/PatientQRCodePage';
 import PatientDoctorsPage from './pages/patient/PatientDoctorsPage';
 import PatientDoctorDetailPage from './pages/patient/PatientDoctorDetailPage';
+import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
+import RegisterHospitalPage from './pages/superadmin/RegisterHospitalPage';
+import MyHospitalsPage from './pages/superadmin/MyHospitalsPage';
+import HospitalProfilePage from './pages/superadmin/HospitalProfilePage';
+import AllUsersPage from './pages/superadmin/AllUsersPage';
+import SuperAdminProfilePage from './pages/superadmin/SuperAdminProfilePage';
 import EmergencyPortal from './pages/EmergencyPortal';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { Toaster } from "@/components/ui/toaster"
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -95,6 +102,14 @@ function App() {
               <Route path="/doctor/diagnoses" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorDiagnosesPage /></ProtectedRoute>} />
               <Route path="/doctor/profile" element={<ProtectedRoute allowedRoles={['DOCTOR']}><DoctorProfilePage /></ProtectedRoute>} />
 
+              {/* Super Admin Routes */}
+              <Route path="/super-admin" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><SuperAdminDashboard /></ProtectedRoute>} />
+              <Route path="/super-admin/register-hospital" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><RegisterHospitalPage /></ProtectedRoute>} />
+              <Route path="/super-admin/hospitals" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><MyHospitalsPage /></ProtectedRoute>} />
+              <Route path="/super-admin/hospitals/:id" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><HospitalProfilePage /></ProtectedRoute>} />
+              <Route path="/super-admin/users" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><AllUsersPage /></ProtectedRoute>} />
+              <Route path="/super-admin/profile" element={<ProtectedRoute allowedRoles={['SUPER_ADMIN']}><SuperAdminProfilePage /></ProtectedRoute>} />
+
               {/* Patient Routes */}
               <Route path="/patient" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientDashboard /></ProtectedRoute>} />
               <Route path="/patient/records" element={<ProtectedRoute allowedRoles={['PATIENT']}><PatientRecordsPage /></ProtectedRoute>} />
@@ -113,6 +128,7 @@ function App() {
             </Routes>
           </ThemeProvider>
         </AuthProvider>
+        <Toaster />
       </BrowserRouter>
     </ErrorBoundary>
   );

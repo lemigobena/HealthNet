@@ -7,6 +7,8 @@ const { USER_ROLES, DOCTOR_TYPES } = require('../utils/constants');
 
 // Verify JWT token
 
+// Verify JWT token
+
 async function authenticate(req, res, next) {
     try {
         const token = req.headers.authorization?.replace('Bearer ', '');
@@ -34,6 +36,7 @@ async function authenticate(req, res, next) {
             return errorResponse(res, 'Session expired. Please login again.', 401);
         }
 
+        // Check suspension for Doctor and Patient
         if (user.role === USER_ROLES.DOCTOR && user.doctor_profile?.status === 'INACTIVE') {
             return errorResponse(res, 'Your account has been suspended', 403);
         }
@@ -41,6 +44,8 @@ async function authenticate(req, res, next) {
         if (user.role === USER_ROLES.PATIENT && user.patient_profile?.status === 'INACTIVE') {
             return errorResponse(res, 'Your account has been suspended', 403);
         }
+
+        // Add check for Super Admin if needed (they don't have a profile with status)
 
         req.user = user;
         next();
