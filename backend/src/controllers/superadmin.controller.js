@@ -87,6 +87,16 @@ async function getDashboardStats(req, res, next) {
     }
 }
 
+// Get Audit Logs
+async function getSystemAuditLogs(req, res, next) {
+    try {
+        const logs = await superAdminService.getSystemAuditLogs(req.query);
+        return successResponse(res, logs, 'Audit logs retrieved successfully');
+    } catch (error) {
+        next(error);
+    }
+}
+
 // Get Facility Doctors
 async function getFacilityDoctors(req, res, next) {
     try {

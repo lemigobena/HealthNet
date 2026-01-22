@@ -11,6 +11,7 @@ export default function SuperAdminLayout({ children, title, subtitle }) {
         { href: "/super-admin/hospitals", icon: Building2, label: "My Hospitals" },
         { href: "/super-admin/register-hospital", icon: Building2, label: "Register Hospital" },
         { href: "/super-admin/users", icon: Users, label: "All Users" },
+        { href: "/super-admin/audit-logs", icon: ShieldAlert, label: "Audit Logs" },
         { href: "/super-admin/profile", icon: UserCog, label: "Profile" },
     ];
 

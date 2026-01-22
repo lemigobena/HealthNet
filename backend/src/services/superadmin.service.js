@@ -311,6 +311,29 @@ async function getDashboardStats() {
     };
 }
 
+// 7. Get System Audit Logs
+async function getSystemAuditLogs(filters) {
+    // Super admin can see all logs, or filter by user, type, etc.
+    const { userId, action, limit = 50 } = filters;
+
+    let where = {};
+    if (userId) where.user_id = userId;
+    if (action) where.action_type = action;
+
+    const logs = await prisma.auditLog.findMany({
+        where,
+        include: {
+            user: {
+                select: { name: true, role: true, email: true }
+            }
+        },
+        orderBy: { created_at: 'desc' },
+        take: parseInt(limit)
+    });
+
+    return logs;
+}
+
 // 8. Get Facility Doctors
 async function getFacilityDoctors(facilityId) {
     return prisma.doctor.findMany({
@@ -363,6 +386,7 @@ module.exports = {
     getAllUsers,
     getUserById,
     suspendUser,
+    getSystemAuditLogs,
     getDashboardStats,
     getFacilityDoctors,
     getFacilityDiagnoses,

@@ -27,5 +27,9 @@ router.post('/admins', superAdminController.createHospitalAdmin);
 router.get('/users', superAdminController.getAllUsers);
 router.get('/users/:userId', superAdminController.getUserById);
 router.patch('/users/:userId/status', superAdminController.suspendUser);
+router.patch('/users/:userId/status', superAdminController.suspendUser);
+
+// Audit Logs
+router.get('/audit-logs', superAdminController.getSystemAuditLogs);
 
 module.exports = router;

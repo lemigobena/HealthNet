@@ -71,8 +71,8 @@ export function DashboardHeader({ title, subtitle, onMenuClick, children }) {
 
             <div className="flex items-center gap-4">
                 <ThemeToggle />
-                {/* Notifications - Hidden for ADMIN as requested */}
-                {user?.role !== 'ADMIN' && (
+                {/* Notifications - Hidden for ADMIN and SUPER_ADMIN as requested */}
+                {user?.role !== 'ADMIN' && user?.role !== 'SUPER_ADMIN' && (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon" className="relative">
@@ -166,6 +166,10 @@ export function Sidebar({ className, isOpen, onClose, items }) {
         { href: "/admin/audit", icon: FileText, label: "Audit Logs" },
         { href: "/admin/settings", icon: Settings, label: "Settings" },
     ]
+
+    // Customize items based on role, OR pass them in.
+    // If no items passed, we check role (hacky but effective if we don't refactor Layout props)
+    // Actually SuperAdminLayout passes items.
 
     const navItems = items || defaultItems;
 
