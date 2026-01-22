@@ -15,7 +15,7 @@ export default function AdminLayout({ children, title, subtitle }) {
     ];
 
     return (
-        <div className="flex h-screen overflow-hidden bg-muted/10">
+        <div className="flex h-screen overflow-hidden bg-background">
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} items={adminNavItems} />
             <div className="flex flex-col flex-1 overflow-hidden">
                 <DashboardHeader

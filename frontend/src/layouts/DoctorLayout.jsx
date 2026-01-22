@@ -30,7 +30,7 @@ export default function DoctorLayout({ children, title, subtitle, tabs }) {
     doctorNavItems.push({ href: "/doctor/profile", icon: UserCircle, label: "Profile" });
 
     return (
-        <div className="flex h-screen overflow-hidden bg-muted/10">
+        <div className="flex h-screen overflow-hidden bg-background">
             <Sidebar
                 isOpen={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}

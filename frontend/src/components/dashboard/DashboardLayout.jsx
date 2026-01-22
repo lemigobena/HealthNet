@@ -184,13 +184,13 @@ export function Sidebar({ className, isOpen, onClose, items }) {
             )}
 
             <aside className={cn(
-                "fixed inset-y-0 left-0 z-50 w-64 border-r bg-card transition-transform duration-300 ease-in-out md:static md:translate-x-0",
+                "fixed inset-y-0 left-0 z-50 w-64 border-r bg-[#2563EB] text-white transition-transform duration-300 ease-in-out md:static md:translate-x-0 dark:bg-card dark:text-foreground",
                 isOpen ? "translate-x-0" : "-translate-x-full",
                 className
             )}>
-                <div className="flex h-16 items-center border-b px-6">
-                    <Link to="/" className="flex items-center gap-2 font-bold text-xl">
-                        <HealthNetLogo className="h-6 w-6 text-primary" />
+                <div className="flex h-16 items-center border-b border-white/20 px-6 dark:border-border">
+                    <Link to="/" className="flex items-center gap-2 font-bold text-xl text-white dark:text-foreground">
+                        <HealthNetLogo className="h-6 w-6 text-white dark:text-primary" />
                         <span>HealthNet</span>
                     </Link>
                 </div>
@@ -204,8 +204,10 @@ export function Sidebar({ className, isOpen, onClose, items }) {
                                     to={item.href}
                                     onClick={() => onClose && onClose()}
                                     className={cn(
-                                        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-                                        isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+                                        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                                        isActive
+                                            ? "bg-white/20 text-white dark:bg-accent dark:text-accent-foreground"
+                                            : "text-white/80 hover:bg-white/10 hover:text-white dark:text-muted-foreground dark:hover:bg-accent dark:hover:text-accent-foreground"
                                     )}
                                 >
                                     <item.icon className="h-4 w-4" />
