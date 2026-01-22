@@ -254,7 +254,7 @@ async function createAssignment(adminProfileId, adminUserId, doctorId, patientId
         where: {
             doctor_id: doctorId,
             patient_id: patientId,
-            status: 'ACTIVE'
+            end_date: null // Active assignments have no end date
         }
     });
 
@@ -269,9 +269,8 @@ async function createAssignment(adminProfileId, adminUserId, doctorId, patientId
             assignment_id: assignmentId,
             doctor_id: doctorId,
             patient_id: patientId,
-            assigned_by: adminProfileId, // Uses Admin Profile ID
-            notes,
-            status: 'ACTIVE'
+            assigned_by: adminProfileId,
+            notes
         },
         include: {
             doctor: {
