@@ -77,6 +77,23 @@ async function suspendUser(req, res, next) {
     }
 }
 
+// Update User Password
+async function updateUserPassword(req, res, next) {
+    try {
+        const { userId } = req.params;
+        const { password } = req.body;
+
+        if (!password || password.length < 6) {
+            return errorResponse(res, 'Password must be at least 6 characters', 400);
+        }
+
+        const result = await superAdminService.updateUserPassword(userId, password, req.user.user_id);
+        return successResponse(res, result, 'User password updated successfully');
+    } catch (error) {
+        next(error);
+    }
+}
+
 // Dashboard Stats
 async function getDashboardStats(req, res, next) {
     try {
@@ -138,6 +155,7 @@ module.exports = {
     getAllUsers,
     getUserById,
     suspendUser,
+    updateUserPassword,
     getSystemAuditLogs,
     getDashboardStats,
     getFacilityDoctors,

@@ -296,6 +296,37 @@ async function suspendUser(userId, status, superAdminId) {
     return updated;
 }
 
+// 6b. Update User Password
+async function updateUserPassword(userId, password, superAdminId) {
+    const user = await prisma.user.findFirst({
+        where: { OR: [{ user_id: userId }, { id: !isNaN(userId) ? parseInt(userId) : undefined }] }
+    });
+
+    if (!user) throw new Error('User not found');
+
+    const hashedPassword = await hashPassword(password);
+
+    await prisma.user.update({
+        where: { id: user.id },
+        data: { password_hash: hashedPassword }
+    });
+
+    // Audit Log
+    await prisma.auditLog.create({
+        data: {
+            user_id: superAdminId,
+            action_type: 'UPDATE_PASSWORD',
+            entity_type: user.role,
+            entity_id: user.user_id,
+            description: `Super Admin updated password for ${user.role} ${user.email}`,
+            ip_address: 'System', // Would refer to request context if available
+            user_agent: 'System'
+        }
+    });
+
+    return { message: 'Password updated successfully' };
+}
+
 // 7. Get Dashboard Stats
 async function getDashboardStats() {
     const [hospitalCount, doctorCount, patientCount, adminCount] = await Promise.all([

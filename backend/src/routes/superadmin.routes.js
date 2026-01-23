@@ -27,6 +27,7 @@ router.post('/admins', superAdminController.createHospitalAdmin);
 router.get('/users', superAdminController.getAllUsers);
 router.get('/users/:userId', superAdminController.getUserById);
 router.patch('/users/:userId/status', superAdminController.suspendUser);
+router.patch('/users/:userId/password', superAdminController.updateUserPassword); // Add password update route
 
 // Audit Logs
 router.get('/audit-logs', superAdminController.getSystemAuditLogs);
